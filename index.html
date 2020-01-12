@@ -1,0 +1,53 @@
+---
+permalink: /
+title: "welcome to Didnelpsun's blog"
+---
+
+<style type="text/css">
+  body {
+    width: 100vw;
+    background-color: black;
+    margin: 0;
+    padding: 0px;
+    color: blueviolet;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+  }
+  .menu {
+    width: 250px;
+    height: 100vh;
+    background-color: #444;
+    /* background-color: red; */
+    font-size: 15px;
+    color: #999;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+  }
+  .main{
+      width: 100vw;
+  }
+  .show {
+      height: 90vh;
+      background-image: url(./assets/images/background.jpg);
+      background-size: 100%;
+      background-repeat: no-repeat;
+  }
+</style>
+
+<div>
+  {% include header.html %}
+  <!-- <div class="menu">
+    click!
+  </div> -->
+  <div class="main">
+    <div style="height: 10vh;"></div>
+    <div class="show"></div>
+  </div>
+  {% include footer.html %}
+</div>
