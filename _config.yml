@@ -1,0 +1,101 @@
+#theme: minima
+
+# Site Settings
+title: Didnelpsun
+email: 2657350965@qq.com
+description: 
+baseurl: ''
+url: 'https://didnelpsun.github.io'
+google_analytics: 'UA-108471968-1'
+
+github: [metadata]
+
+# User Settings
+username: Didnelpsun
+user_description: 无
+disqus_username: Didnelpsun
+
+# Social Media
+# Remove the item if you don't need it
+github_username: Didnelpsun
+# facebook_username: buzz.zhang
+#twitter_username: twitter_username
+# instagram_username: fengerzh
+# linkedin_username: buzzzhang
+# medium_username: zhangbuzz
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: /:title/
+
+# Plugins
+plugins:
+  - jemoji
+  - jekyll-feed
+  - jekyll-sitemap
+
+picture:
+  source: assets/images/_fullsize
+  output: generated
+  markup: picture
+  presets:
+    # Full width pictures
+    default:
+      ppi: [1, 1.5]
+      attr:
+        class: blog-full
+        itemprop: image
+      source_lrg:
+        media: '(min-width: 40em)'
+        width: 700
+      source_med:
+        media: '(min-width: 30em)'
+        width: 450
+      source_default:
+        width: 350
+        height: 200
+    # Half width pictures
+    half:
+      ppi: [1, 1.5]
+      attr:
+        data-location: '{{location}}'
+        data-active: nil
+      source_lrg:
+        media: '(min-width: 40em)'
+        width: 400
+      source_med:
+        media: '(min-width: 30em)'
+        width: 250
+      source_default:
+        width: 350
+    # Self-set resolution sources. Useful if you don't want a 1:1 image size to dppx ratio.
+    gallery:
+      source_wide_hi:
+        media: '(min-width: 40em) and (min-resolution: 1.5dppx)'
+        width: 900
+        height: 600
+      source_wide:
+        media: '(min-width: 40em)'
+        width: 600
+        height: 400
+      source_default:
+        width: 250
+        height: 250
+
+# Links to include in menu navigation
+# For external links add external: true
+links:
+  - title: 首页
+    url: /
+  - title: 关于
+    url: /about/
+  - title: 联系
+    url: /contact/
+  - title: 去过
+    url: /visit/
+  - title: 链接
+    url: /links/
+
+# Exclude my node related stuff
+exclude: ['package.json', 'src', 'node_modules', 'vendor']
