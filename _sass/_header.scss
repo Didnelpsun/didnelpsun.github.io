@@ -11,44 +11,44 @@
   position: fixed;
   top: 0;
   z-index: 999;
-}
 
-.name {
-  font-size: 26px;
-  width: 60vw;
-}
+  .name {
+    font-size: 26px;
+    width: 60vw;
+  }
 
-.wordchange {
-  margin: 0 5px 0 20px;
-}
+  .wordchange {
+    margin: 0 5px 0 20px;
+  }
 
-.crown {
-  height: 20px;
-  margin:0 10px 0 0
-}
+  .crown {
+    height: 20px;
+    margin: 0 10px 0 0;
+  }
 
-a:link {
-  text-decoration: none;
-  color: #999;
-}
-a:active {
-  text-decoration: blink;
-}
-a:hover {
-  text-decoration: none;
-  color: #999;
-}
-a:visited {
-  text-decoration: none;
-  color: #999;
-}
+  a:link {
+    text-decoration: none;
+    color: #999;
+  }
+  a:active {
+    text-decoration: blink;
+  }
+  a:hover {
+    text-decoration: none;
+    color: #999;
+  }
+  a:visited {
+    text-decoration: none;
+    color: #999;
+  }
 
-.caidan{
+  .caidan {
     font-size: 20px;
     background-color: #222;
     position: fixed;
     flex-direction: column;
     justify-content: center;
-    padding:0px 15px 15px 0px;
-    border-radius:5%;
+    padding: 0px 15px 15px 0px;
+    border-radius: 5%;
+  }
 }

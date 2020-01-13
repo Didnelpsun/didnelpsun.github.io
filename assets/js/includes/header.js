@@ -1,4 +1,4 @@
-window.onload=function(){
+window.addEventListener("load", function(){
     let words = document.getElementsByClassName("wordchange");
     let i = 0;
     while (words[i]){
@@ -22,4 +22,4 @@ window.onload=function(){
     moremessage.onmouseleave=function(){
         caidan.style.display="none";
     }
-}
+});
