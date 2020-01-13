@@ -31,14 +31,9 @@ github_username:  Didnelpsun
 plugins:
   - jekyll-feed
 
-webrick:
-  headers:
-    My-Header:Didnelpsun
-
-defaults:
-  -
-    writer:
-      Didnelpsun
+sass:
+  sass-dir: _sass
+  style: compressed
 
 # Exclude from processing.
 # The following items will not be processed, by default.
