@@ -11,4 +11,15 @@ window.onload=function(){
         }
         i++;
     }
+    let caidan = document.getElementsByClassName("caidan")[0];
+    words[1].onclick=function(){
+        caidan.style.display=caidan.style.display=="flex"?"none":"flex";
+    }
+    let moremessage = this.document.getElementsByClassName("moremessage")[0];
+    moremessage.onmouseover=function(){
+        this.style.cursor='hand'
+    }
+    moremessage.onmouseleave=function(){
+        caidan.style.display="none";
+    }
 }
