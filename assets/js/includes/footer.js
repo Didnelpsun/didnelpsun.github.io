@@ -4,6 +4,10 @@ window.addEventListener("load",function(){
         this.style.cursor='hand';
     }
     back.onclick=function(){
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        let intervalId = setInterval(function () {
+            document.body.scrollTop -= 10;
+            if(document.body.scrollTop == 0)
+                clearInterval(intervalId);
+        }, 10)
     }
 });
