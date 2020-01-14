@@ -7,7 +7,6 @@
   width: 100vw;
   background-color: #222;
   font-size: 20px;
-  color: #999;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -19,10 +18,11 @@
   .name {
     font-size: 26px;
     width: 60vw;
-  }
+    color: #999;
 
-  .wordchange {
-    margin: 0 5px 0 20px;
+    strong:hover{
+      color:white;
+    }
   }
 
   .crown {
@@ -46,14 +46,26 @@
     color: #999;
   }
 
-  .caidan {
-    font-size: 20px;
-    background-color: #222;
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0px 15px 15px 0px;
-    border-radius: 5%;
+  .moremessage{
+    padding: 0 0 0 15px;
+
+    span{
+      padding: 0 0 0 15px;
+    }
+
+    .caidan {
+      font-size: 20px;
+      background-color: #222;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0px 15px 15px 0;
+      border-radius: 5%;
+    }
+    span:hover{
+      color: white;
+    }
   }
+  
 }
