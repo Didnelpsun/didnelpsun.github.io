@@ -1,4 +1,9 @@
 window.addEventListener("load", function(){
+    let header = document.getElementsByClassName("header")[0];
+    if(document.body.clientWidth < document.body.clientHeight )
+        header.style.height="75px";
+    else
+        header.style.height="10vh";
     let words = document.getElementsByClassName("wordchange");
     let i = 0;
     while (words[i]){
