@@ -23,12 +23,10 @@ body {
 .main {
   width: 100vw;
 
-  .showspace {
-    height: 10vh;
-  }
+  // .showspace {
+  // }
 
   .show {
-    height: 90vh;
     position: relative;
     display: flex;
     flex-direction: column;
