@@ -1,15 +1,3 @@
-body {
-  width: 100vw;
-  background-color: black;
-  margin: 0;
-  padding: 0px;
-  color: #999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-wrap: wrap;
-  overflow-x: hidden;
-}
 .menu {
   width: 250px;
   height: 100vh;
@@ -77,6 +65,7 @@ body {
           justify-content: center;
           align-items: center;
           outline: none;
+          cursor: pointer;
 
           img {
             width: 3vw;
