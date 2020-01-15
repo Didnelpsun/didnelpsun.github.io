@@ -1,8 +1,5 @@
 window.addEventListener("load",function(){
     const back = document.getElementsByClassName('backtotop')[0];
-    back.onmouseover=function(){
-        this.style.cursor='hand';
-    }
     back.onclick=function(){
         let intervalId = setInterval(function () {
             document.body.scrollTop -= 10;

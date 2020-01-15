@@ -9,9 +9,6 @@ window.addEventListener("load", function(){
     moremessage.onclick=function(){
         caidan.style.display=caidan.style.display=="flex"?"none":"flex";
     }
-    moremessage.onmouseover=function(){
-        this.style.cursor='hand'
-    }
     moremessage.onmouseleave=function(){
         caidan.style.display="none";
     }

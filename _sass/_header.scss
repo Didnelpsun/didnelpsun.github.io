@@ -1,6 +1,9 @@
-
 * {
-  -webkit-tap-highlight-color:transparent;
+  -webkit-tap-highlight-color: transparent;
+  ::selection {
+    background: rgba($color: white, $alpha: 0);
+    color: rgba($color: orange, $alpha: 0.9);
+  }
 }
 
 .header {
@@ -20,8 +23,8 @@
     width: 60vw;
     color: #999;
 
-    strong:hover{
-      color:white;
+    strong:hover {
+      color: white;
     }
   }
 
@@ -46,10 +49,11 @@
     color: #999;
   }
 
-  .moremessage{
+  .moremessage {
     padding: 0 0 0 15px;
+    cursor: pointer;
 
-    span{
+    span {
       padding: 0 0 0 15px;
     }
 
@@ -63,9 +67,8 @@
       padding: 0px 15px 15px 0;
       border-radius: 5%;
     }
-    span:hover{
+    span:hover {
       color: white;
     }
   }
-  
 }

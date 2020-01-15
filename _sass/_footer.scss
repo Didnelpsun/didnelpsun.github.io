@@ -30,11 +30,19 @@
     justify-content: center;
     align-items: center;
     margin: 0 0 0 4vw;
+    cursor: pointer;
 
     img{
         width: 25px;
         height: 20px;
         margin:0 0 10px 0;
     }
+
+    img:hover{
+      width: 30px;
+      height: 25px;
+      transform: translatey(-5px);
+    }
+    
   }
 }
