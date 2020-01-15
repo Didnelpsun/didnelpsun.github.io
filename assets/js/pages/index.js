@@ -35,4 +35,16 @@ window.addEventListener("load", function () {
             i = 0;
         }
     }
+    const button1 = document.getElementsByTagName('button')[0];
+    const button2 = document.getElementsByTagName('button')[1];
+    const button3 = document.getElementsByTagName('button')[2];
+    button1.onclick=function(){
+        window.location.href='/emotion'
+    }
+    button2.onclick=function(){
+        window.location.href='/notes'
+    }
+    button3.onclick=function(){
+        window.location.href='/share'
+    }
 });
