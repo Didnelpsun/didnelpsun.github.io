@@ -24,7 +24,8 @@
     .showimage {
       width: 100vw;
       height: 90vh;
-      background-image: url(../images/background3.png);
+      // background-image: url(https://i.loli.net/2020/01/15/WFLbUqanmdS7Q1i.png);
+      // background-image: url(https://i.loli.net/2020/01/15/Id95DUwb8J7HhMn.png);
       background-size: 100% 100%;
       background-repeat: no-repeat;
     }
@@ -72,6 +73,21 @@
             height: 3vw;
           }
         }
+      }
+    }
+    .changebuttons {
+      position: absolute;
+      width: 100vw;
+      height: 90vh;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      .changebutton{
+        padding:0 10px 0;
+        width: 60px;
+        cursor: pointer;
       }
     }
   }

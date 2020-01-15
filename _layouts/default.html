@@ -16,6 +16,11 @@
       flex-wrap: wrap;
       overflow-x: hidden;
     }
+    body::-webkit-scrollbar {
+      width: 0 !important;
+      -ms-overflow-style: none;
+      overflow: -moz-scrollbars-none;
+    }
   </style>
   <body>
     {% include header.html %} {{content}} {% include footer.html %}
