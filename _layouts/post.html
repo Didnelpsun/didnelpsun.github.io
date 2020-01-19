@@ -15,7 +15,7 @@ layout: blank
         width: 86vw;
         background-color: #181818;
         padding: 3vw;
-        border-radius: 1%;
+        border-radius: 10px;
     }
 
     .postTagList {
@@ -160,11 +160,11 @@ layout: blank
 </style>
 <script language="javascript">
     window.onload = function () {
-        Change=function(pValue) {
+        Change = function (pValue) {
             return pValue.replace(/[^\u0000-\u00FF]/g, function ($0) { return escape($0).replace(/(%u)(\w{4})/gi, "&#x$2;") });
         }
-        getColor = function(colorNum){
-            switch (colorNum){
+        getColor = function (colorNum) {
+            switch (colorNum) {
                 case 0:
                     return "#fa0101";
                 case 1:
@@ -213,12 +213,12 @@ layout: blank
             // console.log(tags[i].innerText);
             let colorNum = 0;
             let innerText = Change(tags[i].innerText[0]);
-            if(innerText.length==1)
-                colorNum = (innerText.charCodeAt()-64)%20;
+            if (innerText.length == 1)
+                colorNum = (innerText.charCodeAt() - 64) % 20;
             else
-                colorNum = (innerText.replace(/[^0-9]/ig,""))%20;
+                colorNum = (innerText.replace(/[^0-9]/ig, "")) % 20;
             let color = getColor(colorNum);
-            tags[i].style.borderColor=color;
+            tags[i].style.borderColor = color;
             i++;
         }
     }
