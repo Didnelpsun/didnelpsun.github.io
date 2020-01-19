@@ -1,5 +1,5 @@
 window.addEventListener("load", function () {
-    let show = document.getElementsByClassName("show")[0];
+    let show = document.getElementsByClassName("show")[0]; //样式修改
     let showimage = document.getElementsByClassName("showimage")[0];
     let showcover = document.getElementsByClassName("showcover")[0];
     if (document.body.clientWidth < document.body.clientHeight) {
@@ -7,7 +7,7 @@ window.addEventListener("load", function () {
     }
     else {
         show.style.height = showcover.style.height = showimage.style.height = "90vh";
-    }
+    } //
     let images;
     // let url = "../../../data/images.json"
     // let request = new XMLHttpRequest();
