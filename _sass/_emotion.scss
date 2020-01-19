@@ -88,6 +88,32 @@ $paddingheigth: 2vw;
   
         .emotionInner{
           padding: 3*$paddingwidth;
+          a:link {
+            text-decoration: none;
+            color: #999;
+          }
+          a:active {
+            text-decoration: blink;
+          }
+          a:hover {
+            text-decoration: none;
+            color: #999;
+          }
+          a:visited {
+            text-decoration: none;
+            color: #999;
+          }
+          .list{
+            border-radius: 1vw;
+            border:solid;
+            border-color: #222;
+            height: 3vw;
+            background-color: #181818;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+          }
         }
       }
     }

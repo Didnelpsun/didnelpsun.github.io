@@ -1,9 +1,23 @@
 ---
-layout: blank
-title:  "Welcome to Jekyll!"
+layout: post
+title:  "欢迎来到Jekyll!"
 date:   2020-01-12 19:46:02 +0800
 categories: emotion
+tags: Jekyll test 测试 开始
 ---
+
+# h1
+
+## h2
+
+### h3
+
+#### h4
+
+##### h5
+
+###### h6
+
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
 Jekyll requires blog post files to be named according to the following format:
@@ -12,15 +26,89 @@ Jekyll requires blog post files to be named according to the following format:
 
 Where `YEAR` is a four-digit number, `MONTH` and `DAY` are both two-digit numbers, and `MARKUP` is the file extension representing the format used in the file. After that, include the necessary front matter. Take a look at the source for this post to get an idea about how it works.
 
+```python
+#!/usr/bin/env python3
+print("Hello, World!");
+```
+
 Jekyll also offers powerful support for code snippets:
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+```java
+public class print{
+  return println("hi!");
+}
+```
+
+```c
+  #include  <stdio.h>
+  int main(void)
+{
+    printf("Hello world\n");
+}
+```
+
+```java
+public class xixueguidigital_2 {
+
+    public static void main(String[] args) {
+
+        int a,b,c,d;
+        int s[]=new int[4];
+        boolean flag ;
+        for(int i=1000;i<10000;i++){
+        s[0]=i/1000;
+        s[1]=i%1000/100;
+        s[2]=i%100/10;
+        s[3]=i%10;
+        flag = false;
+        /*有了这个就不会造成1260=21*60和1260=60*21两种输出了，
+                    发现了1260，不会再继续查找abcd了*/
+        if(s[2]==0&&s[3]==0){
+            continue;
+        }
+        for(int j1=0;j1<s.length;j1++){
+            a=s[j1];
+            if(a!=0){
+        for(int j2=0;j2<s.length;j2++){
+        if(j2!=j1)  {
+            b=s[j2];
+
+        for(int j3=0;j3<s.length;j3++){
+        if(j3!=j1&&j3!=j2)  
+        {
+            c=s[j3];
+            if(c!=0)
+            {
+            for(int j4=0;j4<s.length;j4++){
+            if(j4!=j1&&j4!=j2&&j4!=j3)  
+             {
+              d=s[j4];
+              int sum=(a*10+b)*(c*10+d);
+              if(i==sum && flag == false)
+                {
+                flag = true;
+                System.out.print(i+"=");
+                System.out.println((a*10+b)+"*"+(c*10+d));
+                    break;
+                }
+
+                    }
+                   }
+
+                 }
+             }
+       }
+    }
+   }
+ }
+ }
+
+}
+
+}
+}
+```
+
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
 

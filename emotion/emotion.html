@@ -8,26 +8,34 @@ title : "welcome to Didnelpsun's emotion"
 <title>Emotion</title>
 <div class="emotion">
     <div class="leftmenuboard">
-      <div class="main">
-        <div class="image"></div>
-        <div class="content">
-          <div style="font-size: 1.5vw; color:white;">
-            Didnelpsun
-          </div>
-          <div style="font-size: 0.8vw;">
-            didnelpsun@163.com
-          </div>
+        <div class="main">
+            <div class="image"></div>
+            <div class="content">
+                <div style="font-size: 1.5vw; color:white;">
+                    Didnelpsun
+                </div>
+                <div style="font-size: 0.8vw;">
+                    didnelpsun@163.com
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="calendar"></div>
-      <div class="article"></div>
+        <div class="calendar"></div>
+        <div class="article"></div>
     </div>
     <div class="space"></div>
     <div class="emotionContent">
         <span>Emotion</span>
-      <div class="emotionText">
-        <div class="emotionInner">
+        <div class="emotionText">
+            <div class="emotionInner">
+                {% for post in site.categories.emotion %}
+                <a href="{{post.url}}">
+                    <div class="list">
+                        <div>{{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+            date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
+            "%M"}}分{{post.date | date: "%S"}}秒 {{ post.title }}</div>
+                </a>
+                {% endfor %}
+            </div>
         </div>
-      </div>
     </div>
 </div>

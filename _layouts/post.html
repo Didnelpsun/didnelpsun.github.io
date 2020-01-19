@@ -1,0 +1,239 @@
+---
+layout: blank
+---
+<title>{{page.title}}</title>
+<style>
+    .post {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 3vw;
+    }
+
+    .postContent {
+        width: 86vw;
+        background-color: #181818;
+        padding: 3vw;
+        border-radius: 1%;
+    }
+
+    .postTagList {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .postTag {
+        margin: 8px 6px 0 0;
+        padding: 2px 4px 2px;
+        background-color: rgba(0, 0, 0, 0);
+        font-size: 14px;
+        color: white;
+        border-color: #ffc171;
+        border-style: solid;
+        border-radius: 10%;
+        border-width: 1px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    h2 {
+        font-size: 26px;
+    }
+
+    h3 {
+        font-size: 22px;
+    }
+
+    h4 {
+        font-size: 18px;
+    }
+
+    h5 {
+        font-size: 14px;
+    }
+
+    h6 {
+        font-size: 10px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    a:link {
+        text-decoration: none;
+        color: #fff371;
+    }
+
+    a:active {
+        text-decoration: blink;
+    }
+
+    a:hover {
+        text-decoration: none;
+        color: #ffc571;
+    }
+
+    a:visited {
+        text-decoration: none;
+        color: #ff9971;
+    }
+
+    .highlighter-rouge {
+        background-color: #111;
+        margin: 1px;
+    }
+
+    .highlight {
+        background-color: #111;
+        margin: 10px;
+        padding: 10px;
+        width: auto;
+    }
+
+    .cp {
+        color: #fff771;
+    }
+
+    .kt {
+        color: #ffc171;
+    }
+
+    .nf {
+        color: #ff8c71;
+    }
+
+    .p {
+        color: #fff;
+    }
+
+    .n {
+        color: #f435d2;
+    }
+
+    .s {
+        color: #c10202;
+    }
+
+    .se {
+        color: #690202;
+    }
+
+    .kd {
+        color: #f4357d;
+    }
+
+    .nc {
+        color: #378bfd;
+    }
+
+    .o {
+        color: #fff;
+    }
+
+    .k {
+        color: #7230f8;
+    }
+
+    .c1 {
+        color: #1603a0;
+    }
+
+    .mi {
+        color: #37dffd;
+    }
+
+    .kc {
+        color: #37fdb5
+    }
+
+    .cm {
+        color: #038656;
+    }
+
+    .na {
+        color: #40f892;
+    }
+</style>
+<script language="javascript">
+    window.onload = function () {
+        Change=function(pValue) {
+            return pValue.replace(/[^\u0000-\u00FF]/g, function ($0) { return escape($0).replace(/(%u)(\w{4})/gi, "&#x$2;") });
+        }
+        getColor = function(colorNum){
+            switch (colorNum){
+                case 0:
+                    return "#fa0101";
+                case 1:
+                    return "#fa4d01";
+                case 2:
+                    return "#fa7c01";
+                case 3:
+                    return "#faab01";
+                case 4:
+                    return "#fad401";
+                case 5:
+                    return "#ebfa01";
+                case 6:
+                    return "#b1fa01";
+                case 7:
+                    return "#82fa01";
+                case 8:
+                    return "#59fa01";
+                case 9:
+                    return "#01fa9f";
+                case 10:
+                    return "#01f7fa";
+                case 11:
+                    return "#01c2fa";
+                case 12:
+                    return "#019ffa";
+                case 13:
+                    return "#016afa";
+                case 14:
+                    return "#0124fa";
+                case 15:
+                    return "#6501fa";
+                case 16:
+                    return "#9901fa";
+                case 17:
+                    return "#e501fa";
+                case 18:
+                    return "#fa01c2";
+                case 19:
+                    return "#fa017c";
+            }
+        }
+        let tags = document.getElementsByClassName("postTag");
+        let i = 0;
+        while (tags[i]) {
+            // console.log(tags[i].innerText);
+            let colorNum = 0;
+            let innerText = Change(tags[i].innerText[0]);
+            if(innerText.length==1)
+                colorNum = (innerText.charCodeAt()-64)%20;
+            else
+                colorNum = (innerText.replace(/[^0-9]/ig,""))%20;
+            let color = getColor(colorNum);
+            tags[i].style.borderColor=color;
+            i++;
+        }
+    }
+</script>
+<div class="post">
+    <div class="postContent">
+        <h1 style="font-size: 30px; margin:0 0 10px; color: #ddd;">{{page.title}}</h1>
+        <div style="font-size: 12px; color: #ddd;">Didnelpsun / {{page.date | date: "%Y"}}年{{page.date | date: "%m"}}月{{page.date |
+        date: "%d"}}日{{page.date | date: "%H"}}时{{page.date | date:
+        "%M"}}分{{page.date | date: "%S"}}秒 文章ID：{{page.id}}</div>
+        <div class="postTagList">
+            {% for tag in page.tags %}
+            <div class="postTag">{{tag}}</div>
+            {% endfor %}
+        </div>
+        <div>{{content}}</div>
+    </div>
+</div>
