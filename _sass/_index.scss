@@ -32,8 +32,8 @@
       align-items: center;
       justify-content: space-between;
 
-      .changebutton{
-        padding:0 10px 0;
+      .changebutton {
+        padding: 0 10px 0;
         width: 60px;
         cursor: pointer;
       }
@@ -62,16 +62,24 @@
           margin: 2.5vw 5vw 0;
           border: 0;
           border-radius: 1vw;
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
           outline: none;
           cursor: pointer;
 
-          img {
-            width: 3vw;
-            height: 3vw;
+          div {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+
+            img {
+              width: 3vw;
+              height: 3vw;
+            }
+          }
+          div:hover {
+            img {
+              transform: translatex(10px);
+            }
           }
         }
       }
