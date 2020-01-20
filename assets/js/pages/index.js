@@ -2,7 +2,7 @@ window.addEventListener("load", function () {
     let show = document.getElementsByClassName("show")[0]; //样式修改
     let showimage = document.getElementsByClassName("showimage")[0];
     let showcover = document.getElementsByClassName("showcover")[0];
-    if (document.body.clientWidth < document.body.clientHeight) {
+    if (window.screen.width < window.screen.height) {
         show.style.height = showcover.style.height = showimage.style.height = "55vw";
     }
     else {
