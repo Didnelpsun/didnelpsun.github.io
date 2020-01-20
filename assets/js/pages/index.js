@@ -21,33 +21,43 @@ window.addEventListener("load", function () {
     //     }
     // }
 
-    images=[
+    images = [
         {
             "name": "chrysanthemum",
-            "url": "https://i.loli.net/2020/01/15/WFLbUqanmdS7Q1i.png"
+            "smurl": "https://i.loli.net/2020/01/15/WFLbUqanmdS7Q1i.png",
+            "imgurl": "https://i.ibb.co/kMsysZY/chrysanthemum.png"
         },
         {
-            "name": "bk1",
-            "url": "https://i.loli.net/2020/01/15/Id95DUwb8J7HhMn.png"
+            "name": "maple",
+            "smurl": "https://i.loli.net/2020/01/15/Id95DUwb8J7HhMn.png",
+            "imgurl": "https://i.ibb.co/GHWT4qK/maple.png"
         },
         {
-            "name": "bk2",
-            "url": "https://i.loli.net/2020/01/15/Yfx1EX43Lzau57q.png"
+            "name": "sky",
+            "imgurl": "https://i.ibb.co/487wPNk/sky.png"
         },
         {
-            "name": "bk3",
-            "url": "https://i.loli.net/2020/01/15/LQD7biJd6FXE2ov.png"
+            "name": "blackcloud",
+            "imgurl": "https://i.ibb.co/G7Sbmvj/blackcloud.png"
         },
         {
-            "name": "bk4",
-            "url": "https://i.loli.net/2020/01/15/1qViZK5ov3CXdJs.png"
+            "name": "forest",
+            "imgurl": "https://i.ibb.co/H2FdmnP/forest.png"
         },
         {
-            "name": "bk5",
-            "url": "https://i.loli.net/2020/01/15/bVenAfU7xWRzsuY.png"
-        }
+            "name": "starsky",
+            "imgurl": "https://i.ibb.co/r6DJGF2/starsky.png"
+        },
+        {
+            "name": "train",
+            "imgurl": "https://i.ibb.co/vcvfRW0/train.png"
+        },
+        {
+            "name": "city",
+            "imgurl": "https://i.ibb.co/nnDxdRx/city.png"
+        },
     ]
-    
+
     let changebuttonleft = document.getElementsByClassName("changebutton left")[0];
     let changebuttonright = document.getElementsByClassName("changebutton right")[0];
     i = 0;
@@ -55,13 +65,19 @@ window.addEventListener("load", function () {
         i--;
         if (!images[i])
             i = images["length"] - 1;
-        showimage.style.backgroundImage = "url(" + images[i]["url"] + ")";
+        if (images[i]["imgurl"])
+            showimage.style.backgroundImage = "url(" + images[i]["imgurl"] + ")";
+        else if (images[i]["smurl"])
+            showimage.style.backgroundImage = "url(" + images[i]["smurl"] + ")";
     }
     changebuttonright.onclick = function () {
         i++;
         if (!images[i])
             i = 0;
-        showimage.style.backgroundImage = "url(" + images[i]["url"] + ")";
+        if (images[i]["imgurl"])
+            showimage.style.backgroundImage = "url(" + images[i]["imgurl"] + ")";
+        else if (images[i]["smurl"])
+            showimage.style.backgroundImage = "url(" + images[i]["smurl"] + ")";
     }
     const button1 = document.getElementsByTagName('button')[0];
     const button2 = document.getElementsByTagName('button')[1];
