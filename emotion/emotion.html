@@ -3,6 +3,8 @@ permalink: /emotion
 layout: blank
 title : "welcome to Didnelpsun's emotion"
 ---
+
+<title>Emotion</title>
 <script type="text/javascript" src="../assets/js/pages/emotion.js"></script>
 <link rel="stylesheet" href="../assets/css/emotion.css" />
 <title>Emotion</title>
@@ -30,9 +32,9 @@ title : "welcome to Didnelpsun's emotion"
                 {% for post in site.categories.emotion %}
                 <a href="{{post.url}}">
                     <div class="list">
-                        <div>{{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+                        {{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
             date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
-            "%M"}}分{{post.date | date: "%S"}}秒 {{ post.title }}</div>
+            "%M"}}分{{post.date | date: "%S"}}秒 {{ post.title }}
                     </div>
                 </a>
                 {% endfor %}

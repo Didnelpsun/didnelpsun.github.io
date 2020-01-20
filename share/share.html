@@ -1,5 +1,22 @@
 ---
 permalink: /share
 layout: blank
-title : "welcome to Didnelpsun's notes"
+title: "welcome to Didnelpsun's notes"
 ---
+
+<title>Share</title>
+<script type="text/javascript" src="../assets/js/pages/share.js"></script>
+<link rel="stylesheet" href="../assets/css/share.css" />
+<span style="font-size: 4vw; margin:15px 0 15px;">Share</span>
+<div class="shareContent">
+    {% for post in site.categories.share %}
+    <a href="{{post.url}}">
+        <div class="list">
+            {{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+      date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
+      "%M"}}分{{post.date | date: "%S"}}秒 {{ post.title }}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% include footer.html %}
