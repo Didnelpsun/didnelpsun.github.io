@@ -1,9 +1,10 @@
 ---
 layout: post
-title:  "对于图床的推荐"
+title:  "图床的推荐"
 date:   2020-01-20 23:30:13 +0800
 categories: share
 tags: 图床 imgbb sm.ms
+excerpt: "目前我用的最好的是imgbb"
 ---
 
 所谓图床，是干嘛的？[百度百科](https://baike.baidu.com/item/%E5%9B%BE%E5%BA%8A/10721348?fr=aladdin)说明：一般是指储存图片的服务器，有国内和国外之分。国外的图床由于有空间距离等因素决定访问速度很慢影响图片显示速度。国内也分为单线空间、多线空间和cdn加速三种。

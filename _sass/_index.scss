@@ -149,5 +149,22 @@
     .middleword {
       font-size: 3vw;
     }
+
+    .instruction{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+       margin: 5vw;
+
+       .bigword{
+         margin: 0 0 1vw;
+         text-align: center;
+       }
+
+       p{
+        text-indent: 1cm; 
+        line-height: 1cm;
+       }
+    }
   }
 }

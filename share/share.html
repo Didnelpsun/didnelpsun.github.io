@@ -5,17 +5,23 @@ title: "welcome to Didnelpsun's notes"
 ---
 
 <title>Share</title>
+<script type='text/javascript' src='../../../utils/getStyleColor.js'></script>
 <script type="text/javascript" src="../assets/js/pages/share.js"></script>
 <link rel="stylesheet" href="../assets/css/share.css" />
-<span class="title">Share</span>
-<div class="shareContent">
-    {% for post in site.categories.share %}
-    <a href="{{post.url}}">
-        <div class="list">
-            {{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
-      date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
-      "%M"}}分{{post.date | date: "%S"}}秒 {{ post.title }}
-        </div>
-    </a>
-    {% endfor %}
+<div class="share">
+    <span class="title">Share</span>
+    <div class="shareContent">
+        {% for post in site.categories.share %}
+        <a href="{{post.url}}">
+            <div class="shareBoard">
+                <span class="postTitle">{{ post.title }}</span>
+                <div>{{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+                date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
+                "%M"}}分{{post.date | date: "%S"}}秒 </div>
+                <div>{{ post.excerpt }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
 </div>
+{% include footer.html %}
