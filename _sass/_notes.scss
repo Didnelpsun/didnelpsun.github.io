@@ -1,3 +1,13 @@
-.explainBoard{
+.notes{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     width: 80vw;
+    background-color: #111;
+    margin:4vw;
+    padding:2vw;
+    border-radius: 1vw;
+    .learnLogo{
+
+    }
 }
