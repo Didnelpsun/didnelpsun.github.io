@@ -1,0 +1,57 @@
+---
+permalink: /notes/html
+layout: blank
+title: "html"
+---
+
+<!-- <script type="text/javascript" src="../assets/js/pages/notes.js"></script> -->
+<link rel="stylesheet" href="../assets/css/notespage.css" />
+<div class="boardShow">
+    <img src="https://www.z4a.net/images/2020/01/22/javascript.png">
+    <span class="title" style="color:#fdd501">javascript</span>
+    <span class="notesExplain">
+        <p>javascript是我接触的第三门编程语言，前两个是C和python。但是不得不说javascript是陪我时间最长的语言。我之前是想做后端的，但是鬼使神差做了这么长时间的
+            前端。
+        </p>
+        <p>
+            javascript我觉得是一门很好的语言，你能通过它来控制页面逻辑，我见过许多前端程序员都对javascript赞不绝口（当然我觉得后端程序员是不会这么想的）。
+        </p>
+        <p>
+            我在用过typescript后再回头思考一下javascript本身，它成也弱类型，败也弱类型。
+        </p>
+        <p>
+            弱类型让页面逻辑更能简单实现，不用去思考这个东西的类型是什么，当然我们使用一个变量时一般其实也是约定俗成只将它赋值为一种类型的值。当然这也能充分利用
+            变量的位置，减少申请变量空间。更何况我们使用弱类型，就很少去思考一些面向对象的概念，如java的继承封装多态等，这也是javascript被称为基于对象的编程语言
+            而不是面向对象的编程语言的原因。这让前端程序员以及那些想学编程的人能更简单地入门编程。就比如我，当时我学C学python对于对象类等概念不清楚，然后开始学习javascript
+            （当然最开始也看不懂，什么原型链乱七八糟的），然后通过练习而明白了编程。前端程序员估计学typescript等面向对象语言会比较不习惯，因为确实对面向对象没怎么接触过，
+            对于那些程序设计也不一定会了解什么。
+        </p>
+        <p>
+            当然弱类型很随意，也为代码的后期维护与合作开发带来了麻烦。谁知道对方到底用这个那个变量表示什么？既然是基于对象，那么不是面向对象就不会有面向对象的编程语言
+            的优势，什么相关概念没办法直接实现，比如ES6的类，就是一个显著标志。
+        </p>
+        <p>
+            总的来说我用javascript还是很愉快的，不过这并不妨碍我去学习typescript。按这个趋势javascript还是今后一些年的主流。
+        </p>
+    </span>
+</div>
+<div class="notespage">
+    <div class="notesShow">
+        {% for post in site.categories.javascript %}
+        <a href="{{post.url}}">
+            <div class="innerShow">
+                <div class="innerTitle">{{ post.title }}</div>
+                <div class="time">
+                {{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+            date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
+            "%M"}}分{{post.date | date: "%S"}}秒
+                </div>
+                <div class="excerpt">
+                    {{ post.excerpt }}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+</div>

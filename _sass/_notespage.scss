@@ -1,0 +1,96 @@
+.boardShow {
+  position: fixed;
+  left: 0;
+  width: 20vw;
+  height: 100vh;
+  background-color: #111;
+  padding: 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 18vw;
+    border-radius: 0.5vw;
+  }
+
+  span {
+    width: 20vw;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 30px;
+    margin: 10px;
+  }
+
+  .notesExplain {
+    background-color: #222;
+    margin: 10px;
+    padding: 0 5px 0 10px;
+    font-size: 14px;
+    text-indent: 1cm;
+    overflow-y: auto;
+    height: 60vh;
+    // line-height: 0.75cm;
+  }
+
+  .notesExplain::-webkit-scrollbar {
+    width: 4px;
+  }
+  .notesExplain::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.6);
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.6);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  .notesExplain::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.4);
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.notespage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 76vw;
+  position: absolute;
+  right: 0;
+
+  .notesShow {
+    width: 65vw;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background-color: #111;
+    margin: 2vw;
+    padding: 2vw;
+
+    .innerShow {
+      padding: 1vw;
+      background-color: #333;
+      margin:10px;
+      border-radius: 0.5vw;
+      border: 1px solid #888;
+
+      .innerTitle{
+          color:white;
+          font-size: 18px;
+          text-align: center;
+      }
+
+      .time{
+          border-top: 1px dashed #888;
+          margin:6px 0 0;
+          font-size: 12px;
+      }
+
+      .excerpt{
+        font-size: 14px;
+      }
+    }
+  }
+}

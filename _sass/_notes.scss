@@ -2,12 +2,31 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
     width: 80vw;
     background-color: #111;
     margin:4vw;
     padding:2vw;
     border-radius: 1vw;
     .learnLogo{
+        width: 10vw;
+        // height: 10vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #222;
+        padding: 10px;
+        margin:10px;
+        border-radius: 0.5vw;
 
+        img{
+            width: 8vw;
+        }
+
+        span{
+            margin:5px 0 0;
+            font-size: 1vw;
+        }
     }
 }
