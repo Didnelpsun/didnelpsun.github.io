@@ -39,5 +39,94 @@ HTML是描述网页的语言，即超文本标记语言(Hyper Text Markup Langua
 #### &emsp;&emsp; 3.1charset属性
 
 规定html文档字符编码，一般编码为UTF-8。  
-charset 属性可以通过任意元素上的 lang 属性来重写。
+charset 属性可以通过任意元素上的 lang 属性来重写。  
 <font color="aqua">格式：</font>`<meta charset="编码形式">`
+
+#### &emsp;&emsp; 3.2name属性与content属性
+
+name属性把 content 属性关联到一个名称。，而content属性定义与 http-equiv 或 name 属性相关的元信息。  
+<font color="aqua">格式：</font>`<meta name="name值" content="值">`  
+eg:`<meta name="keywords" content="HTML, CSS, XML, XHTML, JavaScript">`
+
+name属性值：  
+① application-name 规定页面所代表的 Web 应用程序的名称。  
+② author 规定文档的作者的名字。  
+实例： `<meta name="author" content="Hege Refsnes">`  
+③ description 规定页面的描述。搜索引擎会把这个描述显示在搜索结果中。  
+实例： `<meta name="description" content="Free web tutorials">`  
+④ generator 规定用于生成文档的一个软件包（不用于手写页面）。  
+实例： `<meta name="generator" content="FrontPage 4.0">`  
+⑤ keywordsBB规定一个逗号分隔的关键词列表 - 相关的网页（告诉搜索引擎页面是与什么相关的）。  
+提示：总是规定关键词（对于搜索引擎进行页面分类是必要的）。 
+实例： `<meta name="keywords" content="HTML, meta tag, tag reference">`  
+⑥ Copyright (版权)标注版权  
+实例：`<meta name="copyright" content="本网站版权归CSDN所有">`  
+⑦ Generator (编辑器)编辑器的说明  
+实例：`<meta name="generator" content="PCDATA|FrontPage|">`  
+注意：Content="你所用编辑器"  
+⑧ Revisit-after (重访)通知搜索引擎多少天访问一次  
+实例：`<meta name="revisit-after" content="7 days" >`  
+如果没有提供 name 属性，那么名称/值对中的名称会采用 http-equiv 属性的值。  
+
+#### &emsp;&emsp; 3.3http-equiv属性
+
+http-equiv 属性提供了 content 属性的信息/值的 HTTP 头。可用于模拟一个 HTTP 响应头。与content属性配合使用。
+
+http-equiv属性值：  
+①content-type 规定文档的字符编码。  
+实例：`<meta http-equiv="content-type" content="text/html; charset=UTF-8">`  
+② default-style 规定要使用的预定义的样式表。  
+实例：
+`<meta http-equiv="default-style" content="the document's preferred stylesheet">`  
+注释：上面 content 属性的值必须匹配同一文档中的一个 link 元素上的 title 属性的值，或者必须匹配同一文档中的一个 style 元素上的 title 属性的值。  
+③ refresh 定义文档自动刷新的时间间隔。  
+实例：`<meta http-equiv="refresh" content="300">`
+<font color="aqua">格式：</font>`<meta http-equiv="refresh" content="刷新秒数" url=”指定网址”>`使该网站在指定秒数后跳转到指定网址。  
+注释：值 "refresh" 应该慎重使用，因为它会使得页面不受用户控制。在 W3C's Web 内容可访问性指南 中使用 "refresh" 会到导致失败。  
+④ expires 用于设定网页的到期时间，一旦过期则必须到服务器上重新调用。需要注意的是必须使用GMT时间格式。  
+实例：`<meta http-equiv="Expires" contect="Mon,12 May 2001 00:20:00 GMT">`  
+⑤ page-enter page-exit 设定进入和离开页面时的特殊效果，这个功能即FrontPage中的“格式/网页过渡”，不过所加的页面不能够是一个frame页面。Duration的值为网页动态过渡的时间，单位为秒。  
+Transition是过渡方式，它的值为0到23，分别对应24种过渡方式。如下表：  
+0 盒状收缩 1 盒状放射  
+2 圆形收缩 3 圆形放射  
+4 由下往上 5 由上往下  
+6 从左至右 7 从右至左  
+8 垂直百叶窗 9 水平百叶窗  
+10 水平格状百叶窗 11垂直格状百叶窗  
+12 随意溶解 13从左右两端向中间展开  
+14从中间向左右两端展开 15从上下两端向中间展开
+16从中间向上下两端展开 17 从右上角向左下角展开  
+18 从右下角向左上角展开 19 从左上角向右下角展开  
+20 从左下角向右上角展开 21 水平线状展开  
+22 垂直线状展开 23 随机产生一种过渡方式  
+实例：`<meta http-equiv="Page-Enter" contect="revealTrans(duration=10,transtion= 5)">`  
+`<meta http-equiv="Page-Exit" contect="revealTrans(duration=20，transtion=6)">`  
+
+### &emsp;4.`<base>`标签
+
+`<base>`标签为页面上的所有链接规定默认地址或默认目标。通常情况下，浏览器会从当前文档的URL中提取相应的元素来填写相对URL中的空白。  
+使用`<base>`标签可以改变这一点。浏览器随后将不再使用当前文档的URL，而使用指定的基本URL来解析所有相对URL。这其中包括`<a>`、`<img>`、`<link>`、`<form>`标签中的URL  
+<font color="orange">注意：</font>`<base>`标签必须位于head元素的内部。  
+必须的属性  
+href：规定页面中所有相对链接的基准URL值是一个URL
+可选的属性target ：规定在何处打开页面中所有的链接，值可以是：_blank(在新的窗口中)、_parent、_self(在当前页面)、_top、framename(在名为framename的框架中)
+实例：`<base href="http://www.w3school.com.cn/i/" />`
+
+### &emsp;5.`<link>`标签
+
+`<link>`标签定义文档与外部资源的关系，`<link>`标签最常见的用途是链接样式表， link元素是空元素，它仅包含属性，link元素只能存在于head部分，不过它可以出现任何次数。  
+
+`<link rel=“stylesheet” href=“s.css”>` 和外部样式表的连接。rel说明html文件和url两文档之间的关系，href说明文档名。
+
+### &emsp;6.`<script>`标签
+
+`<script>`标签用于定义客户端脚本，比如JavaScript
+script元素既可以包含脚本语句，也可以通过src属性指向外部脚本文件
+必需的type属性规定脚本的MIME类型
+JavaScript的常见应用时图像操作、表单验证以及动态内容更新
+加入此元素内部的代码没有位于某个函数中，那么这些代码会在页面被加载时被立即执行。<frameset>标签之后的脚本会被忽略
+对于那些在浏览器中禁用脚本或者其浏览器不支持客户端脚本的用户来说，noscript元素就起到很重要的作用。
+
+### &emsp;7`<style>`标签
+
+`<style>…</style>`可以在文档中包含风格页。文档本身的内部样式。
