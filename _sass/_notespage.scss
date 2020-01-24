@@ -33,6 +33,25 @@
     overflow-y: auto;
     height: 60vh;
     // line-height: 0.75cm;
+
+    a:link {
+      text-decoration: none;
+      color: yellow;
+    }
+
+    a:active {
+      text-decoration: blink;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: white;
+    }
+
+    a:visited {
+      text-decoration: none;
+      color: white;
+    }
   }
 
   .notesExplain::-webkit-scrollbar {
@@ -72,23 +91,23 @@
     .innerShow {
       padding: 1vw;
       background-color: #333;
-      margin:10px;
+      margin: 10px;
       border-radius: 0.5vw;
       border: 1px solid #888;
 
-      .innerTitle{
-          color:white;
-          font-size: 18px;
-          text-align: center;
+      .innerTitle {
+        color: white;
+        font-size: 18px;
+        text-align: center;
       }
 
-      .time{
-          border-top: 1px dashed #888;
-          margin:6px 0 0;
-          font-size: 12px;
+      .time {
+        border-top: 1px dashed #888;
+        margin: 6px 0 0;
+        font-size: 12px;
       }
 
-      .excerpt{
+      .excerpt {
         font-size: 14px;
       }
     }

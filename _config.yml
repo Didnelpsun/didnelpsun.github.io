@@ -41,9 +41,11 @@ defaults:
     values:
       image: true
 
-redcarpet : ture;
-redcarpet:
-  extensions: ["tables"]
+kramdown:
+  input: GFM
+
+# redcarpet:
+#   extensions: ["tables"]
 
 # Exclude from processing.
 # The following items will not be processed, by default.
