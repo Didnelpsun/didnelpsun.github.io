@@ -23,11 +23,11 @@ excerpt: "markdown表单不能显示"
 这显然不是我们想要的，但是这是什么原因呢？  
 我首先百度了一下，得到了以下几种解决方案：  
 
-1. _layout相关模板加入样式：……[参考1](https://blog.csdn.net/sdujava2011/article/details/83692576)  
+1. _layout相关模板加入样式：……参考：<https://blog.csdn.net/sdujava2011/article/details/83692576>  
 然后我发现这种屁用没有，因为我查看了一些生成网页源码，它按道理应该把||这样的字符中的内容自动转为表格，但是它实际上是直接用p标签输出了，所以直接在对应元素上
 加样式怎么可能有用呢？我觉得应该是这个jekyll模板编译的问题。
 
-2. _config.yml加入redcarpet相关配置：[参考2](https://blog.csdn.net/JOUeu/article/details/44193921)  
+2. _config.yml加入redcarpet相关配置：参考：<https://blog.csdn.net/JOUeu/article/details/44193921>  
 ![img3][img3]  
 我没有想到它不仅没用而且还报错了，说markdown不能写成redcarpet。我一看这个答案是2015年回答的……🙂
 
