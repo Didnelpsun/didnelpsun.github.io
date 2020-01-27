@@ -65,7 +65,7 @@ layout: blank
         line-height: 1cm;
     }
 
-    a{
+    a {
         word-wrap: break-word;
         word-break: break-all;
         overflow: hidden;
@@ -93,7 +93,7 @@ layout: blank
     .highlighter-rouge {
         background-color: #111;
         margin: 1px;
-        color:#eee;
+        color: #eee;
     }
 
     .highlight {
@@ -167,25 +167,26 @@ layout: blank
         color: #40f892;
     }
 
-    img{
+    img {
         max-width: 80vw;
         margin: 5px 0 5px;
     }
 
-    li{
+    li {
         line-height: 1cm;
     }
 
-    li p{
+    li p {
         text-indent: 0cm;
     }
 
-    li p img{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+    li p img {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
-    hr{
+
+    hr {
         border-width: 0.5px;
         border-color: #fff;
         border-style: dashed;
@@ -258,10 +259,11 @@ layout: blank
 </script>
 <div class="post">
     <div class="postContent">
-        <h1 style="font-size: 30px; margin:0 0 10px; color: #ddd;">{{page.title}}</h1>
+        <h1 style="font-size: 30px; margin:0 0 10px; color: #fff;">{{page.title}}</h1>
         <div style="font-size: 12px; color: #ddd;">Didnelpsun / Firstly published on {{page.date | date: "%Y"}}年{{page.date | date: "%m"}}月{{page.date |
         date: "%d"}}日{{page.date | date: "%H"}}时{{page.date | date:
         "%M"}}分{{page.date | date: "%S"}}秒 文章ID：{{page.id}}</div>
+        <div style="margin: 2px;color:white">摘要：{{page.excerpt}}</div>
         <div class="postTagList">
             {% for tag in page.tags %}
             <div class="postTag">{{tag}}</div>
