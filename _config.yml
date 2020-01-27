@@ -41,8 +41,8 @@ defaults:
     values:
       image: true
 
-kramdown:
-  input: GFM
+# kramdown:
+#   input: GFM
 
 # redcarpet:
 #   extensions: ["tables"]
