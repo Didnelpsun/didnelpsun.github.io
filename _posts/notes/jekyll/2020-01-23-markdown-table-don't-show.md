@@ -2,7 +2,7 @@
 layout: post
 title:  "markdown表单问题"
 date:   2020-01-23 16:31:21 +0800
-categories: notes jekyll
+categories: notes jekyll other
 tags: jekyll markdown 表单 问题 table
 excerpt: "markdown表单不能显示"
 ---
