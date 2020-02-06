@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: postnull
 title:  "终于将Emotion部分框架完成"
 date:   2020-01-20 22:38:41 +0800
 categories: emotion

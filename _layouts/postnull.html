@@ -92,22 +92,6 @@ layout: blank
         color: #ff9971;
     }
 
-    .highlighter-rouge {
-        background-color: #111;
-        margin: 1px;
-        color: #eee;
-        font-family: "Yu Gothic UI Semibold";
-    }
-
-    .highlight {
-        background-color: #111;
-        margin: 10px;
-        padding: 10px;
-        width: auto;
-        font-family:"Calibri","KaiTi";
-    }
-
-
     img {
         max-width: 80vw;
         margin: 5px 0 5px;
@@ -342,7 +326,6 @@ layout: blank
         <div style="font-size: 12px; color: #ddd; font-family: 'Bradley Hand ITC','KaiTi';">Didnelpsun / Firstly published on {{page.date | date: "%Y"}}年{{page.date | date: "%m"}}月{{page.date |
         date: "%d"}}日{{page.date | date: "%H"}}时{{page.date | date:
         "%M"}}分{{page.date | date: "%S"}}秒 文章ID：{{page.id}}</div>
-        <div style="margin: 2px;color:white;font-family:FangSong;">摘要：{{page.excerpt}}</div>
         <div class="postTagList">
             {% for tag in page.tags %}
             <div class="postTag">{{tag}}</div>

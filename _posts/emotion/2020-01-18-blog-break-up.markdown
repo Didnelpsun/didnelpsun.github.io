@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: postnull
 title:  "博客崩了！！！"
 date:   2020-01-18 21:58:05 +0800
 categories: emotion

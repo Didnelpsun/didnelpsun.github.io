@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: postnull
 title:  "室友终于走了"
 date:   2020-01-13 14:18:41 +0800
 categories: emotion

@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: postnull
 title:  "回家"
 date:   2020-01-16 16:28:14 +0800
 categories: emotion
