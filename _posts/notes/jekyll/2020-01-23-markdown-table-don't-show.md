@@ -7,6 +7,8 @@ tags: jekyll markdown 表单 问题 table
 excerpt: "markdown表单不能显示"
 ---
 
+## markdown表单不能显示
+
 我写文档的时候突然想在markdown文件中写一个表格，根据markdown语法中，表格应该是这个形式：
 
 ```markdown
