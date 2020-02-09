@@ -3,6 +3,24 @@ layout: blank
 ---
 <title>{{page.title}}</title>
 <style>
+    body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.5);
+        box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 1);
+    }
+
+    body::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4);
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4);
+        border-radius: 0;
+        background: rgba(0, 0, 0, 1);
+    }
+
     .post {
         padding: 3vw;
     }
@@ -30,31 +48,37 @@ layout: blank
         border-style: solid;
         border-radius: 10%;
         border-width: 1px;
-        font-family:"Bodoni MT","KaiTi";
+        font-family: "Bodoni MT", "KaiTi";
     }
 
     h1 {
         font-size: 32px;
+        color: white;
     }
 
     h2 {
         font-size: 28px;
+        color: #eee;
     }
 
     h3 {
         font-size: 24px;
+        color: #eee;
     }
 
     h4 {
         font-size: 20px;
+        color: #eee;
     }
 
     h5 {
         font-size: 16px;
+        color: #eee;
     }
 
     h6 {
         font-size: 12px;
+        color: #eee;
     }
 
     p {
@@ -91,18 +115,18 @@ layout: blank
     .highlighter-rouge {
         background-color: #111;
         margin: 1px;
-        color: #eee;
-        font-family: "SimSun-ExtB";
+        color: #c3a959;
+        font-family: "SimSun-ExtB", "KaiTi";
     }
 
     .highlight {
         background-color: #111;
+        color: #bbb;
         margin: 10px;
         padding: 10px;
         width: auto;
-        font-family:"Calibri","KaiTi";
+        font-family: "Calibri", "KaiTi";
     }
-
 
     img {
         max-width: 80vw;
@@ -111,7 +135,7 @@ layout: blank
 
     li {
         line-height: 1cm;
-        font-family:"Calibri","KaiTi";
+        font-family: "Calibri", "KaiTi";
     }
 
     li p {
@@ -133,6 +157,7 @@ layout: blank
     table {
         margin: 10px;
         background-color: #222;
+        font-family: "Bell MT", "KaiTi";
     }
 
     thead tr th {
@@ -158,8 +183,8 @@ layout: blank
         line-height: 0.8cm;
     }
 
-    font{
-        font-family:"Calibri","KaiTi";
+    font {
+        font-family: "Calibri", "KaiTi";
     }
 </style>
 <script language="javascript">
@@ -229,23 +254,26 @@ layout: blank
 </script>
 <style>
     .c1 {
-        color: #666; /*注释*/
+        color: #666;
+        /*注释*/
     }
 
     .cm {
-        color: #666; /*注释*/
+        color: #666;
+        /*注释*/
     }
 
     .cp {
-        color: #891202; /*头文件说明*/
+        color: #891202;
+        /*头文件说明*/
     }
 
-    .dl{
-        color:#fff;
+    .dl {
+        color: #ccc;
     }
 
-    .err{
-        color:#fff;
+    .err {
+        color: #ccc;
     }
 
     .k {
@@ -257,16 +285,17 @@ layout: blank
     }
 
     .kd {
-        color: #fd3c00; /*关键字*/
+        color: #fd3c00;
+        /*关键字*/
 
     }
 
-    .kn{
-        color:#03690f;
+    .kn {
+        color: #03690f;
     }
 
-    .kr{
-        color:#befc54;
+    .kr {
+        color: #befc54;
     }
 
     .kt {
@@ -277,11 +306,11 @@ layout: blank
         color: #0df928;
     }
 
-    .mf{
-        color:#48ff5d;
+    .mf {
+        color: #48ff5d;
     }
 
-    .mo{
+    .mo {
         color: #7eeb8a;
     }
 
@@ -293,7 +322,7 @@ layout: blank
         color: #6cfae7;
     }
 
-    .nb{
+    .nb {
         color: #73e7fc;
     }
 
@@ -301,7 +330,7 @@ layout: blank
         color: #65ceff;
     }
 
-    .nd{
+    .nd {
         color: #5cbfec;
     }
 
@@ -309,15 +338,15 @@ layout: blank
         color: #509cf8;
     }
 
-    .nl{
+    .nl {
         color: #8e6ef4;
     }
 
-    .nn{
+    .nn {
         color: #046b9b;
     }
 
-    .no{
+    .no {
         color: #607fe7;
     }
 
@@ -326,41 +355,45 @@ layout: blank
     }
 
     .nx {
-        color:#8481fe;
+        color: #8481fe;
     }
 
     .o {
-        color: #fff; /*括号*/
+        color: #ddd;
+        /*括号*/
     }
 
     .p {
-        color: #fff; /*括号*/
+        color: #ddd;
+        /*括号*/
     }
 
     .s {
         color: #9a69fb;
     }
 
-    .s1{
-        color:#c66ef8;
+    .s1 {
+        color: #c66ef8;
     }
 
-    .s2{
-        color:#e175fc;
+    .s2 {
+        color: #e175fc;
     }
 
     .se {
         color: #fc79df;
     }
 
-    .sr{
-        color: #8481fe ; /*=nx*/
+    .sr {
+        color: #8481fe;
+        /*=nx*/
     }
 </style>
 <div class="post">
     <div class="postContent">
         <h1 style="font-size: 30px; margin:0 0 10px; color: #fff;">{{page.title}}</h1>
-        <div style="font-size: 12px; color: #ddd; font-family: 'Bradley Hand ITC','KaiTi';">Didnelpsun / Firstly published on {{page.date | date: "%Y"}}年{{page.date | date: "%m"}}月{{page.date |
+        <div style="font-size: 12px; color: #ddd; font-family: 'Bradley Hand ITC','KaiTi';">Didnelpsun / Firstly
+            published on {{page.date | date: "%Y"}}年{{page.date | date: "%m"}}月{{page.date |
         date: "%d"}}日{{page.date | date: "%H"}}时{{page.date | date:
         "%M"}}分{{page.date | date: "%S"}}秒 文章ID：{{page.id}}</div>
         <div style="margin: 2px;color:white;font-family:FangSong;">摘要：{{page.excerpt}}</div>
