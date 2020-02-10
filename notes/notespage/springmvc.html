@@ -1,0 +1,33 @@
+---
+permalink: /notes/springmvc
+layout: blank
+title: "spring mvc"
+---
+
+<!-- <script type="text/javascript" src="../assets/js/pages/notes.js"></script> -->
+<link rel="stylesheet" href="../../assets/css/notespage.css" />
+<div class="boardShow">
+    <img src="https://www.z4a.net/images/2020/02/10/springmvc.png">
+    <span class="title" style="color:#7ecf4b">spring mvc</span>
+    <span class="notesExplain">
+    </span>
+</div>
+<div class="notespage">
+    <div class="notesShow">
+        {% for post in site.categories.springmvc %}
+        <a href="{{post.url}}">
+            <div class="innerShow">
+                <div class="innerTitle">{{ post.title }}</div>
+                <div class="time">
+                {{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+            date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
+            "%M"}}分{{post.date | date: "%S"}}秒
+                </div>
+                <div class="excerpt">
+                    {{ post.excerpt }}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
