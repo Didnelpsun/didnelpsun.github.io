@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Git Bash|Shell|Gui"
+title:  "Git Bash Shell Gui"
 date:   2019-05-25 13:48:20 +0800
 categories: notes git base
 tags: git Bash Shell Gui
