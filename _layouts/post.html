@@ -128,6 +128,29 @@ layout: blank
         font-family: "Calibri", "KaiTi";
     }
 
+    pre.highlight{
+        overflow-x: auto;
+    }
+
+    pre.highlight::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    pre.highlight::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        -webkit-box-shadow: inset 0 0 8px rgba(285, 255, 255, 0.5);
+        box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 1);
+    }
+
+    pre.highlight::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
+        box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
+        border-radius: 0;
+        background: rgba(0, 0, 0, 1);
+    }
+
     img {
         max-width: 80vw;
         margin: 5px 0 5px;
@@ -136,6 +159,8 @@ layout: blank
     li {
         line-height: 1cm;
         font-family: "Calibri", "KaiTi";
+        word-wrap: break-word;
+        word-break: normal;
     }
 
     li p {
@@ -253,6 +278,9 @@ layout: blank
     }
 </script>
 <style>
+    .c{
+        color: #777;
+    }
     .c1 {
         color: #666;
         /*注释*/
@@ -287,7 +315,6 @@ layout: blank
     .kd {
         color: #fd3c00;
         /*关键字*/
-
     }
 
     .kn {
@@ -399,7 +426,9 @@ layout: blank
         <div style="margin: 2px;color:white;font-family:FangSong;">
             <span>摘要：{{page.excerpt}} </span>
             <span> 共有{{ page.content | strip_html | strip_newlines | remove: " " | size }}字 </span>
-            <span> 阅读需要{{ page.content | strip_html | strip_newlines | remove: " " | size | divided_by: 150 | plus: 1 }}分钟 </span>
+            <span>
+                阅读需要{{ page.content | strip_html | strip_newlines | remove: " " | size | divided_by: 150 | plus: 1 }}分钟
+            </span>
         </div>
         <div class="postTagList">
             {% for tag in page.tags %}
