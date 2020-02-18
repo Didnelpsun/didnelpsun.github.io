@@ -21,7 +21,7 @@ excerpt: "实现样式"
 
 face属性代表字体，size代表字号，color代表字色。
 
-<font color="aqua">格式：</font>
+<span style="color:aqua">格式：</span>
 
 ```markdown
 <font face="字体">字体</font>
