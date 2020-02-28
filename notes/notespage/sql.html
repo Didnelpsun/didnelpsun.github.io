@@ -1,0 +1,38 @@
+---
+permalink: /notes/sql
+layout: blank
+title: "sql"
+---
+
+<!-- <script type="text/javascript" src="../assets/js/pages/notes.js"></script> -->
+<link rel="stylesheet" href="../../assets/css/notespage.css" />
+<div class="boardShow">
+    <img src="https://www.z4a.net/images/2020/01/22/mysql.png">
+    <span class="title" style="color:#f8fa83">sql</span>
+    <span class="notesExplain">
+        <p>首先需要对这个sql图标有所说明，因为sql语言没有固定的图标，而我使用的是mysql且mysql的实现和标准sql语句的类似，对比sqlserver而言则与sql标准语言有一定的区别，所以我的sql图标就选择的是mysql的海豚图标，但是为了区别使用双海豚的变种图标</p>
+        <p>sql语句是一种标准，不同的数据库系统会有不同的使用方式，所以会在讲述完sql语句标准后讲述各种不同数据库的不同的语言标准，而且大部分数据库都会在这里讲述，而不会分为不同的模块来讲述。</p>
+        <p>且这里只会讲sql语法与使用的知识，而不会讲述数据库本身的知识，对于这方面请到其他的地方查看笔记。</p>
+        <p>SQL是一种用于操作数据库的语言。SQL是用于所有数据库的基本语言。不同数据库之间存在较小的语法更改，但基本的SQL语法基本保持不变。SQL是Structured Query Language 的简短缩写。它是非过程式的语言，也就是说它更像是一种指令，是让计算机去做
+            什么而得到想要的结果，而不关心它到底如何完成这个结果的，这就让程序员不用关系数据库的底层操作而更关注于数据库数据的操作。</p>
+    </span>
+</div>
+<div class="notespage">
+    <div class="notesShow">
+        {% for post in site.categories.sql %}
+        <a href="{{post.url}}">
+            <div class="innerShow">
+                <div class="innerTitle">{{ post.title }}</div>
+                <div class="time">
+                {{post.date | date: "%Y"}}年{{post.date | date: "%m"}}月{{post.date |
+            date: "%d"}}日{{post.date | date: "%H"}}时{{post.date | date:
+            "%M"}}分{{post.date | date: "%S"}}秒
+                </div>
+                <div class="excerpt">
+                    {{ post.excerpt }}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
