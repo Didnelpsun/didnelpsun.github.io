@@ -3,7 +3,7 @@ layout: post
 title:  "嵌入html"
 date:   2019-09-23 09:12:42 +0800
 categories: notes markdown base
-tags: markdown 基础 5 链接 图片
+tags: markdown 基础 链接 图片
 excerpt: "实现样式"
 ---
 
