@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "java三大版本"
+title:  "Java三大版本"
 date:   2019-11-14 14:25:47 +0800
 categories: notes java other
 tags: javase javaee javame

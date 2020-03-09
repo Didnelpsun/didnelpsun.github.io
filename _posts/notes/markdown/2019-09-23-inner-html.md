@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "嵌入html"
+title:  "嵌入HTML"
 date:   2019-09-23 09:12:42 +0800
 categories: notes markdown base
 tags: markdown 基础 链接 图片
