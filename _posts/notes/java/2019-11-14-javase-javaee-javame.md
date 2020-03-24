@@ -7,8 +7,6 @@ tags: javase javaee javame
 excerpt: "java se、ee、me的区别"
 ---
 
-## JAVASE、JAVAEE、JAVAME的区别
-
 JAVA是一种面向对象语言由SUN公司出品 J针对不同的使用方向规划出JSE，JEE，JME三个版本。
 
 ### JAVASE
