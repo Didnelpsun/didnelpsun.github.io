@@ -33,6 +33,12 @@ excerpt: "Java中的Setter和Getter方法"
 + 必须且只能提供一个参数，参数类型必须与所对应的成员变量的类型一致
 + 形参名称和成员变量去掉下划线相同
 
+```java
+public void Set属性名(类名 实例名){
+    this.属性名 = 实例名;
+}
+```
+
 &emsp;
 
 ## Getter方法
@@ -46,6 +52,12 @@ excerpt: "Java中的Setter和Getter方法"
 + 方法名必须是成员变量去掉下划线
 + 一定是没有参数的
 
+```java
+public 类名 Get成员名(){
+    return 成员名;
+}
+```
+
 &emsp;
 
 ## 注意事项
@@ -58,3 +70,8 @@ excerpt: "Java中的Setter和Getter方法"
 
 + 与get方法的方法名区分开来
 + 可以和一些其他的局部变量区分开来,下划线开头的变量,通常都是类的成员变量。当我看到以下划线开头变量，那么他一定是成员变量
+
+转换规则：
+
++ 一般情况，把除去set、get或者is（如果是boolean类型）后的部分首字母转成小写即可，比如：getFoo –> foo
++ 如果除去set、get和is后端的部分，首字母和第二个字母都是大写，不作转换即可，比如：getXPath –> XPath
