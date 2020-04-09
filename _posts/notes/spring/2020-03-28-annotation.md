@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "注解原理"
-date:   2020-03-28 23:02:01 +0800
+title: "注解原理"
+date: 2020-03-28 23:02:01 +0800
 categories: notes spring senior
 tags: spring 高级 注解 自动装配
 excerpt: "自动装配后的注解原理"
