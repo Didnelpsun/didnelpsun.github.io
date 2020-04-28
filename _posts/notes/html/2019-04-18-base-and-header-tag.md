@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "HTML基础1"
+title:  "入门与首部标签"
 date:   2019-04-18 19:23:01 +0800
 categories: notes html base
 tags: html 基础 首部 lang title meta charset name content http-equiv base link href hreflang media rel type script async charset defer src type style
-excerpt: "html构建与首部标签"
+excerpt: "基础与首部标签及属性"
 ---
 
 ## HTML介绍

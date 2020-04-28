@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Git安装"
+title:  "安装与配置"
 date:   2019-04-30 15:12:30 +0800
 categories: notes git base
 tags: git 基础 安装 配置 用户名 邮箱
-excerpt: "git安装与配置"
+excerpt: "Git安装与配置"
 ---
 
 ## git安装

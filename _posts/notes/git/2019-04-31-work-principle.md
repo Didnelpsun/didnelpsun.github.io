@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Git工作原理"
+title:  "工作原理"
 date:   2019-04-31 21:56:17 +0800
 categories: notes git base
 tags: git 基础 原理 工作区 暂存区 版本库
-excerpt: "git工作流程与仓库"
+excerpt: "Git工作流程与仓库"
 ---
 
 ## git工作流程
