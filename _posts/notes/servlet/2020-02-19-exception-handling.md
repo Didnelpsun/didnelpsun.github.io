@@ -1,17 +1,17 @@
 ---
 layout: post
-title:  "Servlet基础9"
+title:  "异常处理"
 date:   2020-02-19 22:00:02 +0800
 categories: notes servlet base
 tags: javaweb servlet 基础 异常
-excerpt: "异常处理"
+excerpt: "异常捕获与处理"
 ---
 
-当一个 Servlet 抛出一个异常时，Web 容器在使用了 exception-type 元素的 web.xml 中搜索与抛出异常类型相匹配的配置。
+当一个Servlet抛出一个异常时，Web容器在使用了exception-type元素的web.xml中搜索与抛出异常类型相匹配的配置。
 
-您必须在 web.xml 中使用 error-page 元素来指定对特定异常 或 HTTP 状态码 作出相应的 Servlet 调用。
+你必须在web.xml中使用error-page元素来指定对特定异常或HTTP状态码作出相应的Servlet调用。
 
-假设，有一个 ErrorHandler 的 Servlet 在任何已定义的异常或错误出现时被调用。以下将是在 web.xml 中创建的项。
+假设，有一个ErrorHandler的Servlet在任何已定义的异常或错误出现时被调用。以下将是在web.xml中创建的项。
 
 ```xml
 <!-- servlet 定义 -->
@@ -49,7 +49,7 @@ excerpt: "异常处理"
 </error-page>
 ```
 
-如果您想对所有的异常有一个通用的错误处理程序，那么应该定义下面的 error-page，而不是为每个异常定义单独的 error-page 元素：
+如果你想对所有的异常有一个通用的错误处理程序，那么应该定义下面的 error-page，而不是为每个异常定义单独的 error-page 元素：
 
 ```xml
 <error-page>

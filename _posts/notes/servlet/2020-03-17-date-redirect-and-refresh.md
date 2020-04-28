@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Servlet基础14"
+title: "日期重定向与刷新"
 date: 2020-03-17 13:23:44 +0800
 categories: notes servlet base
 tags: javaweb servlet 基础 日期 Date 重定向 sendRedirect setStatus setHeader 刷新 setIntHeader

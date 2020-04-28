@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Servlet基础15"
+title: "接口方法"
 date: 2020-03-17 22:52:01 +0800
-categories: notes servlet base
-tags: javaweb servlet 基础  接口 getServletInfo ServletInfo getServletConfig ServletConfig ServletContext
+categories: notes servlet senior
+tags: javaweb servlet 高级  接口 getServletInfo ServletInfo getServletConfig ServletConfig ServletContext
 excerpt: "接口方法"
 ---
 

@@ -22,7 +22,7 @@ excerpt: "自动装配后的注解原理"
 </beans>
 ```
 
-那么为什么是这个东西呢？这些是什么意思？首先xml配置文件在[基本容器与实例注入]({% post_url notes/spring/2020-03-19-spring2 %})已经讲过了：
+那么为什么是这个东西呢？这些是什么意思？首先xml配置文件在[基本容器与实例注入]({% post_url notes/spring/2020-03-19-container-and-instance-injection %})已经讲过了：
 
 因为xml文档都有格式，为了spring的配置文件增加的节点能满足要求、合法，所以引入校验该XML的格式文件。
 

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Spring基础1"
+title: "介绍与创建"
 date: 2020-01-29 23:20:13 +0800
 categories: notes spring base
 tags: spring 基础 功能 结构 三层架构 MVC IDEA

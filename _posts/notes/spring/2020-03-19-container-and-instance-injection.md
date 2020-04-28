@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "Spring基础2"
+title: "容器与实例注入"
 date: 2020-03-19 21:50:03 +0800
 categories: notes spring base
 tags: spring 基础 容器 ApplicationContext 注释 xml BeanFactory FactoryBean
-excerpt: "基本容器与实例注入"
+excerpt: "基本容器与实例注入容器"
 ---
 
 因为后端较抽象，所以需要用案例来说明，为了更好理解，所以我们将讲解一部分必要的内容搭建一个Spring的简单应用，等后面再详细讲解。
