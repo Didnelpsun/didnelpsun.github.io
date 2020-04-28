@@ -2,8 +2,8 @@
 layout: post
 title: "注解原理"
 date: 2020-03-28 23:02:01 +0800
-categories: notes spring senior
-tags: spring 高级 xml 配置
+categories: notes spring other
+tags: spring 其他 xml 配置
 excerpt: "自动装配后的注解原理"
 ---
 
