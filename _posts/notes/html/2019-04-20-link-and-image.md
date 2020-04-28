@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "HTML基础4"
+title:  "链接和图像"
 date:   2019-04-20 21:12:53 +0800
 categories: notes html base
 tags: html 基础 a img map area
-excerpt: "链接和图像"
+excerpt: "a标签和img标签等"
 ---
 
 ## 链接

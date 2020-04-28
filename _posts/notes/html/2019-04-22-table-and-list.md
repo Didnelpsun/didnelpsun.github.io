@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "HTML基础5"
+title:  "表格与列表"
 date:   2019-04-22 10:19:13 +0800
 categories: notes html base
 tags: html 基础 table border th headers scope colspan rowspan tr td caption colgroup span col thead tbody tfoot cellpadding ul ol reversed dl
-excerpt: "表格与列表"
+excerpt: "表格以及列表标签属性"
 ---
 
 ## 表格

@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "HTML基础8"
+title:  "区块、布局与框架"
 date:   2019-05-01 19:15:19 +0800
 categories: notes html base
 tags: html 基础 div span iframe height width name sandbox seamless src srcdoc
-excerpt: "区块、布局与框架"
+excerpt: "布局控制元素块与iframe"
 ---
 
 ## 区块

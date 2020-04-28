@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "HTML5 1"
+title:  "HTML5的说明"
 date:   2020-02-10 21:44:23 +0800
 categories: notes html html5
 tags: html html5 元素 兼容 shiv
-excerpt: "html5的说明"
+excerpt: "H5的新特性与新元素"
 ---
 
 HTML5的设计目的是为了在移动设备上支持多媒体。
