@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Servlet基础6"
+title:  "数据响应"
 date:   2020-02-16 16:52:38 +0800
 categories: notes servlet base
 tags: javaweb servlet 基础 HTTP 服务端 setCharacterEncoding setContentType setIntHeader

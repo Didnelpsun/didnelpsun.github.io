@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Jekyll基础5"
+title:  "博客结构和组织"
 date:   2020-01-18 11:13:37 +0800
 categories: notes jekyll base
 tags: jekyll 基础 博客 组织 categories tags excerpt post page
-excerpt: "博客结构和组织"
+excerpt: "分类标签摘要与页面组织"
 --- 
 
 这个问题其实困扰了我很长时间——如何组织博客博文结构？  

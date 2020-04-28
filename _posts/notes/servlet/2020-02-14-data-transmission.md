@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Servlet基础4"
+title:  "数据传输"
 date:   2020-02-14 17:44:35 +0800
 categories: notes servlet base
 tags: javaweb servlet 基础 get post getParameter getParameValues getParameterNames
-excerpt: "GenericServlet与HttpServlet"
+excerpt: "GET和POST的数据传输"
 ---
 
 ## GenericServlet

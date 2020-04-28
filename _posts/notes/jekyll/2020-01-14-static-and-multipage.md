@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Jekyll基础4"
+title:  "静态引用与多页面"
 date:   2020-01-14 16:41:12 +0800
 categories: notes jekyll base
 tags: jekyll 基础 静态 多页面
-excerpt: "静态文件和多页面"
+excerpt: "静态文件和多页面跳转"
 --- 
 
 我们已经使用了样式和组件，在这时我已经写出来了主页面，但是一个页面无论从好看或者其他角度来说就CSS来说是不足够的，还需要js文件。

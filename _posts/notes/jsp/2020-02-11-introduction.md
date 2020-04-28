@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "JSP基础1"
+title:  "介绍"
 date:   2020-02-11 16:55:30 +0800
 categories: notes jsp base
 tags: javaweb jsp 基础 创建
-excerpt: "JSP入门"
+excerpt: "JSP入门与介绍"
 ---
 
 ## JSP是什么

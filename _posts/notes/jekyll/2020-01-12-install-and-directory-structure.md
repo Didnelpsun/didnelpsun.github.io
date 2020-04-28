@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Jekyll基础1"
+title:  "下载安装与结构"
 date:   2020-01-12 15:20:13 +0800
 categories: notes jekyll base
 tags: jekyll 基础 安装 搭建 Github Pages 启动 结构
-excerpt: "下载安装与目录结构"
+excerpt: "介绍配置与目录结构"
 ---
 
 ## 使用Github pages建立博客

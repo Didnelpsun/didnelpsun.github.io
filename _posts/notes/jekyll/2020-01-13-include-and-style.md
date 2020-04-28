@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Jekyll基础3"
+title:  "引用与样式"
 date:   2020-01-13 11:12:41 +0800
 categories: notes jekyll base
 tags: jekyll 基础 include 引用 sass scss
-excerpt: "引用组件和样式"
+excerpt: "引用组件和Sass样式"
 ---
 
 我们已经使用了_layouts文件夹和layout、permalink头部属性，按道理我们可以能写出页面，并能套用模板，还能自定义路由。  

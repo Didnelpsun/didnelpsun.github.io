@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Servlet基础5"
+title:  "数据请求"
 date:   2020-02-16 12:39:16 +0800
 categories: notes servlet base
 tags: javaweb servlet 基础 HTTP 客户端

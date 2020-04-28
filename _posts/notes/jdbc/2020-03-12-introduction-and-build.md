@@ -109,7 +109,7 @@ MySQL 的 Connector/Java 的驱动程序是一个类型 4 驱动程序。因为�
 
 首先第一步我们应该创建一个数据库用来实验，这一步就不必展示了。使用终端或者Navicat图形化创建都可以。
 
-然后建立一个Java Web项目，并在该项目下新建一个lib文件夹来保持.jar文件。然后再在WEB-INF文件夹下新建classes文件夹，详细的配置可以参考[JSP基础1]({% post_url notes/jsp/2020-02-11-jsp1 %})
+然后建立一个Java Web项目，并在该项目下新建一个lib文件夹来保持.jar文件。然后再在WEB-INF文件夹下新建classes文件夹，详细的配置可以参考[JSP介绍]({% post_url notes/jsp/2020-02-11-introduction %})
 
 可能IDEA版本不同会导致一些弹窗弹出顺序不同，但是它的选项都在同一个地方。
 

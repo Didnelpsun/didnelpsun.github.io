@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Servlet基础3"
+title:  "创建项目"
 date:   2020-02-13 22:31:03 +0800
 categories: notes servlet base
 tags: IDEA servlet javaweb 基础 创建 结构 XML 命名 WEB-INF @WebServelt
-excerpt: "创建Servlet实例"
+excerpt: "使用IDEA创建Servlet实例"
 ---
 
 ## 使用IDEA创建Servlet项目
@@ -35,7 +35,7 @@ excerpt: "创建Servlet实例"
 
 ![tomcat的servlet包][tomcatservlet]
 
-然后再在WEB-INF下面新建lib和classes文件夹，配置如[jsp1]({% post_url notes/jsp/2020-02-11-jsp1 %})。
+然后再在WEB-INF下面新建lib和classes文件夹，配置如[JSP介绍]({% post_url notes/jsp/2020-02-11-introduction %})。
 
 ### &emsp;Servlet项目结构
 

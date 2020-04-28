@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Jekyll基础2"
+title:  "地址与模板语法"
 date:   2020-01-12 16:43:22 +0800
 categories: notes jekyll base
 tags: jekyll 基础 自定义 链接 地址 模板  permalink layout title date YAML头信息
