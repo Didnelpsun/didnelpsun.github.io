@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础9"
+title:  "面向对象（上）"
 date:   2019-09-26 19:18:15 +0800
 categories: notes java base
 tags: java 基础 继承 extends super 重构 final Object getClass toString equals 转型 instanceof 重载 不定长参数 多态 抽象 abstract 接口 interface implements 
-excerpt: "面向对象（上）"
+excerpt: "继承转型多态抽象与接口"
 ---
 
 ## 继承

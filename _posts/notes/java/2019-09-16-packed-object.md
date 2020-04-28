@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础4"
+title:  "包装类"
 date:   2019-09-16 23:01:12 +0800
 categories: notes java base
 tags: java 基础 Integer Long Short Boolean Character Double Float Number
-excerpt: "包装类"
+excerpt: "四种基本类型的包装对象"
 ---
 
 为了将基本类型作为对象处理，并连接相关的方法，Java为每个基本类型都提供了包装类。这些类都保存在`java.lang`包中。

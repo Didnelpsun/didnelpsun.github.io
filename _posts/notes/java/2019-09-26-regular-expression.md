@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础8"
+title:  "正则表达式"
 date:   2019-09-26 00:23:46 +0800
 categories: notes java base
 tags: java 基础 正则 regex Pattern Matcher PatternSyntaxException 元字符 限定符 分组 断言 中文 数字 贪婪
-excerpt: "正则表达式（regex类）"
+excerpt: "regex类"
 ---
 
 导入`regex`包:`import java.util.regex`  

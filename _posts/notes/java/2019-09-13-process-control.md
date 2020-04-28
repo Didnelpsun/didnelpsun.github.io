@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础2"
+title:  "流程控制"
 date:   2019-09-13 08:36:41 +0800
 categories: notes java base
 tags: java 基础 if else switch case while for foreach break continue return
-excerpt: "流程控制"
+excerpt: "条件分支、循环与控制"
 ---
 
 ## 条件语句

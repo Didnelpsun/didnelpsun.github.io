@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础11"
+title:  "数字处理类"
 date:   2019-09-27 15:48:21 +0800
 categories: notes java base
 tags: java 基础 DecimalFormat format setGroupingSize Math sin cos tan asin acos atan toRadians toDegrees exp log log10 sqrt cbrt pow ceil floor rint round max min abs BigInteger add subtract multiply divide remainder divideAndRemainder pow negate shiftLeft shiftRight and or max min compare equals BigDeciaml Random nextInt nextLong nextBoolean nextFloat nextDouble nextGaussian
-excerpt: "数字处理类"
+excerpt: "数字格式化、数学与大数"
 ---
 
 Java中为了处理数学、随机、金融等数字问题，封装了一些类。

@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础1"
+title:  "安装与基础语法"
 date:   2019-09-12 14:15:12 +0800
 categories: notes java base
 tags: java 基础 安装 JRE JDK 数据类型 常量 变量 运算符 注释 输出
-excerpt: "安装与基础语法"
+excerpt: "安装配置与语法"
 ---
 
 ## Java配置安装与运行

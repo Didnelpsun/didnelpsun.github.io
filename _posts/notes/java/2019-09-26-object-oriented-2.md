@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Java基础10"
+title:  "面向对象（下）"
 date:   2019-09-26 23:54:40 +0800
 categories: notes java base
 tags: java 基础 内部类
-excerpt: "面向对象（下）"
+excerpt: "内部类"
 ---
 
 ## 内部类
