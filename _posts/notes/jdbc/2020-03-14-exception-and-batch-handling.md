@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "JDBC基础4"
+title:  "异常与批量处理"
 date:   2020-03-14 21:23:05 +0800
 categories: notes jdbc base
 tags: jdbc 基础 异常 批量 addBatch executeBatch clearBatch

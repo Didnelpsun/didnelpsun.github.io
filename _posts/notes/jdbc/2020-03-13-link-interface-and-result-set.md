@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "JDBC基础2"
+title:  "连接、接口与结果集"
 date:   2020-03-13 15:54:21 +0800
 categories: notes jdbc base
 tags: jdbc 基础 连接 导入 注册 指定 创建 关闭 接口 Statement PreparedStatement CallableStatement 结果集
-excerpt: "连接、接口与结果集"
+excerpt: "连接数据库与结果处理"
 ---
 
 上个教程我们已经提过了具体的JDBC操作流程。
