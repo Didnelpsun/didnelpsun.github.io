@@ -73,7 +73,7 @@ File -> Project Structure (快捷键：Ctrl + Shift + Alt + S) -> 选择Module
 
 然后返回就行了。记得勾起来。
 
-第五步[配置tomcat容器]({% post_url notes/tomcat/2020-02-12-tomcat2 %})
+第五步[配置tomcat容器]({% post_url notes/tomcat/2020-02-12-tomcat-idea-configure %})
 
 第六步我们就可以开始学习JSP并改动相关文件了。index.jsp就是显示的jsp文件，长得像html文件。但是我们主要是学jsp的，而不是html或者前端，其实jsp文件html内容并不重要。
 

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Markdown基础1"
+title:  "标题"
 date:   2019-09-13 14:25:13 +0800
 categories: notes markdown base
 tags: markdown 基础 标题

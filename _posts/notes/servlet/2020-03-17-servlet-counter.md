@@ -258,7 +258,7 @@ public class WebCounter implements Filter{
 
 ![网页点击器][webcounter]
 
-我们可以看到虽然我们是第一次访问页面，但是它就显示我们访问三次，这是因为什么呢？我觉得可能是因为HTTP三次握手，所以产生了三次，相关的猜想在[JSP的生命周期]({% post_url notes/jsp/2020-02-12-structure-and-life-cycle %})的例子中就已经提过，因为生命周期的例子中也是响应三次，而JSP也是一种Servlet。
+我们可以看到虽然我们是第一次访问页面，但是它就显示我们访问三次，这是因为什么呢？我觉得可能是因为HTTP三次握手，所以产生了三次，相关的猜想在[JSP的生命周期]({% post_url notes/jsp/2020-02-12-jsp-structure-and-life-cycle %})的例子中就已经提过，因为生命周期的例子中也是响应三次，而JSP也是一种Servlet。
 
 如果想使用数据库来保存数据，上面的例子已经演示过了。
 

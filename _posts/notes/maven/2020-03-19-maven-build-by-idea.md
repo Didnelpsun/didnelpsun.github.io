@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Maven基础2"
-date:   2020-03-18 20:07:28 +0800
+title:  "使用IDEA构建项目"
+date:   2020-03-19 20:07:28 +0800
 categories: notes maven base
 tags: maven 基础 IDEA 创建 quick archetype groupid artifactid goal artifact module facets pom
-excerpt: "使用IDEA构建项目"
+excerpt: "使用IDEA构建项目与配置"
 ---
 
 ## IDEA中创建quick项目
@@ -87,7 +87,7 @@ repository代表本地仓库地址。这个选项是可选的。
 
 ![mavenweb项目][webproject]
 
-然后按照[Maven约定结构]({% post_url notes/maven/2020-03-18-maven1 %})而言，我们需要格式化项目结构，然后就变成了这样：
+然后按照[Maven约定结构]({% post_url notes/maven/2020-03-18-maven-introduction %})而言，我们需要格式化项目结构，然后就变成了这样：
 
 ![mavenweb结构][webstructure]
 

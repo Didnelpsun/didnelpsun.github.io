@@ -35,7 +35,7 @@ excerpt: "使用IDEA创建Servlet实例"
 
 ![tomcat的servlet包][tomcatservlet]
 
-然后再在WEB-INF下面新建lib和classes文件夹，配置如[JSP介绍]({% post_url notes/jsp/2020-02-11-introduction %})。
+然后再在WEB-INF下面新建lib和classes文件夹，配置如[JSP介绍]({% post_url notes/jsp/2020-02-11-jsp-introduction %})。
 
 ### &emsp;Servlet项目结构
 
@@ -85,7 +85,7 @@ public class HelloWorld extends HttpServlet {
 }
 ```
 
-然后[配置tomcat容器]({% post_url notes/tomcat/2020-02-12-tomcat2 %})，就可以开始运行了。
+然后[配置tomcat容器]({% post_url notes/tomcat/2020-02-12-tomcat-idea-configure %})，就可以开始运行了。
 
 ### &emsp;XML文件项目部署
 
@@ -152,7 +152,7 @@ index.jsp文件的显示的。
 
 使用ctrl点击web.xml的Servlet，发现指向是正确的。
 
-这是为什么呢？查看tomcat报错，因为win10下tomcat可能中文会乱码，所以要[改变tomcat编码]({% post_url notes/tomcat/2020-02-14-tomcat3 %})。
+这是为什么呢？查看tomcat报错，因为win10下tomcat可能中文会乱码，所以要[改变tomcat编码]({% post_url notes/tomcat/2020-02-14-tomcat-garbled-chinese-code %})。
 
 ![中文报错][error]
 

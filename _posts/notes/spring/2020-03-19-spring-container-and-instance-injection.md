@@ -9,7 +9,7 @@ excerpt: "基本容器与实例注入容器"
 
 因为后端较抽象，所以需要用案例来说明，为了更好理解，所以我们将讲解一部分必要的内容搭建一个Spring的简单应用，等后面再详细讲解。
 
-首先我们需要了解到SpringBeans的概念，我们已经了解过[JavaBeans]({% post_url notes/java/2020-02-18-javabean %})的概念，而SpringBeans就是类似的东西。Spring bean 表示受到Spring管理的对象。具体说来，它是被Spring框架容器初始化、配置和管理的对象。Spring bean是在Spring的配置文件中定义（现在也可以通过annotation注解来定义），在Spring容器中初始化，然后注入到应用程序中的。
+首先我们需要了解到SpringBeans的概念，我们已经了解过[JavaBeans]({% post_url notes/java/2020-02-18-java-javabean %})的概念，而SpringBeans就是类似的东西。Spring bean 表示受到Spring管理的对象。具体说来，它是被Spring框架容器初始化、配置和管理的对象。Spring bean是在Spring的配置文件中定义（现在也可以通过annotation注解来定义），在Spring容器中初始化，然后注入到应用程序中的。
 
 我们有时候也会提到POJO，POJO是 Plain Old Java Object（简单的Java对象）的缩写。它最初是由Martin Fowler等人创造的，作为一种花式的对普通Java对象的称呼。这类对象不需要通过框架来使用，也不需要在特定应用服务器的环境下才能运行。这个词主要用来区分简单、轻量的Java对象和"重量级"的类，例如EJB。《POJOs in Action》一书介绍了使用这类轻量的对象来进行开发的方法，许多框架-例如Spring-也推广了POJO的使用。
 

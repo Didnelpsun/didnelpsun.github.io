@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "JSP基础3"
+title:  "基础语法"
 date:   2020-02-16 23:28:57 +0800
 categories: notes jsp base
 tags: javaweb jsp 基础 脚本 声明 语法
-excerpt: "基础语法"
+excerpt: "JSP语法标签"
 ---
 
 ## 脚本程序
@@ -360,7 +360,7 @@ flush|布尔属性，定义在包含资源前是否刷新缓存区。
 
 ### &emsp;2. `<jsp:useBean>`
 
-jsp:useBean动作用来装载一个将在JSP页面中使用的[JavaBean]({% post_url notes/java/2020-02-18-javabean %})。
+jsp:useBean动作用来装载一个将在JSP页面中使用的[JavaBean]({% post_url notes/java/2020-02-18-java-javabean %})。
 
 这个功能非常有用，因为它使得我们既可以发挥Java组件重用的优势，同时也避免了损失JSP区别于Servlet的方便性。
 

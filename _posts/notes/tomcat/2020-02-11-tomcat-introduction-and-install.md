@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Tomcat基础1"
+title:  "介绍与安装"
 date:   2020-02-11 21:24:12 +0800
 categories: notes tomcat base
 tags: tomcat 基础 安装 配置
-excerpt: "tomcat介绍与安装"
+excerpt: "容器介绍与安装配置"
 ---
 
 ## tomcat介绍
@@ -13,7 +13,7 @@ tomcat是一个开源而且免费的jsp服务器，可实现JavaWeb程序的装�
 
 tomcat 服务器是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试JSP 程序的首选。
 
-同时tomcat也是web容器。在[web入门]({% post_url /notes/java/2020-02-10-javaweb %})中就有一个有关于tomcat的图片，就说明了tomcat的关系。
+同时tomcat也是web容器。在[web入门]({% post_url /notes/java/2020-02-10-java-javaweb %})中就有一个有关于tomcat的图片，就说明了tomcat的关系。
 
 &emsp;
 

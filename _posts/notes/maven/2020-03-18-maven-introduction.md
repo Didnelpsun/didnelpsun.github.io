@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Maven基础1"
+title:  "Maven介绍"
 date:   2020-03-18 14:25:39 +0800
 categories: notes maven base
 tags: maven 基础 结构 下载 环境变量 仓库 镜像
-excerpt: "Maven介绍"
+excerpt: "结构、配置与仓库"
 ---
 
 Maven 翻译为"专家"、"内行"，是Apache下的一个纯Java开发的开源项目。基于项目对象模型（缩写：POM）概念，Maven利用一个中央信息片断能管理一个项目的构建、报告和文档等步骤。

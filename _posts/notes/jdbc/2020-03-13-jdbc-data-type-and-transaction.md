@@ -304,7 +304,7 @@ public class Jdbc {
 }
 ```
 
-对于这个代码还有一点需要注意的是结果集的使用，详情请见[结果集的使用]({% post_url notes/jdbc/2020-03-13-link-interface-and-result-set %})。
+对于这个代码还有一点需要注意的是结果集的使用，详情请见[结果集的使用]({% post_url notes/jdbc/2020-03-13-jdbc-link-interface-and-result-set %})。
 
 ![result3][result3]
 

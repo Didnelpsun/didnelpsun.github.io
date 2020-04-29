@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Tomcat基础2"
+title:  "IDEA配置"
 date:   2020-02-12 16:19:50 +0800
 categories: notes tomcat
 tags: tomcat 基础 IDEA base
-excerpt: "tomcat与IDEA配置"
+excerpt: "IDEA配置Tomcat"
 ---
 
 因为我一般使用IDEA来写java项目，所以对于tomcat就使用IDEA。那么如何配置tomcat容器呢？

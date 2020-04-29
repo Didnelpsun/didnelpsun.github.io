@@ -9,7 +9,7 @@ excerpt: "存储过程与转义语法"
 
 ## 存储过程处理
 
-我们之前就已经在[接口]({% post_url notes/jdbc/2020-03-13-link-interface-and-result-set %})中已经讲过了存储过程的调用是使用CallableStatement对象。但是我们之前并没有仔细说如何使用存储过程。
+我们之前就已经在[接口]({% post_url notes/jdbc/2020-03-13-jdbc-link-interface-and-result-set %})中已经讲过了存储过程的调用是使用CallableStatement对象。但是我们之前并没有仔细说如何使用存储过程。
 
 ```sql
 --Oracle

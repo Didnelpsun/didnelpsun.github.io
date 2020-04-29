@@ -255,7 +255,7 @@ System.out.println(str);
 
 导入Date包:`import java.util.Date`  
 
-对于Date类详细请看[Java基础7]({% post_url /notes/java/2019-09-25-date %})
+对于Date类详细请看[Java基础7]({% post_url /notes/java/2019-09-25-java-date %})
 
 然后需要创建Date对象然后对这个对象格式化然后输出。  
 
