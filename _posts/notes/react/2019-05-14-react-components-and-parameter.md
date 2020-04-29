@@ -1,0 +1,265 @@
+---
+layout: post
+title:  "组件与参数"
+date:   2019-05-14 14:25:49 +0800
+categories: notes react base
+tags: react 基础 组件 参数 props
+excerpt: "组件与参数"
+---
+
+## 组件
+
+无论什么框架，都讲究一个组件复用的概念，react也是如此。
+
+### &emsp;1. 声明方式
+
+我们要使用组件首先要构建组件，声明组件的方式有两种：
+
+#### &emsp;&emsp;1.1 function()函数  
+
+`function 组件名(参数){ return(<组件内容>)}`  
+一个函数就是一个组件，return一份DOM解构  
+特点:  
+1>没有生命周期，也会被更新并挂载，但是没有生命周期函数  
+2>没有this(组件实例）  
+3>没有内部状态（state）  
+优点 ：轻量，如果你的组件没有涉及到内部状态，只是用来渲染数据，那么就用函数式组件，性能较好。  
+如：
+
+```react
+function Welcome(props) {
+  return (
+    <h1>Hello, {props.name} </h1>
+    );
+}
+```
+
+#### &emsp;&emsp;1.2 class()类  
+
+`class 组件名 extends React.Component{render(){return(<组件内容>)}}`
+如
+
+```react
+class Welcome extends React.Component {
+  render() {
+    return (
+      <h1>Hello, {this.props.name}</h1>
+    );
+  }
+}
+```
+
+类组件分为普通类组件（React.Component）以及纯类组件（React.PureComponent）,就是extends继承哪种类的区别。  
+
+所以函数式声明组件有如下的优势：  
+函数式组件与基于Class声明的组件比较不需要声明类，可以避免大量的譬如extends或者constructor这样的代码不需要显示声明this关键字，在ES6的类声明中往往需要将函数的this关键字绑定到当前作用域，而因为函数式声明的特性，我们不需要再强制绑定。更佳的性能表现:因为函数式组件中并不需要进行生命周期的管理与状态管理，因此React并不需要进行某些特定的检查或者内存分配，从而保证了更好地性能表现。
+
+#### &emsp;&emsp;1.3 const定义
+
+也可以使用const来定义组件，值得注意的是这里就不会有render函数，因为这里定义的组件是const定义的：
+
+```react
+const componentClass = (props,state)=>{
+  constructor(props){
+    super(props);
+  }
+  state=()=>{ //也可以使用对象赋值state
+    return ({
+        key:"value"
+    })
+  }
+    return(
+  )
+}
+
+export default componentClass
+```
+
+<span style="color:orange">注意：</span>组件名要大写。
+
+### &emsp;2. 组件使用
+
+我们这里可以明白，所谓组件其实就是类，组件名就是类名（ES6前没有类的定义）
+
+所以当定义了组件后，使用该组件就应该是以<组件名>的方式。
+
+如：
+
+```react
+function Hi(){
+  return (
+    <h1>Hi</h1>
+    )
+}
+const element=<Hi/>;
+ReactDom.render(
+  element,
+  document.getElementById("root")
+)
+```
+
+当组件不在当前文件需要引用：`import 组件名 from 地址`
+
+<span style="color:orange">注意：</span>同时一定要在那个组件文件中的最后面使用`export default 组件名;`默认导出组件！不然是找不到这个被引用的组件的。
+
+```react
+import React, { Component } from 'react'
+import './ColorButton.css'
+
+class YellowButton extends Component{
+    constructor(props: any) {
+        super(props);
+        this.state = {
+        }
+    }
+
+    组件的函数
+
+    render() {
+        return (
+            组件内容
+        )
+    }
+}
+
+export default 组件名;
+```
+
+### 3. 纯类组件
+
+之前声明组件就谈到了PureComponent，这是react15新加的东西。
+
+使用方法就是extends PureComponent。
+
+Component和PureComponent的区别：  
+先了解下React生命周期函数（会在以后说到）shouldComponentUpdate，这个函数返回一个布尔值，如果返回true，那么当props或state改变的时候进行更新；如果返回false，当props或state改变的时候不更新，默认返回true。这里的更新不更新，其实说的是执不执行render函数，如果不执行render函数，那该组件和其子组件都不会重新渲染。
+
+1>继承PureComponent时，不能再重写shouldComponentUpdate。  
+2>React.PureComponent基于shouldComponentUpdate做了一些优化，通过prop和state的浅比较来实现shouldComponentUpdate，也就是说，如果是引用类型的数据，只会比较是不是同一个地址，而不会比较具体这个地址存的数据是否完全一致。
+
+纯类组件是为了优化渲染而出现的，当组件更新时，如果组件的 props 和 state 都没发生改变，render 方法就不会触发，省去 Virtual DOM 的「生成」和「比对」过程，达到提升性能的目的。
+
+React 做了如下判断：
+
+```react
+if (this._compositeType === CompositeTypes.PureClass) {
+  shouldUpdate = !shallowEqual(prevProps, nextProps)
+  || !shallowEqual(inst.state, nextState);
+}
+```
+
+这里的 shallowEqual 会比较 Object.keys(state | props) 的长度是否一致，每一个 key 是否两者都有，并且是否是一个引用，也就是只比较了第一层的值，因为比较很浅，所以深层的嵌套数据是对比不出来的。
+
+<span style="color:orange">注意：</span>
+
+1. 如果 PureComponent 里有 shouldComponentUpdate 函数的话，React 会直接使用 shouldComponentUpdate 的结果作为是否更新的依据；只有不存在 shouldComponentUpdate 函数，React 才会去判断是不是 PureComponent，是的话再去做 shallowEqual 浅比较。也因为可以少写 shouldComponentUpdate 函数，倒也节省了点代码。
+
+2. 因为只做了浅比较，所以需要注意 state 或 props 中修改前后的对象引用是否一致；
+
+3. 由于是 React15.3 之后才有的，所以可能需要进行兼容操作；
+
+```react
+import React { PureComponent, Component } from 'react';
+class Foo extends (PureComponent || Component) {
+  //...
+}
+```
+
+&emsp;
+
+## 参数
+
+参数名一般即props，靠传入函数，也可以取为别的名字。一般为对象：`function 函数名(参数名){}`或者`class 类名(参数名){}`
+
+参数的使用：`参数名.参数成员名`
+
+如：
+
+```react
+function People(props){
+  return (
+    <h1>{props.name}</h1>
+    <h2>{props.sex}</h2>
+    )
+}
+const lisa = <People name="lisa" sex="woman">
+```
+
+参数是只读的，不能改变自身的参数。
+
+同时组件内可以再嵌套参数，并且可以将参数传入大组件种的小组件，如官方给的例子：
+
+```react
+function Comment(props) {
+  return (
+    <div className="Comment">
+      <div className="UserInfo">
+        <img className="Avatar"
+          src={props.author.avatarUrl}
+          alt={props.author.name}
+        />
+        <div className="UserInfo-name">
+          {props.author.name}
+        </div>
+      </div>
+      <div className="Comment-text">
+        {props.text}
+      </div>
+      <div className="Comment-date">
+        {formatDate(props.date)}
+      </div>
+    </div>
+  );
+}
+
+function Avatar(props) { //提取出一个组件并将一部分参数传入
+  return (
+    <img className="Avatar"
+      src={props.user.avatarUrl} //因为传入的参数只有一个对象，所以可以换成新的名字
+      alt={props.user.name}
+    />
+
+  );
+}
+
+function Comment(props) { //改造后
+  return (
+    <div className="Comment">
+      <div className="UserInfo">
+        <Avatar user={props.author} />
+        <div className="UserInfo-name">
+          {props.author.name}
+        </div>
+      </div>
+      <div className="Comment-text">
+        {props.text}
+      </div>
+      <div className="Comment-date">
+        {formatDate(props.date)}
+      </div>
+    </div>
+  );
+}
+```
+
+如果要在组件的render中使用props，必须首先解析props为不同的变量。
+
+<span style="color:aqua">格式：</span>`const { 变量1，变量2 ……}=this.props;`
+
+如：
+
+```react
+...
+class Itehm extends Component{
+  render(){
+    const {title, name , date}= this.props;
+    return(
+      <li>
+        <div>{title}</div>
+        <div>{name}</div>
+        <div>{date}</div>
+      </li>
+    )
+  }
+}
+```

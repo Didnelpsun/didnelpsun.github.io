@@ -4,7 +4,7 @@ title: "Spring注释总结"
 date: 2020-04-14 13:13:55 +0800
 categories: notes spring senior
 tags: spring 高级
-excerpt: "其他相关注释与使用"
+excerpt: "相关注释与使用"
 ---
 
 Spring现在一般都是采用注释来操作，如之前的用注释进行实例化，自动注入等都是使用方式。下面会讲到一些之前没有使用过的注释。
