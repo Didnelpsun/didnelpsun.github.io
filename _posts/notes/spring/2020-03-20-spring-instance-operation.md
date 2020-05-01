@@ -4,7 +4,7 @@ title: "实例处理"
 date: 2020-03-20 14:01:57 +0800
 categories: notes spring base
 tags: spring 基础 bean 配置 属性 实例化 作用域 singleton prototype 继承 parent
-excerpt: "实例注入与配置"
+excerpt: "实例注入与容器配置"
 ---
 
 SpringBean是由用容器提供的配置元数据创建的，之前一般是由xml文件定义元数据。
