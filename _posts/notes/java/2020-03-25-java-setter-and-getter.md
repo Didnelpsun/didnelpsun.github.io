@@ -3,7 +3,7 @@ layout: post
 title:  "Setter和Getter方法"
 date:   2020-03-25 23:38:43 +0800
 categories: notes java other
-tags: java other
+tags: java 其他
 excerpt: "Java中的Setter和Getter方法"
 ---
 
