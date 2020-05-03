@@ -3,7 +3,7 @@ layout: post
 title: "介绍与创建"
 date: 2020-01-29 23:20:13 +0800
 categories: notes spring base
-tags: spring 基础 功能 结构 三层架构 MVC IDEA
+tags: spring 基础 功能 结构 MVC IDEA
 excerpt: "Spring介绍与创建"
 ---
 
@@ -52,53 +52,11 @@ excerpt: "Spring介绍与创建"
 
 ### &emsp;其他模块
 
-+ AOP 模块：Spring AOP 模块提供了符合 AOP Alliance 规范的面向切面的编程（aspect-oriented programming）实现，提供比如日志记录、权限控制、性能统计等通用功能和业务逻辑分离的技术，并且能动态的把这些功能添加到需要的代码中，这样各专其职，降低业务逻辑和通用功能的耦合。
-+ Aspects 模块：提供了对 AspectJ 的集成，AspectJ 提供了比 Spring ASP 更强大的功能。
-+ Instrumentation 模块：在一定的应用服务器中提供了类 instrumentation的支持和类加载器的实现。
-+ Messaging 模块：为 STOMP 提供了支持作为在应用程序中 WebSocket 子协议的使用。它也支持一个注解编程模型，它是为了选路和处理来自 WebSocket 客户端的 STOMP 信息。
-+ Test 模块：Spring 支持 Junit 和 TestNG 测试框架，而且还额外提供了一些基于 Spring 的测试功能，比如在测试 Web 框架时，模拟 Http 请求的功能。
-
-&emsp;
-
-## 三层架构和MVC
-
-很长一段时间中我们都会对应Spring的三层架构和MVC结构搞混，实际上它们并不是一个东西。
-
-首先我们应该已经了解过了MVC是什么，它是一种设计模式目的是让HTML代码和业务逻辑代码分开，让代码看起来更加清晰，便于开发。M：model，V：view，C：controller。不论是MVC或者MVVM都是针对前端而言的。
-
-而三层架构是一种分层思想，将开发模式分为了这三层，每个人根据自己的专长，开发不同的模块。
-
-+ Dao:数据访问层，包括CRUD。
-+ Service：业务处理层，对于一些业务进行判断。
-+ Controller:接收用户请求和页面交互
-
-Controller --> Service --> Dao
-
-```java
-//框架设计
-//model
-class Book{}
-
-//dao
-interface IBookDao{}
-@Repository
-class BookDao implements IBookDao{}
-
-//service
-interface IBookService{}
-@Service
-class BookService implements IBookService{
-    @Autowired
-    private IBookDao bookDao;
-}
-
-//controller
-@Controller
-class BookController{
-    @Autowired
-    private IBookService bookService;
-}
-```
++ AOP模块：Spring AOP模块提供了符合AOP Alliance规范的面向切面的编程（aspect-oriented programming）实现，提供比如日志记录、权限控制、性能统计等通用功能和业务逻辑分离的技术，并且能动态的把这些功能添加到需要的代码中，这样各专其职，降低业务逻辑和通用功能的耦合。
++ Aspects模块：提供了对AspectJ的集成，AspectJ提供了比Spring ASP更强大的功能。
++ Instrumentation模块：在一定的应用服务器中提供了类instrumentation的支持和类加载器的实现。
++ Messaging模块：为STOMP提供了支持作为在应用程序中WebSocket子协议的使用。它也支持一个注解编程模型，它是为了选路和处理来自WebSocket客户端的 STOMP 信息。
++ Test模块：Spring支持Junit和TestNG测试框架，而且还额外提供了一些基于Spring的测试功能，比如在测试Web框架时，模拟Http请求的功能。
 
 &emsp;
 
