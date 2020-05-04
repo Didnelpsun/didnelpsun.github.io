@@ -74,6 +74,9 @@ interface fruit{
     public abstract void eat(); 
     //定义水果具有一个抽象方法eat吃
 }
+```
+
+```java
 //用苹果类实现水果接口
 class Apple implements fruit{  
     public void eat(){
@@ -81,12 +84,18 @@ class Apple implements fruit{
         System.out.println("Apple");
     }
 }
+```
+
+```java
 //橘子类也同样重写
 class Orange implements fruit{
     public void eat(){
         System.out.println("Orange");
     }
 }
+```
+
+```java
 //然后构建一个Factory类，即工厂类，用来建立一个生产水果的工厂
 class Factory{
     //这个生产的方法getInstance方法为静态方法，返回值为fruit类型
@@ -107,6 +116,9 @@ class Factory{
         return f;
     }  
 }
+```
+
+```java
 //主函数
 class hello{
     public static void main(String[] args)
@@ -140,6 +152,9 @@ class Factory{
         return f;
     }
 }
+```
+
+```java
 class hello{  
     public static void main(String[] args){
         //传入具体的Apple类路径
