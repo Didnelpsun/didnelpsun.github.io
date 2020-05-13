@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "实例处理"
+title: "作用域"
 date: 2020-03-20 14:01:57 +0800
 categories: notes spring base
 tags: spring 基础 bean 配置 属性 实例化 作用域 singleton prototype 继承 parent
