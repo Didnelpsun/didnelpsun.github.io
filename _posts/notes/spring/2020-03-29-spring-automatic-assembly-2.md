@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "自动装配（下）"
+title: "自动装配（注解）"
 date: 2020-03-29 13:18:37 +0800
 categories: notes spring base
 tags: spring 基础 自动扫描 context:annotation-config context:component-scan @Autowired @Qualifier @Resourse @Inject @Named 
-excerpt: "自动装配（注解）"
+excerpt: "@Autowired注解"
 ---
 
 所以你会发现xml的自动装配并没有我们想象的好用。不谈对于一些实例命名的约束下甚至不如按原来的ref属性，而且基本上不会简便代码。实际上我们在实际运用中也不会用这个属性，而更多是采用的注释的方式，因为这种方式更简便。

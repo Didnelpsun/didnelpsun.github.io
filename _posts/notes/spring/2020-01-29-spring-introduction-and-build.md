@@ -4,7 +4,7 @@ title: "介绍与创建"
 date: 2020-01-29 23:20:13 +0800
 categories: notes spring base
 tags: spring 基础 功能 结构 MVC IDEA
-excerpt: "Spring介绍与创建"
+excerpt: "Spring介绍与IDEA创建"
 ---
 
 虽然Spring是一个框架，但是同如前端框架一样，它并不是如flask框架一样简单的框架，它有许多不同的概念和思想。

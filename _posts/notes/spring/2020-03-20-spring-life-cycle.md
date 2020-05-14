@@ -9,13 +9,17 @@ excerpt: "生命周期与函数"
 
 无论是什么都有生命周期，即如何产生如何使用如何被销毁，虽然产生和销毁间有许多操作，但是一般还是主要讲实例化和销毁。我们之前讲的Bean的实例化方法是针对Java代码的定义，而现在说的实例化是针对IoC容器的初始化。
 
-为了定义安装和拆卸一个bean，我们只要声明带有init-method或destroy-method参数的 。init-method属性指定一个方法，在实例化bean时，立即调用该方法。同样，destroy-method指定一个方法，只有从容器中移除 bean之后，才能调用该方法。
-
 Bean的生命周期可以表达为：Bean的定义—>Bean的初始化—>Bean的使用—>Bean的销毁。
 
-<span style="color:red">警告：</span>Spring容器可以管理singleton作用域Bean的生命周期，在此作用域下，Spring能够精确地知道该Bean何时被创建，何时初始化完成，以及何时被销毁。
+<span style="color:red">警告：</span>Spring容器可以管理singleton作用域Bean的生命周期，在此作用域下，Spring能够精确地知道该Bean何时被创建，何时初始化完成，以及何时被销毁。因为单例对象的生命周期跟随容器生命周期，容器创建后单例实例产生，容器销毁前实例被销毁。
 
-而对于<span style="color:red">prototype</span>作用域的Bean，Spring只负责创建，当容器创建了Bean的实例后，Bean的实例就交给客户端代码管理，<span style="color:red">Spring容器将不再跟踪其生命周期</span>。每次客户端请求prototype作用域的Bean时，Spring容器都会创建一个新的实例，并且不会管那些被配置成prototype作用域的Bean的生命周期。
+为了定义创建和销毁一个bean，如果我们是使用xml配置，我们只要声明带有init-method或destroy-method参数的bean标签就可以了。init-method属性指定一个方法，在实例化bean时，立即调用该方法。同样，destroy-method指定一个方法，只有从容器中移除bean之后，才能调用该方法。如`<bean id="test" class="Test" init-method="init" destroy-method="destroy" />`，就是指定一个Test类，名为test的实例，初始化方法为里面的init方法，销毁方法为类中的destroy方法。
+
+（如果你定义了销毁方法，而却发现销毁的方法并没有被调用，是因为如果你在运行main方法后，一旦停止运行，那么全部的资源都会被释放，所以实例和容器还没有来得及销毁就被释放了，如果你要看到实例销毁的过程，你必须手动销毁容器。你需要调用容器的`close()`方法来关闭，且这时你的容器必须定义为子类ClassPathXmlApplicationContext类型，只有它才有close方法，而不是没有该方法的父类ApplicationContext类型。）
+
+而对于<span style="color:red">prototype</span>作用域的Bean，如我们之前说的原型类型的实例使用的时候才会被创建，所以Spring只负责创建和初始化，当容器创建并初始化好了Bean的实例后，Bean的实例就交给客户端代码管理，<span style="color:red">Spring容器将不再跟踪其生命周期</span>。每次客户端请求prototype作用域的Bean时，Spring容器都会创建一个新的实例，并且不会管那些被配置成prototype作用域的Bean的生命周期。
+
+而对于原型模式的实例对象，它的销毁由Java的垃圾销毁机制来控制，长时间不被使用且不被引用就会背销毁，而不是由Spring控制，所以即使容器被销毁了，原型模式实例也不会背销毁。
 
 ![SpringBean生命周期][springbeanlife]
 
