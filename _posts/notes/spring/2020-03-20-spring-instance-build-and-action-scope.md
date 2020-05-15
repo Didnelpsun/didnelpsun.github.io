@@ -3,7 +3,7 @@ layout: post
 title: "创建与作用域"
 date: 2020-03-20 14:01:57 +0800
 categories: notes spring base
-tags: spring 基础 bean 配置 属性 实例化 作用域 singleton prototype 继承 parent
+tags: spring 基础 bean 配置 属性 实例化 作用域 singleton prototype global-session 继承 parent
 excerpt: "实例创建与实例作用域"
 ---
 

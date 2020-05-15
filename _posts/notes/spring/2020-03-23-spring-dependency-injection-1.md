@@ -4,12 +4,26 @@ title: "依赖注入（上）"
 date: 2020-03-23 17:17:09 +0800
 categories: notes spring base
 tags: spring 基础 xml 构造器 constructor-arg ref type value index 设值函数 property p-namespace 内部类 list set map properties null
-excerpt: "XML依赖注入"
+excerpt: "代码依赖注入"
 ---
 
-我们在创建Spring Bean的时候就已经使用过了依赖注入的概念，但是我们一直都没有仔细的系统的去讲。依赖注入分为两种大的方式，一种是基于注释，一种是基于xml配置。
+我们在创建Spring Bean的时候就已经使用过了依赖注入的概念，但是我们一直都没有仔细的系统的去讲。
+
+依赖注入分为两种大的方式，一种是基于注释，一种是基于代码。具体细分一共有三种：
+
++ 注释
++ 构造函数
++ 设值函数
+
+可注入的数据类型：
+
++ 基本数据类型与String
++ 其他Bean实例类型
++ 复杂类型/集合类型
 
 每个基于应用程序的Java都有几个对象，这些对象一起工作来呈现出终端用户所看到的工作的应用程序。当编写一个复杂的Java应用程序时，应用程序类应该尽可能独立于其他Java类来增加这些类重用的可能性，并且在做单元测试时，测试独立于其他类的独立性。依赖注入（或有时称为布线）有助于把这些类粘合在一起，同时保持他们独立。
+
+但是显然这些依赖都是应该比较固定的，如果是变化很大的数据，不同用户的注册相关信息之类的，那么依赖注入会造成很大的时间开销，所以是不适合的。
 
 ```java
 //新建一个Didnelpsun类
@@ -34,11 +48,9 @@ public class Didnelpsun{
 
 我们可能会奇怪构造函数中第一个的DidBlog为什么没有指明this，是因为DidBlog这个属性在第一个构造方法中是独有的，而第二个构造方法中参数和类属性重名了，所以必须指明this，虽然我们也可以不重名，但是并不推荐这样使用，因为并不直观。
 
-依赖注入的配置方式大的有两种，一个是xml一个注释。
-
 首先还是利用[Spring项目模板文件：spring/spring](https://github.com/Didnelpsun/notes/tree/master/spring/spring)来构建示例项目。
 
-## 构造器注入
+## 构造函数注入
 
 ### &emsp;传入依赖类（constructor-arg标签与ref属性）
 
@@ -297,7 +309,9 @@ public class User {
 
 &emsp;
 
-构造器注入和设值函数注入相比，我觉得设值函数的注入更方便。首先设值函数可以在应用程序中重新调用这个函数重新配置实例的属性，而构造器则不行，而且构造器的参数传入必须要按照顺序，而设值函数则只用写出相关的属性名就可以了。
+构造器注入和设值函数注入相比，我觉得设值函数的注入更方便。首先设值函数可以在应用程序中重新调用这个函数重新配置实例的属性，而构造器则不行，而且构造器的参数传入必须要按照顺序，而设值函数则只用写出相关的属性名就可以了。虽然设值函数的注入要写许多设值函数，代码量多，但是运用会更灵活，对于不使用的数据可以不用设值。
+
+但是如果一个对象必须配置一个属性，设值函数的注入则不能满足约束，所以就必须使用构造函数来强制要求必须传入某个属性。综上，如果一个对象必须需要某个属性，就使用构造函数配置，其他则使用设值函数配置。
 
 &emsp;
 
@@ -308,44 +322,48 @@ public class User {
 ```xml
 <property name="addressList">
     <list>
-        <value>INDIA</value>
-        <value>Pakistan</value>
+        <value>UK</value>
+        <value>France</value>
         <value>USA</value>
-        <value>USA</value>
+        <value>China</value>
     </list>
 </property>
 <property name="addressSet">
     <set>
-        <value>INDIA</value>
-        <value>Pakistan</value>
+        <value>UK</value>
+        <value>France</value>
         <value>USA</value>
-        <value>USA</value>
+        <value>China</value>
     </set>
 </property>
 <property name="addressMap">
     <map>
-        <entry key="1" value="INDIA"/>
-        <entry key="2" value="Pakistan"/>
+        <entry key="1" value="UK"/>
+        <entry key="2" value="France"/>
         <entry key="3" value="USA"/>
-        <entry key="4" value="USA"/>
+        <entry key="4">
+            <value>China</value>
+        </entry>
     </map>
 </property>
 <property name="addressProp">
     <props>
-        <prop key="one">INDIA</prop>
-        <prop key="two">Pakistan</prop>
+        <prop key="one">UK</prop>
+        <prop key="two">France</prop>
         <prop key="three">USA</prop>
-        <prop key="four">USA</prop>
+        <prop key="four">China</prop>
     </props>
 </property>
 ```
 
 元素|描述
 :--:|:--
-\<list>|它有助于连线，如注入一列值，允许重复。
-\<set>|它有助于连线一组值，但不能重复。
+\<list>|它有助于连接数据，如注入一列值，允许重复。
+\<set>|它有助于连接一组值，但不能重复。
 \<map>|它可以用来注入名称-值对的集合，其中名称和值可以是任何类型。
 \<props>|它可以用来注入名称-值对的集合，其中名称和值都是字符串类型。
+
+同时注意，如果是数据结构类型一致，那么不同的子标签可以呼唤，如值集合类型\<list>、\<array>、\<set>三个标签可以互换，也就是说如果如set类型的参数，你可以使用上面这三个子标签来传入对应值，而不是只能使用\<set>。同理键值对类型\<map>和\<props>标签也是如此。
 
 &emsp;
 

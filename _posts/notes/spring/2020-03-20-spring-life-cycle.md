@@ -19,7 +19,7 @@ Bean的生命周期可以表达为：Bean的定义—>Bean的初始化—>Bean�
 
 而对于<span style="color:red">prototype</span>作用域的Bean，如我们之前说的原型类型的实例使用的时候才会被创建，所以Spring只负责创建和初始化，当容器创建并初始化好了Bean的实例后，Bean的实例就交给客户端代码管理，<span style="color:red">Spring容器将不再跟踪其生命周期</span>。每次客户端请求prototype作用域的Bean时，Spring容器都会创建一个新的实例，并且不会管那些被配置成prototype作用域的Bean的生命周期。
 
-而对于原型模式的实例对象，它的销毁由Java的垃圾销毁机制来控制，长时间不被使用且不被引用就会背销毁，而不是由Spring控制，所以即使容器被销毁了，原型模式实例也不会背销毁。
+而对于原型模式的实例对象，它的销毁由Java的垃圾销毁机制来控制，长时间不被使用且不被引用就会被销毁，而不是由Spring控制，所以即使容器被销毁了，原型模式实例也不会被销毁。
 
 ![SpringBean生命周期][springbeanlife]
 
