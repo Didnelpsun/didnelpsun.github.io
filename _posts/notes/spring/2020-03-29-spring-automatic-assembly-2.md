@@ -44,11 +44,11 @@ excerpt: "@Autowired注解"
 
 <span style="color:aqua">格式：</span>`<context:component-scan base-package="扫描的包名"/>`。如我的就是\<context:component-scan base-package="org.didnelpsun" />。
 
-我们推荐使用的是这个标签，因为这个标签功能更多。它提供两个子标签：context:include-filter和context:exclude-filter。各代表引入和排除的过滤。
+我们推荐使用的是这个标签，因为这个标签功能更多。它提供两个子标签：\<context:include-filter>和\<context:exclude-filter>。各代表引入和排除的过滤器。
 
 而\<context:annotation-config/>仅能够在已经在已经注册过的bean上面起作用。对于没有在spring容器中注册的bean，它并不能执行任何操作。但是\<context:component-scan/>自动将带有@component,@service,@Repository等注解的对象注册到spring容器中的功能。  
 
-因为/<context:annotation-config/>和/<context:component-scan>同时存在的时候，前者会被忽略。如@autowire，@resource等注入注解只会被注入一次！
+因为\<context:annotation-config>和\<context:component-scan>同时存在的时候，前者会被忽略。如@autowire，@resource等注入注解只会被注入一次！
 
 &emsp;
 
@@ -354,7 +354,7 @@ public void Say(){
 
 ## @Resource
 
-由JavaEE提供，是JSR250中的规范，你可以在字段中或者setter方法中使用@Resource注释，它和在Java EE 5中的运作是一样的。基本和@Autowired用法一致。通过这个注释也可以取代@Autowired和@Qualifier很多用法。
+由JavaEE提供，是JSR250中的规范，你可以在字段中或者setter方法中使用@Resource注释，它和在Java EE5中的运作是一样的。基本和@Autowired用法一致。通过这个注释也可以取代@Autowired和@Qualifier很多用法。
 
 1. @Resource后面没有任何内容，默认通过name属性去匹配bean，找不到再按type去匹配。
 2. 指定了name或者type则根据指定的类型去匹配bean。
@@ -421,6 +421,8 @@ public void setHelloWorld(HelloWorld sayword){
 }
 ```
 
+其实@Name的注释就等价于name属性配置。
+
 &emsp;
 
 ## 总结
@@ -429,12 +431,12 @@ public void setHelloWorld(HelloWorld sayword){
 
 1. 属性字段域
 2. 构造方法
-3. 设置函数
+3. 设值函数
 
 属性字段域就是我们要注入的相关属性，就比如我们之前的HelloWorld hello。我们就可以把它改成`@Autowired private HelloWorld hello;`。请注意因为是依赖注入，所以这个属性字段一定不能是final类型。且构造方法一定是非抽象的。
 
 + 从来源：
-1️. @Autowired是Spring自带的，通过AutowiredAnnotationBeanPostProcessor 类实现的依赖注入，Spring属于第三方的。
+1️. @Autowired是Spring自带的，通过AutowiredAnnotationBeanPostProcessor类实现的依赖注入，Spring属于第三方的。
 2️. @Resource是JSR250规范的实现，J2EE的注解，在javax.annotation包下，根据导入注解的包名就可以知道。J2EE是Java自己的东西。因此，建议使用@Resource注解，以减少代码和Spring之间的耦合。
 3️. @Inject是JSR330规范实现的，需要导入javax.inject.Inject jar包 ，才能实现注入。
 + 从作用域：
