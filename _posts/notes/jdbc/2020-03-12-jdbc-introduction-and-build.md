@@ -158,7 +158,6 @@ public class Jdbc {
     static final String DB_URL = "jdbc:mysql://localhost/jdbc";
     //  数据库用户和密码
     static final String USER = "root";
-
     static final String PASS = "root";
 
     public static void main(String[] args) {
