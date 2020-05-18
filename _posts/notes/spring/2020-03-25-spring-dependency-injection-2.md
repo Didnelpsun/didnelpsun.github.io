@@ -210,9 +210,9 @@ Spring帮助我们管理Bean分为两个部分，一个是注册Bean，一个装
 
 而@Configuration和@Bean就是最后一种方式来注册装配Bean。
 
-Spring的带有@Configuration的注解类表示这个类可以使用Spring IoC容器作为bean定义的来源。@Bean注解用于告诉方法，产生一个Bean对象，然后这个Bean对象交给Spring管理。产生这个Bean对象的方法Spring只会调用一次，随后这个Spring将会将这个Bean对象放在自己的IOC容器中。
+Spring的带有@Configuration的注解类表示这个类可以使用Spring IoC容器作为bean定义的来源。@Bean注解用于告诉方法，产生一个Bean对象，然后这个Bean对象交给Spring管理。产生这个Bean对象的方法Spring只会调用一次，随后这个Spring将会将这个Bean对象放在自己的IOC容器中。这样的注释的配置方法，就将一些xml的类似\<property>配置标签直接用Java代码取代。
 
-SpringIOC容器管理一个或者多个bean，这些bean都需要在@Configuration注解下进行创建，在一个方法上使用@Bean注解就表明这个方法需要交给Spring进行管理。
+SpringIoC容器管理一个或者多个bean，这些bean都需要在@Configuration注解下进行创建，在一个方法上使用@Bean注解就表明这个方法需要交给Spring进行管理。
 
 首先我们还是使用[Spring标注模板](https://github.com/Didnelpsun/notes/tree/master/spring/spring)
 
@@ -345,12 +345,21 @@ public class HelloWorldConfig {
 
 + 实现原理不同，@Configuration基于CGlib代理实现，@Component基于反射实现；
 + 使用场景：@Configuration用于全局配置，比如数据库相关配置，MVC相关配置等；业务Bean的配置使用注解配置(@Component,@Service,@Repository,@Controller)。
++ 功能本质不同：@Components的本质是创建实例，而@Configuration的本质是取代xml文件。@Components和扫描器必须要配合使用，可以使用\<context:component-scan/>，也可以使用@ComponentScan，可以使用xml文件来配置，也可以使用@Configuration配置。
+
+### &emsp;@Configuration的必要性
+
+对于配置类作为AnnotationConfigApplicationContext对象传入的参数时，@Configuration可以不写。因为创建容器时会必然按照传入的这个配置类参数来去查找依赖。如上面的`welcomeContext = new AnnotationConfigApplicationContext(HelloWorldConfig.class);`，这时候上面的@Configuration注释就不用写了。
+
+但是如果你要扫描多个多个包，也就是说如果你传入容器的配置类中要扫描多个别的配置类，那么你就要将所有要扫描的配置类都加上@Configuration。否则它将不知道要扫描哪一个。或者你可以通过`AnnotationConfigApplicationContext(someConfig.class,someConfig.class,someConfig.class...);`，这样Spring就知道你具体要传入哪些配置类了。
 
 &emsp;
 
 ## @Import
 
-@import 注解允许从另一个配置类中加载 @Bean 定义。如别的类我们需要使用到一个实例HelloWorld，只用`@Import(HelloWorld.class)`就可以了。而且如果你在一个配置文件A的a类中引用了B的实例b类，那么你要在主函数文件中使用a类和b类，你就只用引入A文件，而不用引入B文件，因为B文件所需要的类已经通过@Import被导入了。
+针对上面的@Configuration必要性的问题，如果你既不想在配置容器时传入一大堆的配置类，也不想写一个总配置文件扫描其他子配置文件，那么可以使用@   import来导入配置。
+
+@import注解允许从另一个配置类中加载@Bean定义。如别的类我们需要使用到一个实例HelloWorld，只用`@Import(HelloWorld.class)`就可以了。而且如果你在一个配置文件A的a类中引用了B的实例b类，那么你要在主函数文件中使用a类和b类，你就只用引入A文件，而不用引入B文件，因为B文件所需要的类已经通过@Import被导入了。
 
 &emsp;
 

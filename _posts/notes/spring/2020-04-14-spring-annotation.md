@@ -17,6 +17,11 @@ Spring现在一般都是采用注释来操作，如之前的用注释进行实�
 2. @Controller：作用和属性与@Component一致。但是分别表示不同的层次的对象。用于三层结构的表现层。
 3. @Service：作用和属性与@Component一致。但是分别表示不同的层次的对象。用于三层结构的业务层。
 4. @Repository：作用和属性与@Component一致。但是分别表示不同的层次的对象。用三层结构的持久层。
+5. @Configuration：指定当前类是一个配置类，用于取代xml配置文件。直接标注在返回Bean的类上。对于配置类作为AnnotationConfigApplicationContext对象传入的参数时，@Configuration可以不写。因为创建容器时会必然按照传入的这个配置类参数来去查找依赖，而如果配置类名不传入容器配置，而是在其他地方扫描如使用@ComponentScan，那么就必须使用@Configuration。
+6. @ComponentScan：用于通过注解指定Spring创建容器时要扫描的包，value或者basePackages属性指定扫描路由。等同于xml配置的\<context:component-scan/>。
+7. @ComponentScans：定义多个扫描类，中间可以加上@ComponentScan也可以加上@Filter的注解。
+8. @Bean：用于把当前方法的返回值作为Bean对象存入Spring的IoC容器中。拥有属性name，用来指定Bean的名字，name属性如果要指定必须写出name=""，默认值是当前方法名。当我们使用注解来配置方法时，如果方法有参数，Spring框架会去容器中寻找可使用Bean，查找方式于@Autowired注解一致，只用一个类型满足才会成功注入，其他情况都报错。
+9. @import：用于导入其他的配置类或者实例类。属性是value，指定导入类的字节码。
 
 + 用于注入依赖或者数据，与编写\<property>标签功能一致
 
