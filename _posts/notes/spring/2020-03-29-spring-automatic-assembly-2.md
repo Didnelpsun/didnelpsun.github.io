@@ -187,6 +187,22 @@ public void setUsername(String name){
 
 &emsp;
 
+## @Named
+
+由JavaEE提供，使用方式和@Qualifier类似。如我们使用Hi类型的Bean就用`@Named("HiBean")`，同理如果使用HelloWorld就用：
+
+```java
+@Inject
+@Named("HelloWorldBean1")
+public void setHelloWorld(HelloWorld sayword){
+    say = sayword;
+}
+```
+
+其实@Name的注释就等价于name属性配置。
+
+&emsp;
+
 ## @Qualifier
 
 由Spring提供，可能会有这样一种情况，当你创建多个具有相同类型的bean时，并且想要用一个属性只为它们其中的一个进行装配，在这种情况下，你可以使用@Qualifier注释和@Autowired注释通过指定哪一个真正的bean将会被装配来消除混乱。
@@ -202,7 +218,7 @@ package org.didnelpsun.test;
 import org.springframework.stereotype.Component;
 
 @Component
-// @Qualifier("HelloWorld")
+// @Named("HelloWorld")
 public class HelloWorld implements Say {
     private String words;
     //重写构造方法
@@ -221,7 +237,7 @@ package org.didnelpsun.test;
 import org.springframework.stereotype.Component;
 
 @Component
-// @Qualifier("Hi")
+// @Named("Hi")
 public class Hi implements Say {
     private String words;
     //重写构造方法
@@ -304,7 +320,7 @@ public class App
 
 请注意我们没有将接口也注释为@Component，因为它不会是一个实例，所以没必要注释到。我们在App.java中将两个Say实例都已经配置好了。而这时User.java中的Say sayword参数传入依赖会报错：Could not autowire. There is more than one bean of 'Say' type.Beans:helloWorld(HelloWorld.java) hi(Hi.java)。
 
-我们只用在这里加上@Qualifier("HelloWorld")标注要注入的实例是HelloWorld，然后再将两个Say实例分别加上@Qualifier("HelloWorld")和@Qualifier("Hi")给它们取好名字就可以了。如我在上面注释掉的那几行。
+我们只用在这里加上@Qualifier("HelloWorld")标注要注入的实例是HelloWorld，然后再将两个Say实例分别加上@Named("HelloWorld")和@Named("Hi")给它们取好名字就可以了。如我在上面注释掉的那几行。
 
 ### &emsp;xml混合模式
 
@@ -326,6 +342,9 @@ public class App
 welcomeContext = new ClassPathXmlApplicationContext("SpringBeans.xml");
 User Didnelpsun = (User) welcomeContext.getBean("UserBean");
 Didnelpsun.Say();
+```
+
+```java
 //User.java
 private static final String username = "Didnelpsun";
 private Say say;
@@ -349,6 +368,19 @@ public void Say(){
 ```
 
 同样会注入出问题，应该使用@Qualifier来标注到底注入哪个实例：`@Qualifier("HelloWorldBean1")`，位置就是@Autowired下面。这样就没有问题了。
+
+### &emsp;单独使用@Qualifier
+
+我们上面也已经使用过了@Qualifier注解，但是我们可以注意到，我们使用这个注解都是伴随着@Autowired注解一同使用的。因为在给类成员注入时不能单独使用，必须配合@Autowired，但是注入方法参数时可以单独使用。
+
+```java
+@Autowired
+public void setHelloWorld(@Qualifier("HelloWorld") HelloWorld sayword){
+    say = sayword;
+}
+```
+
+但是这个单独使用不是说就不用@Autowired了，而是指将他们两个注释分开，将@Qualifier放到方法参数前。
 
 &emsp;
 
@@ -406,22 +438,6 @@ public void Say(){
 然后粘贴到pom.xml重新导入就可以了。
 
 因为是按照依赖参数类型来匹配的，所以如果传入的参数类型是Hi类型就不会报错，因为Hi类型的实例就只有一个，而HelloWorld类型有两个。这时候你就需要@Name的注释了。
-
-&emsp;
-
-## @Named
-
-由JavaEE提供，使用方式和@Qualifier类似。如我们使用Hi类型的Bean就用`@Named("HiBean")`，同理如果使用HelloWorld就用：
-
-```java
-@Inject
-@Named("HelloWorldBean1")
-public void setHelloWorld(HelloWorld sayword){
-    say = sayword;
-}
-```
-
-其实@Name的注释就等价于name属性配置。
 
 &emsp;
 

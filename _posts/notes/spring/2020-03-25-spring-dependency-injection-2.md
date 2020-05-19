@@ -357,9 +357,11 @@ public class HelloWorldConfig {
 
 ## @Import
 
-针对上面的@Configuration必要性的问题，如果你既不想在配置容器时传入一大堆的配置类，也不想写一个总配置文件扫描其他子配置文件，那么可以使用@   import来导入配置。
+针对上面的@Configuration必要性的问题，如果你既不想在配置容器时传入一大堆的配置类，也不想写一个总配置文件扫描其他子配置文件，那么可以使用@   Import来导入配置。
 
-@import注解允许从另一个配置类中加载@Bean定义。如别的类我们需要使用到一个实例HelloWorld，只用`@Import(HelloWorld.class)`就可以了。而且如果你在一个配置文件A的a类中引用了B的实例b类，那么你要在主函数文件中使用a类和b类，你就只用引入A文件，而不用引入B文件，因为B文件所需要的类已经通过@Import被导入了。
+@Import注解允许从另一个配置类中加载@Bean定义。如别的类我们需要使用到一个实例HelloWorld，只用`@Import(HelloWorld.class)`就可以了。而且如果你在一个配置文件A的a类中引用了B的实例b类，那么你要在主函数文件中使用a类和b类，你就只用引入A文件，而不用引入B文件，因为B文件所需要的类已经通过@Import被导入了。
+
+使用@Import导入后，有@Import注解的类就是父配置类，导入的就是子配置类。
 
 &emsp;
 
@@ -371,7 +373,7 @@ public class HelloWorldConfig {
 
 ## @Repository
 
-@Repository 会被作为持久层操作（数据库）的bean来使用@Repository注解修饰哪个类，则表明这个类具有对对象进行CRUD（增删改查）的功能，而且@Repository是@Component注解的一个派生品，所以被@Repository注解的类可以自动的被@ComponentScan 通过路径扫描给找到。（这也在一定程度上解释了，为什么被@Repository注解的类也能@Autowired，这个注释后面会提到）
+@Repository会被作为持久层操作（数据库）的bean来使用@Repository注解修饰哪个类，则表明这个类具有对对象进行CRUD（增删改查）的功能，而且@Repository是@Component注解的一个派生品，所以被@Repository注解的类可以自动的被@ComponentScan 通过路径扫描给找到。（这也在一定程度上解释了，为什么被@Repository注解的类也能@Autowired，这个注释后面会提到）
 
 为什么@Repository只能标注在 DAO 类上呢？这是因为该注解的作用不只是将类识别为Bean，同时它还能将所标注的类中抛出的数据访问异常封装为 Spring 的数据访问异常类型。 Spring本身提供了一个丰富的并且是与具体的数据访问技术无关的数据访问异常结构，用于封装不同的持久层框架抛出的异常，使得异常独立于底层的框架。
 

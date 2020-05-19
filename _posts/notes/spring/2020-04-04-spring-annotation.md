@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Spring注释总结"
-date: 2020-04-14 13:13:55 +0800
+title: "注释总结"
+date: 2020-04-04 13:13:55 +0800
 categories: notes spring senior
-tags: spring 高级
+tags: spring 高级 @Component @Controller @Service
 excerpt: "相关注释与使用"
 ---
 
@@ -21,7 +21,7 @@ Spring现在一般都是采用注释来操作，如之前的用注释进行实�
 6. @ComponentScan：用于通过注解指定Spring创建容器时要扫描的包，value或者basePackages属性指定扫描路由。等同于xml配置的\<context:component-scan/>。
 7. @ComponentScans：定义多个扫描类，中间可以加上@ComponentScan也可以加上@Filter的注解。
 8. @Bean：用于把当前方法的返回值作为Bean对象存入Spring的IoC容器中。拥有属性name，用来指定Bean的名字，name属性如果要指定必须写出name=""，默认值是当前方法名。当我们使用注解来配置方法时，如果方法有参数，Spring框架会去容器中寻找可使用Bean，查找方式于@Autowired注解一致，只用一个类型满足才会成功注入，其他情况都报错。
-9. @import：用于导入其他的配置类或者实例类。属性是value，指定导入类的字节码。
+9. @Import：用于导入其他的配置类或者实例类。属性是value，指定导入类的字节码。
 
 + 用于注入依赖或者数据，与编写\<property>标签功能一致
 
@@ -38,6 +38,7 @@ Spring现在一般都是采用注释来操作，如之前的用注释进行实�
 
 1. @PostConstrut：用于指定初始化方法。
 2. @PreDestroy：用于指定销毁方法。
+3. @Before：
 
 ## @Conditional
 
@@ -52,10 +53,18 @@ Spring现在一般都是采用注释来操作，如之前的用注释进行实�
 
 ## @Primary
 
-## @PropertySource
+## @PropertySource与@PropertySources
+
+我们之前已经使用过了properties格式的配置文件，而@PropertySourse的注释就是为了导入properties格式的配置文件。具有一个value属性，用来指定配置文件的路径，其中有一个classpath关键字，用来表示类路径。如：`@PropertySource("classpath:com/didnelpsun/config.properties")`就是指定对应的路径，中间以/分隔，并且最后要加上配置文件格式。
+
+然后导入了配置文件，就需要使用`@Value("${配置文件的key}")`来从配置文件中获得对应的配置key。
+
+而@PropertySources也是用来指定多个@PropertySource。
 
 ## @Value
 
 ## @Test
+
+## @Before
 
 参照地址<https://www.jianshu.com/p/75de79fba705><https://www.cnblogs.com/cxuanBlog/p/11179439.html><https://www.jianshu.com/p/23a960f369dc><https://www.cnblogs.com/xiaoxi/p/5935009.html><https://www.jianshu.com/p/71e8971d2bc5?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation>
