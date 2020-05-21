@@ -9,4 +9,4 @@ excerpt: "面向切面编程"
 
 前面是Spring的第一个核心概念IoC，而现在是第二个核心概念AOP。
 
-使用[Spring模板文件](https://github.com/Didnelpsun/notes/tree/master/spring/spring)，然后再重新更改对应的文件：
+使用[Spring模板文件](https://github.com/Didnelpsun/notes/tree/master/spring/spring)，然后再重新更改对应的文件：地方大师傅郭德纲
