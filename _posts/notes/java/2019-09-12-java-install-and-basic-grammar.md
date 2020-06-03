@@ -13,14 +13,16 @@ excerpt: "安装配置与语法"
 
 <span style="color:yellowgreen">JDK：</span>Java Development Kit JDK顾名思义是Java开发工具包，是程序员使用Java语言编写Java程序所需的开发工具包，是提供给程序员使用的。JDK包含了JRE，同时还包含了编译Java源码的编译器javac，还包含了很多Java程序调试和分析的工具：jconsole，jvisualvm等工具软件，还包含了Java程序编写所需的文档和demo例子程序。如果你需要运行Java程序，只需安装JRE就可以了。如果你需要编写Java程序，需要安装JDK。  
 
-首先注意类名与文件名保持一致，到目标Java文件的目录下，打开cmd窗口。然后输入javac 文件名.java，如果编译成class格式文件成功就接着输入Java 类名。  
+首先注意类名与文件名保持一致，到目标Java文件的目录下，打开cmd窗口。然后输入javac 文件名.java，如果编译成class格式文件成功就接着输入Java类名。  
 
-<span style="color:yellowgreen">源文件名：</span>源文件名必须和类名相同。当保存文件的时候，你应该使用类名作为文件名保存（切记 Java 是大小写敏感的），文件名的后缀为 .java。（如果文件名和类名不相同则会导致编译错误）。
+<span style="color:yellowgreen">源文件名：</span>源文件名必须和类名相同。当保存文件的时候，你应该使用类名作为文件名保存（切记Java是大小写敏感的），文件名的后缀为.java。（如果文件名和类名不相同则会导致编译错误）。
 
 ### &emsp;基本Java编译运行
 
 1. javac 文件名.java ->文件名.class  
-2. java 文件名 （无.class扩展名）
+2. java 文件名（无.class扩展名）
+3. 如果出现打印中文乱码的情况，那么使用`javac -encoding utf-8 文件名.java`命令来设置编译语言编码。
+4. 有时候系统会有些问题，导致无法找到对应的class文件，你可以把Java文件放到别的地方进行编译运行。
 
 &emsp;  
 
