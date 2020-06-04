@@ -4,14 +4,14 @@ title:  "面向对象（上）"
 date:   2019-09-26 19:18:15 +0800
 categories: notes java base
 tags: java 基础 继承 extends super 重构 final Object getClass toString equals 转型 instanceof 重载 不定长参数 多态 抽象 abstract 接口 interface implements 
-excerpt: "继承转型多态抽象与接口"
+excerpt: "继承、多态、抽象与接口"
 ---
 
 ## 继承
 
-### &emsp;1. extends和super关键字
+### &emsp;extends和super关键字
 
-类的继承在于基于某个父类，指定一个新子类，子类拥有父类原有的属性和方法，并有自己独有的属性与方法，甚至可以重写父类的属性方法。  
+类的继承在于基于某个父类，指定一个新子类，子类拥有父类原有的属性和方法，并有自己独有的属性与方法，甚至可以重写父类的属性方法。Java的继承是单继承的，所以只能有一个父类。  
 
 `extends`关键字说明继承，`super`关键字调用父类。
 
@@ -42,13 +42,31 @@ class Test2 extends Test{ //定义Test2继承Test类
 
 首先定义了两个类Test和Test2，其中Test2继承了Test类，Test类是Test2的父类。
 
-子类初始化可以连同初始化父类构造方法，既可以在子类中调用`super()`来调用父类构造方法，也可以在子类中使用`super`关键字来调用父类成员。但是子类无法调用`private`权限的成员。  
+子类初始化可以连同初始化父类构造方法，既可以在子类中调用`super()`来调用父类构造方法，也可以在子类中使用`super`关键字来调用父类成员。
 
-如果子类和父类的成员方法返回值，方法名称，参数类型与个数都完全相同，不同的仅仅是实现内容，那这种构造方法就是<span style="color:yellowgreen">重构</span>。  
+<span style="color:red">继承不是所有就都可以继承</span>，子类无法调用`private`权限的成员，且也无法继承权限为private的成员。如：
 
-当重写父类方法时，修改方法的权限只能从小权限向大权限改，如如果父类成员方法权限为`protected`，那么子类重写方法只能改为`protected`或者`public`。
+```java
+public class RunTest{
+    public static void main(String args[]){
+        Cat c = new Cat();
+        c.shot();
+    }
+}
 
-当子类重写父类的方法还可以修改返回值类型，但是重写的返回值类型只能时父类同一方法返回值的子类，如返回Test类型值的方法修改后返回类型为Test2就可以，而一般的Int类型就不行，因为不是其原来返回值类型的子类。
+class Animal{
+    private void shot(){
+        System.out.println("wwwww");
+    }
+}
+
+class Cat extends Animal{
+}
+```
+
+这个就会报错。而权限改为public或者protected就可以继承。
+
+&emsp;
 
 Java中一切都以对象的方式进行处理，在继承中，创建一个子类对象，将包含一个父类子对象，这个对象与单用父类构造函数创建的对象是一样的。两者的区别是后者是来自外部，而前者来自子类对象内部。也就是说当实例化子类对象的时候父类对象也同样会被实例化，即实例化子类对象时，Java编译器会在子类的构造方法中自动调用父类的无参构造方法。
 
@@ -81,17 +99,46 @@ public class GrandChild extends Child{
 
 所以可知当实例化一个子类对象，会首先依次实例化其父类对象。  
 
-在实例化子类对象时，父类无参构造方法会被自动调用，但是有参构造函数不会被自动调用，只能依赖`super`关键字显示地被调用父类构造方法，并在括号中传入参数。且super语句需要放到子类构造器的第一行，不然会出错。  
+在实例化子类对象时，父类无参构造方法会被自动隐式调用，但是有参构造函数不会被自动调用，只能依赖`super`关键字显示地被调用父类构造方法，并在括号中传入参数。且super语句需要放到子类构造器的第一行，不然会出错。  
+
+如果一个父类没有提供一个无参构造类（或者说把原本的无参构造类变成有参的了），那么子类构造的时候会报错：
+
+```java
+class Animal{
+    public Animal(String s){
+       System.out.println(s);
+    }
+}
+
+class Cat extends Animal{
+}
+```
+
+这里的Cat类会变红，因为无法构造Cat类。那么应该怎么办呢？应该在子类的构造方法中调用`super()`方法并传入参数手动构造（super方法一定要在第一行）：
+
+```java
+class Animal{
+    public Animal(String s){
+       System.out.println(s);
+    }
+}
+
+class Cat extends Animal{
+    public Cat(){
+        super("Cat");
+    }
+}
+```
 
 如果使用`finalize()`方法对对象进行显示清理，需要确保子类的`finalize()`方法的最后一个动作是调用父类的`finalize()`方法，以保证父类的垃圾也能被回收。
 
-### &emsp;2. final方法与类
+### &emsp;final方法与类
 
-#### &emsp;&emsp;2.1final参数
+#### &emsp;&emsp;1.final参数
 
 如果声明一个final参数，就代表其参数不能被改变。也就是说传入的参数只能被读取，不能被修改。
 
-#### &emsp;&emsp;2.2final方法
+#### &emsp;&emsp;2.final方法
 
 父类中的`final`方法可以被子类继承，但是不能被子类重写。同时`final`方法执行等级高于非`final`方法。
 
@@ -109,11 +156,11 @@ public class Test{
 }
 ```
 
-#### &emsp;&emsp;2.3final属性
+#### &emsp;&emsp;3.final属性
 
 这个属性可以被继承，但是不可以被子类重写。
 
-#### &emsp;&emsp;2.4final类
+#### &emsp;&emsp;4.final类
 
 final类不能被继承，没有类能够继承final类的任何特性，不可以有子类，只可以被使用。
 
@@ -216,7 +263,7 @@ public class Son extends Father{
 
 &emsp;
 
-无论是什么转型，都需要有`父类 引用名 = new 子类`。而且不是所有的都能转型，必须这个实例是这个目标类的实例才能转型到这个类。
+无论是什么转型，都需要有`父类 引用名 = new 子类`。而且不是所有的都能转型，必须<span style="color:red">这个实例是这个目标类的实例</span>才能转型到这个类。
 
 &emsp;
 
@@ -270,6 +317,10 @@ public class Add{
 
 不同的参数传入函数会实现不同的实现，所以重载的意义就是实现不同参数的适应。
 
+&emsp;
+
+如果子类和父类的成员方法返回值，方法名称，参数类型与个数都完全相同，不同的仅仅是实现内容，那这种构造方法就是<span style="color:yellowgreen">重构/重写</span>。  
+
 如果我们要重写方法，也就是假如父类有默认的处理方法，而子类继承父类而需要改写父类处理方法，那么就需要重写方法。因为重载的要求，所以我们重写时必须要求与父类的方法名，参数类型，参数数量，参数顺序保持一致，否则就是重载而不是重写。我们也可以在子类中命名与父类中同名的属性来覆盖父类的属性。
 
 ```java
@@ -295,7 +346,9 @@ public class Override{
 
 假如我们要使用被父类重写的属性和方法，那么我们可以使用super.属性名/方法名来使用被覆盖掉的方法或者属性。如上面这个例子如果要调用被覆盖的方法只用`super.show()`就可以了。
 
-同时子类重写父类方法是不可以降低父类方法的权限的，也就是说权限必须更开放，如果父类一个方法是protected，那么子类一定是protected或者public以及无权限，而不能是private。
+当重写父类方法时，修改方法的权限只能从小权限向大权限改，，也就是说权限必须更开放，如如果父类成员方法权限为`protected`，那么子类重写方法只能改为`protected`或者`public`以及无权限。
+
+当子类重写父类的方法还可以修改返回值类型，但是重写的返回值类型只能是父类同一方法返回值的子类，如返回Test类型值的方法修改后返回类型为Test2就可以，而一般的Int类型就不行，因为不是其原来返回值类型的子类。
 
 &emsp;
 

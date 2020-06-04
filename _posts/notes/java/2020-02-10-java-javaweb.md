@@ -4,10 +4,10 @@ title:  "Java web入门"
 date:   2020-02-10 23:52:20 +0800
 categories: notes java javaweb javawebbase
 tags: javaweb JSP servlet tomcat
-excerpt: "java web入门"
+excerpt: "Java Web入门"
 ---
 
-## java web概念
+## Java Web概念
 
 首先我们应该明白Java Web是什么。
 
@@ -35,7 +35,7 @@ JSP可以简单看作是前端页面嵌入Java代码，会被容器编译成Serv
 
 因为JSP和Servlet是放在一起学习的，所以两个部分的笔记虽然是分开的，但是时间是差不多的，它们都是属于Java Web里面的内容。是在学习框架前必须要掌握的知识。
 
-### &emsp;JSP与servlet
+### &emsp;JSP与Servlet
 
 1.相同点:JSP是Servlet技术的扩展，所有的jsp文件都会被翻译为一个继承 HttpServlet的类.也就是jsp最终也是一个Servlet,本质上是Servlet的简易方式,这个 Servlet对外提供服务。
 
