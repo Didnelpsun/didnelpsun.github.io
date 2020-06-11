@@ -275,21 +275,25 @@ if __name__ == '__main__':
 ### &emsp;kd树的Python实现
 
 ```python
-#利用sklearn包
-from sklearn.neighbors import KDTree
-
+# 利用sklearn包
 import numpy as np
 from sklearn.neighbors import KDTree
-  
+
 np.random.seed(0)
+# 当我们设置相同的seed，每次生成的随机数相同。
+# 如果不设置seed，则每次会生成不同的随机数
 X = np.array([[2, 3], [5, 4], [9, 6], [4, 7], [8, 1], [7, 2]])
-  
+
+# KDTree(数组元素,树叶子个数)，这里因为这里的单个数据是两个一组所以是2
 tree = KDTree(X, leaf_size=2)
-dist, ind = tree.query(X[:1], k=3)
-  
-print(dist)  # 3个最近的距离
-print(ind)  # 3个最近的索引
-print(X[ind])  # 3个最近的点
+# X[:1]指它只会返回对应的第一组k个数据，k就是kd树的k个最近邻值
+# 第一个参数为对应的k个最近邻与其距离
+# 第二个参数是对应的k个最近邻的索引值
+dist, ind = tree.query(X[:1], k=2)
+
+print(dist)  # k个最近的距离
+print(ind)  # k个最近的索引
+print(X[ind])  # k个最近的点
 
 >>>>>
 [[0.         3.16227766 4.47213595]]
@@ -300,77 +304,127 @@ print(X[ind])  # 3个最近的点
 ```
 
 ```python
-#纯Python
+# 纯Python
+from collections import namedtuple
+from math import sqrt
+import numpy as np
+
+
+# kd节点类，参数为传入的对应数据组值
 class KDNode(object):
+    # 初始化方法，参数为整体数值
+    # value代表本节点的值，即这个树对应的父节点值
+    # split代表树的分割信息，即以哪个轴进行分割
+    # left代表树的左节点值
+    # right代表树的右节点值
     def __init__(self, value, split, left, right):
         # value=[x,y]
         self.value = value
         self.split = split
         self.right = right
         self.left = left
-  
-  
+
+
 class KDTree(object):
+    # 构造kd树
     def __init__(self, data):
         # data=[[x1,y1],[x2,y2]...,]
         # 维度
         k = len(data[0])
-  
+
+        # 创建节点方法，参数为分割轴与数据集信息
         def CreateNode(split, data_set):
+            # 如果数据集为空，就证明分割完毕，就返回None
             if not data_set:
                 return None
+            # key=lambda x: x[split]为对前面的对象中的第split维数据（即对本次切割的value）的值进行排序。
+            # key=lambda 变量：变量[维数] 。维数可以按照自己的需要进行设置。
             data_set.sort(key=lambda x: x[split])
             # 整除2
             split_pos = len(data_set) // 2
+            # 取数据集此轴的中点数据
             median = data_set[split_pos]
+            # split_next为下一个节点的切割轴
             split_next = (split + 1) % k
-  
+
             return KDNode(median, split, CreateNode(split_next, data_set[: split_pos]),
                           CreateNode(split_next, data_set[split_pos + 1:]))
-  
+
+        # 根节点为以0为切割点，以整个数据集为其他数据集
         self.root = CreateNode(0, data)
 
+    # search方法为搜寻方法，self为kd树本身，root为寻找开始的根节点，x为寻找的数据，count为寻找的节点个数
     def search(self, root, x, count=1):
+        # nearest为临近实例点集
         nearest = []
+        # 有count个要求求的数据点
         for i in range(count):
+            # 就输入count个[-1,None]插入到临近实例点集
             nearest.append([-1, None])
+        # kd树的nearest属性就是numpy数组化的nearset列表
         self.nearest = np.array(nearest)
-  
+
+        # 递归方法，用来递归查询节点数据
         def recurve(node):
+            # 如果这个查询的目标数据不为None
             if node is not None:
+                # split本为分割函数，这里是获取切割轴
                 axis = node.split
+                # 取节点的切割轴坐标的数据总体数据与x的切割轴坐标的数据之差
                 daxis = x[axis] - node.value[axis]
+                # 如果差值小于0就代表节点更小，所以将节点的数据在总体数据kd树的左子树中迭代
                 if daxis < 0:
                     recurve(node.left)
                 else:
                     recurve(node.right)
+                # zip()函数用于将可迭代的对象作为参数，将对象中对应的元素打包成一个个元组，然后返回由这些元组组成的列表。
+                # 如果各个迭代器的元素个数不一致，则返回列表长度与最短的对象相同，利用 * 号操作符，可以将元组解压为列表。
+                # dist计算的是对应的点与查询点的欧式距离
                 dist = sqrt(sum((p1 - p2) ** 2 for p1, p2 in zip(x, node.value)))
+                # enumerate() 函数用于将一个可遍历的数据对象(如列表、元组或字符串)组合为一个索引序列，
+                # 同时列出数据和数据下标，一般用在for循环当中。
                 for i, d in enumerate(self.nearest):
-                    if d[0] < 0 or dist < d[0]:  # 如果当前nearest内i处未标记（-1），或者新点与x距离更近
+                    # 如果当前nearest内i处未标记（即数据为-1），或者新点与x距离更近
+                    if d[0] < 0 or dist < d[0]:
                         self.nearest = np.insert(self.nearest, i, [dist, node.value], axis=0)  # 插入比i处距离更小的
+                        # 剔除最后一个数据，即因为加入一个更近的，将最远的数据剔除
                         self.nearest = self.nearest[:-1]
                         break
+                # count()方法用于统计字符串里某个字符出现的次数。
                 # 找到nearest集合里距离最大值的位置，为-1值的个数
                 n = list(self.nearest[:, 0]).count(-1)
+                # abs()函数返回数字的绝对值。
                 # 切分轴的距离比nearest中最大的小（存在相交）
                 if self.nearest[-n - 1, 0] > abs(daxis):
-                    if daxis < 0:  # 相交，x[axis]< node.data[axis]时，去右边（左边已经遍历了）
+                    # 相交，x[axis]< node.data[axis]时，去右边（左边已经遍历了）
+                    if daxis < 0:
                         recurve(node.right)
-                    else:  # x[axis]> node.data[axis]时，去左边，（右边已经遍历了）
+                    # x[axis]> node.data[axis]时，去左边，（右边已经遍历了）
+                    else:
                         recurve(node.left)
+        # 从根节点开始遍历
         recurve(root)
         return self.nearest
-  
-  
+
+
+# namedtuple类位于collections模块,有了namedtuple后通过属性访问数据能够让我们的代码更加的直观更好维护。
+# namedtuple能够用来创建类似于元祖的数据类型，除了能够用索引来访问数据，能够迭代，还能够方便的通过属性名来访问数据。
+# 在python中,传统的tuple类似于数组，只能通过下表来访问各个元素，我们还需要注释每个下表代表什么数据。
+# 通过使用namedtuple，每哥元素有了自己的名字。类似于C语言中的struct,这样数据的意义就可以一目了然。
 # 最近坐标点、最近距离和访问过的节点数
 result = namedtuple("Result_tuple", "nearest_point nearest_dist nodes_visited")
-  
+
 data = [[2, 3], [5, 4], [9, 6], [4, 7], [8, 1], [7, 2]]
 kd = KDTree(data)
-  
-#[3, 4.5]最近的3个点
+
+# [3, 4.5]最近的3个点
 n = kd.search(kd.root, [3, 4.5], 3)
 print(n)
+
+>>>>>
+[[1.8027756377319946 list([2, 3])]
+ [2.0615528128088303 list([5, 4])]
+ [2.692582403567252 list([4, 7])]]
 ```
 
 [knnformula]:data:image/png;base64,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
