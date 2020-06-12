@@ -2,8 +2,8 @@
 layout: post
 title: "代码显示问题"
 date: 2020-04-10 22:25:35 +0800
-categories: notes jekyll other
-tags: jekyll 代码 反引号 {%&ensp;raw&ensp;%} {%&ensp;endraw&ensp;%}
+categories: notes jekyll senior
+tags: jekyll 高级 代码 反引号 {%&ensp;raw&ensp;%} {%&ensp;endraw&ensp;%}
 excerpt: "如何避免对应的模板编译"
 --- 
 
