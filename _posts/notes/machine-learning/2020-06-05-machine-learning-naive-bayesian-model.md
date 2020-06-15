@@ -3,7 +3,7 @@ layout: post
 title:  "朴素贝叶斯"
 date:   2020-06-05 15:21:46 +0800
 categories: notes machine-learning
-tags: machine-learning 朴素贝叶斯 NBM
+tags: machine-learning 朴素贝叶斯 贝叶斯 NBM 多项式 高斯 伯努利
 excerpt: "Naive Bayesian Model"
 ---
 
@@ -77,11 +77,11 @@ $P(Y=c_k\mid X=x)={{P(X=x\mid Y=c_k)P(Y=c_k)}\over {\sum_kP(X=x\mid Y=c_k)P(Y=c_
 
 <span style="color:aqua">朴素贝叶斯分类器：</span>$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}\over {\sum_kP(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$
 
+这个分类器主要进行单点估计。
+
 又在计算每个类$c_k$的时候分母都是一样的，所以就不用计算分母，得到更简单的公式：
 
 $y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$
-
-这个分类器主要进行单点估计。
 
 {% endraw %}
 
@@ -229,6 +229,185 @@ $P(Y=-1)P(X^{(1)}=2\mid Y=-1)P(X^{(2)}=S\mid Y=-1)={7\over 17}\cdot{1\over 3}\cd
 
 所以0.0610更大，y为-1。
 
+### &emsp;代码实现
+
+```python
+# -*- coding: UTF-8 -*-
+import numpy as np
+from functools import reduce
+
+"""
+函数说明:创建实验样本
+Parameters:
+    无
+Returns:
+    postingList - 实验样本切分的词条
+    classVec - 类别标签向量
+
+"""
+
+
+# 定义数据集
+def loadDataSet():
+    # 切分的词条
+    postingList = [['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
+                   ['maybe', 'not', 'take', 'him', 'to', 'dog', 'park', 'stupid'],
+                   ['my', 'dalmation', 'is', 'so', 'cute', 'I', 'love', 'him'],
+                   ['stop', 'posting', 'stupid', 'worthless', 'garbage'],
+                   ['mr', 'licks', 'ate', 'my', 'steak', 'how', 'to', 'stop', 'him'],
+                   ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']]
+    # 类别标签向量，1代表侮辱性词汇，0代表不是
+    classVec = [0, 1, 0, 1, 0, 1]
+    # 返回实验样本切分的词条和类别标签向量
+    return postingList, classVec
+
+
+"""
+函数说明:将切分的实验样本词条整理成不重复的词条列表，也就是词汇表
+
+Parameters:
+    dataSet - 整理的样本数据集
+Returns:
+    vocabSet - 返回不重复的词条列表，也就是词汇表
+
+"""
+
+
+# 创建词汇列表
+def createVocabList(dataSet):
+    vocabSet = set([])  # 创建一个空的不重复列表集合
+    for document in dataSet:
+        # 对于set集合来说|运算符就是取集合并集
+        vocabSet = vocabSet | set(document)
+    # 得到了一个不重复的集合
+    # 起到了第一步的筛选作用
+    return list(vocabSet)
+
+
+"""
+函数说明:根据vocabList词汇表，将inputSet向量化，向量的每个元素为1或0
+
+Parameters:
+    vocabList - createVocabList返回的列表
+    inputSet - 切分的词条列表
+Returns:
+    returnVec - 文档向量,词集模型
+
+"""
+
+
+def setOfWords2Vec(vocabList, inputSet):
+    # 创建一个其中所含元素都为0的向量
+    # set的len()方法取得集合的项数
+    returnVec = [0] * len(vocabList)
+    for word in inputSet:
+        # 遍历每个词条
+        if word in vocabList:
+            # 如果词条存在于词汇表中，则置1
+            returnVec[vocabList.index(word)] = 1
+        else:
+            print("the word: %s is not in my Vocabulary!" % word)
+    # 返回文档向量
+    return returnVec
+
+
+"""
+函数说明:朴素贝叶斯分类器训练函数
+
+Parameters:
+    trainMatrix - 训练文档矩阵，即setOfWords2Vec返回的returnVec构成的矩阵
+    trainCategory - 训练类别标签向量，即loadDataSet返回的classVec
+Returns:
+    p0Vect - 非侮辱类的条件概率数组
+    p1Vect - 侮辱类的条件概率数组
+    pAbusive - 文档属于侮辱类的概率
+
+"""
+
+
+def trainNB0(trainMatrix, trainCategory):
+    numTrainDocs = len(trainMatrix)  # 计算训练的文档数目
+    numWords = len(trainMatrix[0])  # 计算每篇文档的词条数
+    pAbusive = sum(trainCategory) / float(numTrainDocs)  # 文档属于侮辱类的概率
+    p0Num = np.zeros(numWords);
+    p1Num = np.zeros(numWords)  # 创建numpy.zeros数组,
+    p0Denom = 0.0;
+    p1Denom = 0.0  # 分母初始化为0.0
+    for i in range(numTrainDocs):
+        if trainCategory[i] == 1:  # 统计属于侮辱类的条件概率所需的数据，即P(w0|1),P(w1|1),P(w2|1)···
+            p1Num += trainMatrix[i]
+            p1Denom += sum(trainMatrix[i])
+        else:  # 统计属于非侮辱类的条件概率所需的数据，即P(w0|0),P(w1|0),P(w2|0)···
+            p0Num += trainMatrix[i]
+            p0Denom += sum(trainMatrix[i])
+    p1Vect = p1Num / p1Denom  # 相除
+    p0Vect = p0Num / p0Denom
+    return p0Vect, p1Vect, pAbusive  # 返回属于侮辱类的条件概率数组，属于非侮辱类的条件概率数组，文档属于侮辱类的概率
+
+
+"""
+函数说明:朴素贝叶斯分类器分类函数
+
+Parameters:
+    vec2Classify - 待分类的词条数组
+    p0Vec - 侮辱类的条件概率数组
+    p1Vec -非侮辱类的条件概率数组
+    pClass1 - 文档属于侮辱类的概率
+Returns:
+    0 - 属于非侮辱类
+    1 - 属于侮辱类
+
+"""
+
+
+def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
+    p1 = reduce(lambda x, y: x * y, vec2Classify * p1Vec) * pClass1  # 对应元素相乘
+    p0 = reduce(lambda x, y: x * y, vec2Classify * p0Vec) * (1.0 - pClass1)
+    print('p0:', p0)
+    print('p1:', p1)
+    if p1 > p0:
+        return 1
+    else:
+        return 0
+
+
+"""
+函数说明:测试朴素贝叶斯分类器
+
+Parameters:
+    无
+Returns:
+    无
+
+"""
+
+
+def testingNB():
+    listOPosts, listClasses = loadDataSet()  # 创建实验样本
+    myVocabList = createVocabList(listOPosts)  # 创建词汇表
+    trainMat = []
+    for postinDoc in listOPosts:
+        trainMat.append(setOfWords2Vec(myVocabList, postinDoc))  # 将实验样本向量化
+    p0V, p1V, pAb = trainNB0(np.array(trainMat), np.array(listClasses))  # 训练朴素贝叶斯分类器
+    testEntry = ['love', 'my', 'dalmation']  # 测试样本1
+    thisDoc = np.array(setOfWords2Vec(myVocabList, testEntry))  # 测试样本向量化
+    if classifyNB(thisDoc, p0V, p1V, pAb):
+        print(testEntry, '属于侮辱类')  # 执行分类并打印分类结果
+    else:
+        print(testEntry, '属于非侮辱类')  # 执行分类并打印分类结果
+    testEntry = ['stupid', 'garbage']  # 测试样本2
+
+    thisDoc = np.array(setOfWords2Vec(myVocabList, testEntry))  # 测试样本向量化
+    if classifyNB(thisDoc, p0V, p1V, pAb):
+        print(testEntry, '属于侮辱类')  # 执行分类并打印分类结果
+    else:
+        print(testEntry, '属于非侮辱类')  # 执行分类并打印分类结果
+
+
+if __name__ == '__main__':
+    testingNB()
+```
+
 ### &emsp;高斯朴素贝叶斯与伯努利朴素贝叶斯
 
 之前介绍的朴素贝叶斯算法是多项式朴素贝叶斯，实际上还有高斯朴素贝叶斯和伯努利朴素贝叶斯两种算法。它们在计算流程上并没有什么太大的不同，只是因为特征向量$X^{(j)}$不同而导致$P(X^{(j)}=a_{jl}\mid Y=c_k)$条件概率的计算方式不同罢了。
@@ -237,8 +416,110 @@ $P(Y=-1)P(X^{(1)}=2\mid Y=-1)P(X^{(2)}=S\mid Y=-1)={7\over 17}\cdot{1\over 3}\cd
 
 {% raw %}
 
-1. $X^{(j)}$为离散值，假设$X^{(j)}$满足多项式分布，那么条件概率就是出现的频次：$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)+\lambda\over{{\sum_{i=1}^N}I(y_i=c_k)}+S_j\lambda}$
-2. $X^{(j)}$为非常稀疏的离散值，假设$X^{(j)}$满足伯努利分布，即特征$X^{(j)}$出现就为1，不出现就为0，不关心它到底出现的频率或者程度，所以所有的特征值只有1和0两个值：$P(X^{(j)}=a_{jl}\mid Y=c_k)=P(X^{(j)}=1\mid Y=c_k)X^{(j)}+(1-P(X^{(j)}=1\mid Y=c_k))(1-X^{(j)})$，且$P(X^{(j)}=1\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=1,y_i=c_k)+\lambda\over{{\sum_{i=1}^N}I(y_i=c_k)}+2\lambda}$
-3. $X^{(j)}$为一个连续值，那么我们可以设$X^{(j)}$具有概率密度函数，一般是正态分布（高斯分布），即$P(X^{(j)}=a_{jl}\mid Y=c_k)\sim \mathscr N(\mu_{c_k,j},\sigma^2_{c_k,j})$，$\mu_{c_k,j}$为类别是$c_k$的样本中，特征$X^{(j)}的均值，$$\sigma^2_{c_k,j}$为类别是$c_k$的样本中，特征$X^{(j)}$的标准差：$P(X^{(j)}=a_{jl}\mid Y=c_k)={1\over{\sqrt{2\pi\sigma^2_{c_k,j}}}}\exp(-{{(x_i-\mu_{c_k,j})^2\over{2\sigma^2_{c_k,j}}}})$
+#### &emsp;&emsp;1.多项式朴素贝叶斯
+
+$X^{(j)}$为离散值，假设$X^{(j)}$满足多项式分布，那么条件概率就是出现的频次。
+
+$$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)+\lambda\over{{\sum_{i=1}^N}I(y_i=c_k)}+S_j\lambda}$$
+
+#### &emsp;&emsp;2.伯努利朴素贝叶斯
+
+$X^{(j)}$为非常稀疏的离散值，假设$X^{(j)}$满足伯努利分布，即特征$X^{(j)}$出现就为1，不出现就为0，不关心它到底出现的频率或者程度，所以所有的特征值只有1和0两个值。
+
+$$P(X^{(j)}=a_{jl}\mid Y=c_k)=P(X^{(j)}=1\mid Y=c_k)X^{(j)}+(1-P(X^{(j)}=1\mid Y=c_k))(1-X^{(j)})$$
+
+$$P(X^{(j)}=1\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=1,y_i=c_k)+\lambda\over{{\sum_{i=1}^N}I(y_i=c_k)}+2\lambda}$$
+
+#### &emsp;&emsp;3.高斯朴素贝叶斯
+
+$X^{(j)}$为一个连续值，那么我们可以设$X^{(j)}$具有概率密度函数，一般是正态分布（高斯分布），即$P(X^{(j)}=a_{jl}\mid Y=c_k)\sim \mathscr N(\mu_{c_k,j},\sigma^2_{c_k,j})$。
+
+$$P(X^{(j)}=a_{jl}\mid Y=c_k)={1\over{\sqrt{2\pi\sigma^2_{c_k,j}}}}\exp(-{{(x_i-\mu_{c_k,j})^2\over{2\sigma^2_{c_k,j}}}})$$
+
+$\mu_{c_k,j}$为类别是$c_k$的样本中，特征$X^{(j)}的均值，$$\sigma^2_{c_k,j}$为类别是$c_k$的样本中，特征$X^{(j)}$的标准差。
 
 {% endraw %}
+
+### &emsp;基于sklearn的实现
+
+scikit-learn中朴素贝叶斯类库的使用也比较简单。相对于决策树，KNN之类的算法，朴素贝叶斯需要关注的参数是比较少的。
+
+在scikit-learn中，一共有3个朴素贝叶斯的分类算法类。分别是GaussianNB，MultinomialNB和BernoulliNB。其中GaussianNB就是先验为高斯分布的朴素贝叶斯，MultinomialNB就是先验为多项式分布的朴素贝叶斯，而BernoulliNB就是先验为伯努利分布的朴素贝叶斯。
+
+MultinamialNB这个函数，只有3个参数：alpha（拉普拉斯平滑），fit_prior（表示是否要考虑先验概率），和class_prior：可选参数
+MultinomialNB一个重要的功能是有partial_fit方法，这个方法的一般用在如果训练集数据量非常大，一次不能全部载入内存的时候。这时我们可以把训练集分成若干等分，重复调用partial_fit来一步步的学习训练集。
+
+```python
+# 高斯朴素贝叶斯
+import numpy as np
+import pandas as pd
+from sklearn.naive_bayes import GaussianNB
+
+np.random.seed(0)
+x = np.random.randint(0,10,size=(6,2))
+y = np.array([0,0,0,1,1,1])
+data = pd.DataFrame(np.concatenate([x, y.reshape(-1,1)], axis=1), columns=['x1','x2','y'])
+display(data)
+
+gnb = GaussianNB()
+gnb.fit(x,y)
+# 每个类别的先验概率
+print('概率：', gnb.class_prior_)
+# 每个类别样本的数量
+print('样本数量：', gnb.class_count_)
+# 每个类别的标签
+print('标签：', gnb.classes_)
+# 每个特征在每个类别下的均值
+print('均值：',gnb.theta_)
+# 每个特征在每个类别下的方差
+print('方差：',gnb.sigma_)
+
+#测试集
+x_test = np.array([[6,3]])
+print('预测结果：', gnb.predict(x_test))
+print('预测结果概率：', gnb.predict_proba(x_test))
+```
+
+```python
+# 伯努利朴素贝叶斯
+from sklearn.naive_bayes import BernoulliNB
+
+np.random.seed(0)
+x = np.random.randint(-5,5,size=(6,2))
+y = np.array([0,0,0,1,1,1])
+data = pd.DataFrame(np.concatenate([x,y.reshape(-1,1)], axis=1), columns=['x1','x2','y'])
+display(data)
+
+bnb = BernoulliNB()
+bnb.fit(x,y)
+# 每个特征在每个类别下发生（出现）的次数。因为伯努利分布只有两个值。
+# 我们只需要计算出现的概率P(x=1|y)，不出现的概率P(x=0|y)使用1减去P(x=1|y)即可。
+print('数值1出现次数：', bnb.feature_count_)
+# 每个类别样本所占的比重，即P(y)。注意该值为概率取对数之后的结果，
+# 如果需要查看原有的概率，需要使用指数还原。
+print('类别占比p(y)：',np.exp(bnb.class_log_prior_))
+# 每个类别下，每个特征（值为1）所占的比例（概率），即p（x|y）
+# 该值为概率取对数之后的结果，如果需要查看原有的概率，需要使用指数还原
+print('特征概率：',np.exp(bnb.feature_log_prob_))
+```
+
+```python
+# 多项式朴素贝叶斯
+from sklearn.naive_bayes import MultinomialNB
+
+np.random.seed(0)
+x = np.random.randint(0,4,size=(6,2))
+y = np.array([0,0,0,1,1,1])
+data = pd.DataFrame(np.concatenate([x,y.reshape(-1,1)], axis=1), columns=['x1','x2','y'])
+display(data)
+
+mnb = MultinomialNB()
+mnb.fit(x,y)
+# 每个类别的样本数量
+print(mnb.class_count_)
+# 每个特征在每个类别下发生（出现）的次数
+print(mnb.feature_count_)
+# 每个类别下，每个特征所占的比例（概率），即P(x|y)
+# 该值为概率取对数之后的结果，如果需要查看原有的概率，需要使用指数还原
+print(np.exp(mnb.feature_log_prob_))
+```
