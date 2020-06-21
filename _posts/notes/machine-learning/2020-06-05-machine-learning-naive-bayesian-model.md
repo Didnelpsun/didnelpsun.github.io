@@ -21,17 +21,21 @@ excerpt: "Naive Bayesian Model"
 
 ### &emsp;参数定义
 
-设输入空间$\mathscr X \in R^n$为n维向量的集合，输出空间维类标记集合$\mathscr Y=\{c_1,c_2\ldots c_K\}$。输入x属于$\mathscr X$，而输出类标记y为$\mathscr Y$。X为$\mathscr X$上的随机向量，Y为$\mathscr Y$上的随机变量，而P(X,Y)为XY的联合概率分布。
+设输入空间$\mathscr X \in R^n$为n维向量的集合，输出空间维类标记集合$\mathscr Y=\lbrace c_1,c_2\ldots c_K\rbrace$。输入x属于$\mathscr X$，而输出类标记y为$\mathscr Y$。X为$\mathscr X$上的随机向量，Y为$\mathscr Y$上的随机变量，而P(X,Y)为XY的联合概率分布。
 
-训练数据集$T=\{(x_1,y_1),(x_2,y_2)\ldots (x_N,y_N)\}$由P(X,Y)独立同分布产生。
+训练数据集$T=\lbrace (x_1,y_1),(x_2,y_2)\ldots (x_N,y_N)\rbrace$由P(X,Y)独立同分布产生。
 
 ### &emsp;贝叶斯公式
 
 {% raw %}
 
-贝叶斯定理公式为$P(B_i\mid A)={{P(B_i)P(A\mid B_i)}\over{\sum_{j=1}^n}P(B_j)P(A\mid B_j)}$
+贝叶斯定理公式为：
 
-所以$P(y\mid x)={P(y)P(x\mid y)\over{P(x)}}$
+$$P(B_i\mid A)={{P(B_i)P(A\mid B_i)}\over{\sum_{j=1}^n}P(B_j)P(A\mid B_j)}$$
+
+所以：
+
+$$P(y\mid x)={P(y)P(x\mid y)\over{P(x)}}$$
 
 {% endraw %}
 
@@ -41,7 +45,9 @@ P(y)为类的先验概率，P(x\|y)为样本x对于类标记y的类条件概率�
 
 朴素贝叶斯法对条件概率分布做出了条件独立性的假设，即用于分类的特征在类确定的条件夏都是条件独立的，因为这是个约束较强的假设（因为基本很少条件会是完全独立的，就比如身高体重），所以就叫朴素贝叶斯法（假设后模型相对很简单）。
 
-独立性假设是：$P(X=x\mid Y=c_k)=P({X^{(1)}=x^{(1)},\ldots ,X^{(n)}=x^{(n)}\mid Y=c_k})=\prod_{j=1}^nP(X^{(j)}=x^{(j)}\mid Y=c_k)$
+独立性假设是：
+
+$$P(X=x\mid Y=c_k)=P({X^{(1)}=x^{(1)},\ldots ,X^{(n)}=x^{(n)}\mid Y=c_k})=\prod_{j=1}^nP(X^{(j)}=x^{(j)}\mid Y=c_k)$$
 
 即将原来的同时满足多个条件的概率拆开为满足多个条件下的概率的乘积，这种转换必定是要求条件独立的，因为如果条件是交叉的，那么乘积将大于原本应该的乘积。
 
@@ -69,19 +75,23 @@ P(y)为类的先验概率，P(x\|y)为样本x对于类标记y的类条件概率�
 
 {% raw %}
 
-$P(Y=c_k\mid X=x)={{P(X=x\mid Y=c_k)P(Y=c_k)}\over {\sum_kP(X=x\mid Y=c_k)P(Y=c_k)}}$
+$$P(Y=c_k\mid X=x)={{P(X=x\mid Y=c_k)P(Y=c_k)}\over {\sum_kP(X=x\mid Y=c_k)P(Y=c_k)}}$$
 
-将条件独立性假设公式代入：
+将条件独立性假设公式代入
 
-<span style="color:aqua">朴素贝叶斯法分类：</span>$P(Y=c_k\mid X=x)={{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}\over {\sum_kP(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}，k=1,2\ldots K$
+<span style="color:aqua">朴素贝叶斯法分类：</span>
 
-<span style="color:aqua">朴素贝叶斯分类器：</span>$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}\over {\sum_kP(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$
+$$P(Y=c_k\mid X=x)={{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}\over {\sum_kP(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}，k=1,2\ldots K$$
+
+<span style="color:aqua">朴素贝叶斯分类器：</span>
+
+$$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}\over {\sum_kP(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$$
 
 这个分类器主要进行单点估计。
 
 又在计算每个类$c_k$的时候分母都是一样的，所以就不用计算分母，得到更简单的公式：
 
-$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$
+$$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$$
 
 {% endraw %}
 
@@ -89,11 +99,15 @@ $y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$
 
 从上面我们可以知道，我们将实例的类分给后验概率最大的类，所以我们如果要求精度变高，自然会要求这个后验概率变大，后验概率最大化，即等价于期望风险最小化。
 
-如果我们采用0-1损失函数：$L(Y,f(X))=\begin{cases}1,Y \neq f(X)\\0,Y=f(X)\\\end{cases}$
+如果我们采用0-1损失函数：
+
+$$L(Y,f(X))=\begin{cases}1,Y \neq f(X)\\0,Y=f(X)\\\end{cases}$$
 
 其中f(X)为分类决策函数（即我们采用贝叶斯算出来的函数），这时期望风险函数为：$R_{exp}(f)=E[L(Y,f(X))]$。
 
-这个期望是对联合分布P(X,Y)而取值的，所以条件期望是：$R_{exp}(f)=E_X\sum_{k=1}^K[L(c_k,f(X))]P(c_k\mid X)$
+这个期望是对联合分布P(X,Y)而取值的，所以条件期望是：
+
+$$R_{exp}(f)=E_X\sum_{k=1}^K[L(c_k,f(X))]P(c_k\mid X)$$
 
 为了让期望风险最小化，只用对X=x逐个极小化：
 
@@ -105,7 +119,9 @@ $$=arg\min_{y\in\mathscr Y}(1-P(y=c_k\mid X=x))$$
 
 $$=arg\max_{y\in\mathscr Y}P(y=c_k\mid X=x)$$
 
-我们也可以从逻辑上退出期望风险最小化就是后验概率最大化，就是将X=x时对应$c_k$类的概率极大化，期望风险最小化准则就变成了后验概率最大化准则：$f(x)=arg\max_{c_k}P(c_k\mid X=x)$。
+我们也可以从逻辑上退出期望风险最小化就是后验概率最大化，就是将X=x时对应$c_k$类的概率极大化，期望风险最小化准则就变成了后验概率最大化准则：
+
+$$f(x)=arg\max_{c_k}P(c_k\mid X=x)$$
 
 这就是贝叶斯法采用的原理。
 
@@ -121,11 +137,17 @@ $$=arg\max_{y\in\mathscr Y}P(y=c_k\mid X=x)$$
 
 {% raw %}
 
-先验概率$P(Y=c_k)$的极大似然估计是$P(Y=c_k)={{\sum_{i=1}^NI(y_i=c_k)}\over N},k=1,2\ldots ,K$，其实就是估计每个类出现的频次。
+先验概率$P(Y=c_k)$的极大似然估计是：
 
-设第j个特征$x^{(j)}$的可能取值为$\{a_{j1},a_{j2}\ldots a_{jS_j}\}$，$x_i^{(j)}$为第i个样本的第j个特征；$a_{jl}$为第j个特征所可能取的第l个值；I()为指示函数，中间条件为真就返回1，假就返回0。$j=1,2\ldots n;\ l=1,2\ldots S_j;\ k=1,2\ldots K$
+$$P(Y=c_k)={{\sum_{i=1}^NI(y_i=c_k)}\over N},k=1,2\ldots ,K$$
 
-那么条件概率$P(X^{(j)}=a_{jl}\mid Y=c_k)$的极大似然估计下，条件概率就是出现的频次：$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)\over{{\sum_{i=1}^N}I(y_i=c_k)}}$
+其实就是估计每个类出现的频次。
+
+设第j个特征$x^{(j)}$的可能取值为$\lbrace a_{j1},a_{j2}\ldots a_{jS_j}\rbrace$，$x_i^{(j)}$为第i个样本的第j个特征；$a_{jl}$为第j个特征所可能取的第l个值；I()为指示函数，中间条件为真就返回1，假就返回0。$j=1,2\ldots n;\ l=1,2\ldots S_j;\ k=1,2\ldots K$
+
+那么条件概率$P(X^{(j)}=a_{jl}\mid Y=c_k)$的极大似然估计下，条件概率就是出现的频次：
+
+$$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)\over{{\sum_{i=1}^N}I(y_i=c_k)}}$$
 
 {% endraw %}
 
@@ -137,17 +159,23 @@ $$=arg\max_{y\in\mathscr Y}P(y=c_k\mid X=x)$$
 
 所以根据上面的一系列证明，我们可以得到最后的贝叶斯算法定义：
 
-输入为训练数据集$T=\{(x_1,y_1),(x_2,y_2)\ldots (x_N,y_N)\}$，其中$x_i=(x_i^{(1)},x_i^{(2)}\ldots x_i^{(n)})^T$，$x_i^{(j)}$是第i个样本第j个特征值，$x_i^{(j)}\in\{a_{j1},a_{j2}\ldots a_{jS_j}\}$，$a_{jl}$是第j个特征值可能取得的第l个值，j=1,2...n,l=1,2...$S_j$，$y_i\in\{c_1,c_2\ldots c_K\}$或者输入为实例x。
+输入为训练数据集$T=\lbrace(x_1,y_1),(x_2,y_2)\ldots (x_N,y_N)\rbrace$，其中$x_i=(x_i^{(1)},x_i^{(2)}\ldots x_i^{(n)})^T$，$x_i^{(j)}$是第i个样本第j个特征值，$x_i^{(j)}\in\lbrace a_{j1},a_{j2}\ldots a_{jS_j}\rbrace$，$a_{jl}$是第j个特征值可能取得的第l个值，j=1,2...n,l=1,2...$S_j$，$y_i\in\lbrace c_1,c_2\ldots c_K\rbrace$或者输入为实例x。
 
 输出为y即x的分类。
 
 {% raw %}
 
-第一步，<span style="color:aqua">先验概率：</span>$P(Y=c_k)={{\sum_{i=1}^NI(y_i=c_k)}\over N},k=1,2\ldots ,K$
+第一步，<span style="color:aqua">先验概率：</span>
 
-第二步，<span style="color:aqua">条件概率：</span>$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)\over{{\sum_{i=1}^N}I(y_i=c_k)}}\quad j=1,2\ldots n;\ l=1,2\ldots S_j;\ k=1,2\ldots K$
+$$P(Y=c_k)={{\sum_{i=1}^NI(y_i=c_k)}\over N},k=1,2\ldots ,K$$
 
-第三步，<span style="color:aqua">根据实例确定类：</span>$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$
+第二步，<span style="color:aqua">条件概率：</span>
+
+$$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)\over{{\sum_{i=1}^N}I(y_i=c_k)}}\quad j=1,2\ldots n;\ l=1,2\ldots S_j;\ k=1,2\ldots K$$
+
+第三步，<span style="color:aqua">根据实例确定类：</span>
+
+$$y=f(x)=arg \max_{c_k}{{P(Y=c_k)\prod_jP(X^{(j)}=x^{(j)}\mid Y=c_k)}}$$
 
 {% endraw %}
 
@@ -157,13 +185,21 @@ $$=arg\max_{y\in\mathscr Y}P(y=c_k\mid X=x)$$
 
 在特征值为离散值时，使用极大似然估计可能会出现概率为0的情况，因为参数过大样本可能不能充分满足每一种可能的情况，这个情况就未被观测到，所以这个情况下的概率就计算为0。频率因为概率计算时是以乘积的形式，所以一旦一个概率为0，会影响到总体的概率全部为0，这回影响到后验概率的结果，从而让分类具有了误差，所以我们要消除这个可能性。因为概率可能为非负，所以我们想加上一个正数，让概率全为正数，这就解决了概率可能为0的问题。
 
-这就是贝叶斯估计，<span style="color:aqua">条件概率的贝叶斯估计：</span>$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)+\lambda\over{{\sum_{i=1}^N}I(y_i=c_k)}+S_j\lambda}\quad \lambda\ge0$
+这就是贝叶斯估计，<span style="color:aqua">条件概率的贝叶斯估计：</span>
+
+$$P(X^{(j)}=a_{jl}\mid Y=c_k)={{\sum_{i=1}^N}I(x_i^{(j)}=a_{jl},y_i=c_k)+\lambda\over{{\sum_{i=1}^N}I(y_i=c_k)}+S_j\lambda}\quad \lambda\ge0$$
 
 这个式子等价于在随机变量各个取值的频数上加上一个正数λ>0，当λ为0就是极大似然估计。一般λ取1，称为拉普拉斯平滑（平滑顾名思义就是将函数平滑化，不会有较大的差值）。
 
-对于任何l=1,2...$S_j$，k=1,2...K，都有$P_\lambda(X^{(j)}=a_{jl}\mid Y=c_k)>0,\quad\sum_{l=1}^{S_j}P(X^{(j)}=a_{jl}\mid Y=c_k)=1$，所以表明贝叶斯估计的式子确实代表一种概率分布。
+对于任何l=1,2...$S_j$，k=1,2...K，都有：
 
-<span style="color:aqua">先验概率的贝叶斯估计：</span>$P(Y=c_k)={{\sum_{i=1}^NI(y_i=c_k)+\lambda}\over {N+K\lambda}}$
+$$P_\lambda(X^{(j)}=a_{jl}\mid Y=c_k)>0,\quad\sum_{l=1}^{S_j}P(X^{(j)}=a_{jl}\mid Y=c_k)=1$$
+
+所以表明贝叶斯估计的式子确实代表一种概率分布。
+
+<span style="color:aqua">先验概率的贝叶斯估计：</span>
+
+$$P(Y=c_k)={{\sum_{i=1}^NI(y_i=c_k)+\lambda}\over {N+K\lambda}}$$
 
 {% endraw %}
 

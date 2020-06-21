@@ -15,13 +15,15 @@ k近邻法最简单直接地介绍，就是我们有一个数据集，数据集�
 
 具体的数学定义如下：
 
-已知有$T=\{(x_1,y_1),(x_2,y_2)...(x_N,y_N)\}, x_i∈R_n,y_i∈\{c_1,c_2...c_K\}, i=1,2\ldots N$，即输入N个实例向量组，其中y属于k个类别。
+已知有$T=\lbrace (x_1,y_1),(x_2,y_2)...(x_N,y_N)\rbrace, x_i∈R_n,y_i∈\lbrace c_1,c_2...c_K\rbrace, i=1,2\ldots N$，即输入N个实例向量组，其中y属于k个类别。
 
 输入实例特征向量x，输出对应的实例类y。
 
-<span style="color:aqua">k近邻公式：</span>$y = arg \max_{c_j}{\sum_{x_i\in N_k(x)}I(y_i=c_j),i=1,2\ldots N;j=1,2\ldots K}$
+<span style="color:aqua">k近邻公式：</span>
 
-其中I()为指示函数，只有括号内的条件为真时才为1，其他情况为0。
+$$y = arg \max_{c_j}{\sum_{x_i\in N_k(x)}I(y_i=c_j),i=1,2\ldots N;j=1,2\ldots K}$$
+
+其中$I()$为指示函数，只有括号内的条件为真时才为1，其他情况为0。
 
 当取近邻数k=1的时候就是最近邻算法，代表判断的准则为最近的一个实例点的类。
 
@@ -80,7 +82,11 @@ k近邻算法二维展示：
 
 #### &emsp;&emsp;1.闵式距离（Lp距离/闵可夫斯基距离）
 
-已知特征变量为：$x_i=(x_i^{(1)},x_i^{(2)}\ldots x_i^{(n)})$，xi,xj的<span style="color:aqua">Lp距离：</span>$L_p(x_i,x_j)=(\sum_{l=1}^n\mid x_i^{(l)}-x_j^{(l)}\mid ^p)^{1 \over p}$。其中p大于等于1且为整数。
+已知特征变量为：$x_i=(x_i^{(1)},x_i^{(2)}\ldots x_i^{(n)})$，xi,xj的<span style="color:aqua">Lp距离：</span>
+
+$$L_p(x_i,x_j)=\left(\sum_{l=1}^n\mid x_i^{(l)}-x_j^{(l)}\mid ^p\right)^{1 \over p}$$
+
+其中p大于等于1且为整数。
 
 其中如果p为2就是欧式距离L2，如果p为1就是曼哈顿距离L1，如果p为∞，那么就是切比雪夫距离L∞。
 
@@ -106,21 +112,35 @@ Lp距离就如我们最熟悉的距离计算方法欧式距离，计算的是两
 
 马氏距离的计算公式如下：
 
-一组向量$\{\vec{X_1},\vec{X_2}\ldots \vec{X_n}\}$，其中$\vec{X}=\{x_1,x_2\ldots x_m\}$。
+一组向量$\lbrace \vec{X_1},\vec{X_2}\ldots \vec{X_n}\rbrace$，其中$\vec{X}=\lbrace x_1,x_2\ldots x_m\rbrace$。
 
-均值为$\vec{\mu}=\{\mu_1,\mu_2\ldots \mu_m\}$，协方差矩阵为$\sum_{ij}=cov(x_i,x_j)$。
+均值为$\vec{\mu}=\lbrace \mu_1,\mu_2\ldots \mu_m\rbrace$，协方差矩阵为$\sum_{ij}=cov(x_i,x_j)$。
 
-单向量的<span style="color:aqua">马氏距离：</span>$MD(\vec{X})=\sqrt{(\vec{X}-\vec{\mu})^T\sum^{-1}(\vec{X}-\vec{\mu})}$，向量间的<span style="color:aqua">马氏距离：</span>$MD(\vec{X},\vec{Y})=\sqrt{(\vec{X}-\vec{Y})^T\sum^{-1}(\vec{X}-\vec{Y})}$
+单向量的<span style="color:aqua">马氏距离：</span>
 
-单位矩阵的<span style="color:aqua">马氏距离：</span>$D_M(x)=\sqrt{(x-\mu)^T(x-\mu)}$，对角矩阵的<span style="color:aqua">马氏距离：</span>$D_M(x)=\sqrt{\sum_{i=1}^n{(x_i-\mu_i)^2 \over \sigma_i^2}}$。
+$$MD(\vec{X})=\sqrt{(\vec{X}-\vec{\mu})^T\sum^{-1}(\vec{X}-\vec{\mu})}$$
+
+向量间的<span style="color:aqua">马氏距离：</span>
+
+$$MD(\vec{X},\vec{Y})=\sqrt{(\vec{X}-\vec{Y})^T\sum^{-1}(\vec{X}-\vec{Y})}$$
+
+单位矩阵的<span style="color:aqua">马氏距离：</span>
+
+$$D_M(x)=\sqrt{(x-\mu)^T(x-\mu)}$$
+
+对角矩阵的<span style="color:aqua">马氏距离：</span>
+
+$$D_M(x)=\sqrt{\sum_{i=1}^n{(x_i-\mu_i)^2 \over \sigma_i^2}}$$
 
 计算马氏距离的案例：
 
 一组向量：{3,4},{5,6},{2,2},{8,4}求其马氏距离。
 
-得到均值$\vec{\mu}=\{4,5,4\}$
+得到均值$\vec{\mu}=\lbrace 4,5,4\rbrace$
 
-协方差矩阵：$\sum=\begin{bmatrix}7&2\\2&2.667\\\end{bmatrix},\sum^{-1}=\begin{bmatrix}0.18&-0.13\\-0.13&0.48\\\end{bmatrix}$
+协方差矩阵：
+
+$$\sum=\begin{bmatrix}7&2\\2&2.667\\\end{bmatrix},\sum^{-1}=\begin{bmatrix}0.18&-0.13\\-0.13&0.48\\\end{bmatrix}$$
 
 得到{3,4}和{5,6}之间的距离$MD=\sqrt{(-2,-2)^T\sum^{-1}(-2,-2)}=1.2$
 
@@ -158,7 +178,9 @@ print(numpy.sqrt(dot(dot(tp, invD), tp.T)))
 
 一般是多数表决规则。
 
-多数表决规则下，如果分类损失函数为0-1损失函数（即损失以分类的是否值作为结果），那么误分类率为：${1\over k}\sum_{x_l\in N_k(x)}I(y_i\neq c_j)=1-{1\over k}\sum_{x_l\in N_k(x)}I(y_i=c_j)$。
+多数表决规则下，如果分类损失函数为0-1损失函数（即损失以分类的是否值作为结果），那么误分类率为：
+
+$${1\over k}\sum_{x_l\in N_k(x)}I(y_i\neq c_j)=1-{1\over k}\sum_{x_l\in N_k(x)}I(y_i=c_j)$$
 
 &emsp;
 
@@ -255,11 +277,11 @@ if __name__ == '__main__':
 
 (3)直到两个子区域没有实例存在时停止。从而形成kd树的区域划分。
 
-给定一个二维数据集：$T=\{(15,4)^T,(7,11)^T,(23,10)^T,(4,14)^T,(9,8)^T,(1,6)^T,(3,2)^T\}$，构造一个平衡kd树。
+给定一个二维数据集：$T=\lbrace (15,4)^T,(7,11)^T,(23,10)^T,(4,14)^T,(9,8)^T,(1,6)^T,(3,2)^T\rbrace$，构造一个平衡kd树。
 
-首先按照第一维升序排序得到：$\{(1,6)^T,(3,2)^T,(4,14)^T,(7,11)^T,(9,8)^T,(15,4)^T,(23,10)^T\}$。
+首先按照第一维升序排序得到：$\lbrace (1,6)^T,(3,2)^T,(4,14)^T,(7,11)^T,(9,8)^T,(15,4)^T,(23,10)^T\rbrace$。
 
-按照第二维升序排序得到：$\{(3,2)^T,(15,4)^T,(1,6)^T,(9,8)^T,(23,10)^T,(7,11)^T,(4,14)^T\}$。
+按照第二维升序排序得到：$\lbrace (3,2)^T,(15,4)^T,(1,6)^T,(9,8)^T,(23,10)^T,(7,11)^T,(4,14)^T\rbrace$。
 
 因为一共有7个数据，所以应该折半第一维选第四个为根节点保存的数据，即$(7,11)^T$。然后将两部分数据分开，两部分各按第二维进行切分。第二层的根节点为$(1,6)^T$和$(9,8)^T$。最后一层按照第一维进行切分。最后得到kd树：
 

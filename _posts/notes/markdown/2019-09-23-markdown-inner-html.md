@@ -15,7 +15,7 @@ excerpt: "实现样式"
 
 对于markdown文件是不能通过文字来设置样式的（也有些可以，但是不是所有转换器都支持），对于普遍的用法是嵌入html元素。
 
-如`$\color{aqua}{格式}$`这种表示方法在vscode编辑器上就能显示颜色，但是别的就不一定支持。
+如`$\color{aqua}{格式}$`这种表示方法在vscode编辑器上就能显示颜色，但是别的就不一定支持。因为这是mathjax的格式。
 
 对于字，是使用font元素。
 
@@ -24,9 +24,9 @@ face属性代表字体，size代表字号，color代表字色。
 <span style="color:aqua">格式：</span>
 
 ```markdown
-<font face="字体">字体</font>
-<font size="字号">字号</font>
-<font color="字色">字色</font>
+<span face="字体">字体</span>
+<span size="字号">字号</span>
+<span color="字色">字色</span>
 ```
 
 ### &emsp;2. 图片

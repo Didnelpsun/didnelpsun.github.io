@@ -159,12 +159,13 @@ $\bigotimes$|\bigotimes|$\bigodot$|\bigodot
 ## 括号与竖线
 
 + 小括号：()呈现为$()$
-+ 中括号：[]呈现为$[]$
++ 中括号：[]呈现为$[]$，也可以使用\lbrack和\rbrack。
++ 大括号：使用\{\}，也可以使用\brace{}{}和\lbrace以及\rbrace
 + 尖括号：\langle,\rangle呈现为$\langle\rangle$，此处为与分组符号{}相区别，使用转义字符\
 + 上取整：使用\lceil和\rceil表示。如\lceil x \rceil：${\lceil x \rceil}$
 + 下取整：使用\lfloor和\rfloor表示。如\lfloor x \rfloor：$\lfloor x \rfloor$
 + 不可见括号：使用.
-+ 对于绝对值一般都是使用\|来进行分割：$|x|$，但是有排版空间大小的问题，应该使用\mid代替
++ 对于绝对值一般都是使用\|来进行分割：$\|x\|$，但是有排版空间大小的问题，应该使用\mid代替
 + 使用\left或\right使符号大小与邻近的公式相适应；该语句适用于所有括号类型，括号竖线都可以，\left(\frac{x}{y}\right)呈现为$\left(\frac{x}{y}\right)$
 
 &emsp;

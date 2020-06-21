@@ -52,3 +52,11 @@ displayed mathematics的默认分隔符是$$...$$和\[...\]，而in-line mathema
     MathJax.Hub.Queue(["Typeset",MathJax.Hub,mathId]);//选择公式识别范围
 </script>
 ```
+
+## Jekyll中使用双重{}带来的问题
+
+如果在mathjax中使用两重{}以上的大括号，Jekyll会默认转义，你需要使用\{\% raw %}来阻止转义。
+
+## Jekyll中大括号不能显示的问题
+
+使用\brace{}{}或者\lbrace\rbrace来取代大括号。
