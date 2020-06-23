@@ -482,7 +482,8 @@ scikit-learn中朴素贝叶斯类库的使用也比较简单。相对于决策�
 
 在scikit-learn中，一共有3个朴素贝叶斯的分类算法类。分别是GaussianNB，MultinomialNB和BernoulliNB。其中GaussianNB就是先验为高斯分布的朴素贝叶斯，MultinomialNB就是先验为多项式分布的朴素贝叶斯，而BernoulliNB就是先验为伯努利分布的朴素贝叶斯。
 
-MultinamialNB这个函数，只有3个参数：alpha（拉普拉斯平滑），fit_prior（表示是否要考虑先验概率），和class_prior：可选参数
+MultinamialNB这个函数，只有3个参数：alpha（拉普拉斯平滑），fit_prior（表示是否要考虑先验概率），和class_prior：可选参数。
+
 MultinomialNB一个重要的功能是有partial_fit方法，这个方法的一般用在如果训练集数据量非常大，一次不能全部载入内存的时候。这时我们可以把训练集分成若干等分，重复调用partial_fit来一步步的学习训练集。
 
 ```python
