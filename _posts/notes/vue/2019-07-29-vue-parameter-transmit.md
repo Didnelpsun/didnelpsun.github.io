@@ -43,6 +43,8 @@ export default {
 </style>
 ```
 
+{% raw %}
+
 ```vue
 <template >
   <div id="test">
@@ -62,4 +64,7 @@ export default {
 </script>
 ```
 
+{% endraw %}
+
 我们现在的目的是利用参数在HelloWorld.vue文件中改变Test组件的显示文字。
+
