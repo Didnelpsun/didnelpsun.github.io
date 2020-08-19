@@ -205,7 +205,7 @@ artifacts，它的作用是整合编译后的Java文件，资源文件等，有�
 
 ![applicationcontext地址][applicationcontext]
 
-[Maven的Webapp项目源码：/Maven/demo2_webapp]([https://github.com/Didnelpsun/notes/tree/master/maven/mavenweb](https://github.com/Didnelpsun/Maven/tree/master/demo2_webapp))
+[Maven的Webapp项目源码：Maven/demo2_webapp](https://github.com/Didnelpsun/Maven/tree/master/demo2_webapp)
 
 &emsp;
 
