@@ -57,6 +57,8 @@ Test.java|Maven只会自动运行符合该命名规则的测试类
 
 ![检查maven][mvnversion]
 
+就可以了。
+
 ### &emsp;关于环境变量
 
 现在是Maven3版本，网上的教程可能比较乱。有说MAVEN_HOME的，有说M2_HOME的，配置该变量后再引用定义的变量到path里。据说MAVEN_HOME是maven1的时候的配置，M2_HOME是maven2以上的版本的配置（包括现在的maven3也是配M2_HOME，注意不是M3_HOME，但是我使用了MAVEN_HOME来配置Maven3并没有报错）
@@ -84,7 +86,7 @@ Test.java|Maven只会自动运行符合该命名规则的测试类
 -->
 ```
 
-为了配置本地仓库，我们将53行代码复制到外面：\<localRepository>/path/to/local/repo</localRepository>，并新建一个库文件夹作为仓库地址并配置：\<localRepository>D:/maven/repository</localRepository>，注意是正引号。
+为了配置本地仓库，我们将53行代码复制到外面：`<localRepository>/path/to/local/repo</localRepository>`，并新建一个库文件夹作为仓库地址并配置：`<localRepository>D:/maven/repository</localRepository>`，注意是正引号。
 
 ### &emsp;镜像以及JDK
 
@@ -269,9 +271,9 @@ maven-3.xxx版本之后，在maven可以找到这个文件：/lib/maven-model-bu
 </project>  
 ```
 
-1. \<repositories>讲解
+1. \<repositories>讲解  
 我们先看一下\<repositories>的配置，你可以在它下面添加多个\<repository> ，每个\<repository>都有它唯一的ID，一个描述性的name，以及最重要的，远程仓库的url。此外，\<releases>\<enabled>true</enabled></releases>告诉Maven可以从这个仓库下载releases版本的构件，而\<snapshots>\<enabled>false</enabled></snapshots>告诉Maven不要从这个仓库下载snapshot版本的构件。禁止从公共仓库下载snapshot构件是推荐的做法，因为这些构件不稳定，且不受你控制，你应该避免使用。当然，如果你想使用局域网内组织内部的仓库，你可以激活snapshot的支持。
-2. \<pluginRepositories>讲解：
+2. \<pluginRepositories>讲解  
 这是配置Maven从什么地方下载插件构件（Maven的所有实际行为都由其插件完成）。该元素的内部配置和完全一样，不再解释。
 
 #### &emsp;&emsp;settings.xml
@@ -297,7 +299,8 @@ maven-3.xxx版本之后，在maven可以找到这个文件：/lib/maven-model-bu
 假如有一些jar包不存在中央库中，实际上有很多jar包都不在，那么我们需要下载对应的库到本地。
 
 首先通过mvn安装，下载 "kaptcha"，将其解压缩并将 kaptcha-version.jar 复制到其他地方，比如：C盘。发出下面的命令：  
-mvn install:install-file -Dfile=c:\kaptcha-{version}.jar -DgroupId=com.google.code -DartifactId=kaptcha -Dversion={version} -Dpackaging=jar
+
+`mvn install:install-file -Dfile=c:\kaptcha-{version}.jar -DgroupId=com.google.code -DartifactId=kaptcha -Dversion={version} -Dpackaging=jar`
 
 然后在pom.xml中声明：
 

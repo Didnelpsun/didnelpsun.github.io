@@ -11,6 +11,8 @@ excerpt: "Spring介绍与IDEA创建"
 
 我们已经知道了Spring框架的三个特征，反转控制IoC，依赖注入DI和面向切面编程AOP，以后会详细介绍。
 
+Spring框架和其他框架一样，其实本质就是一个工具集，最基本的需求都是减少代码编写。
+
 ## Spring的功能
 
 + Spring 能帮我们根据配置文件创建及组装对象之间的依赖关系，Spring会根据配置文件来进行创建及组装对象间依赖关系，只需要修改配置文件即可，无需重新编译。
@@ -45,9 +47,9 @@ excerpt: "Spring介绍与IDEA创建"
 
 ### &emsp;Web/Remoting 模块
 
-+ Web 模块：提供了基础的 Web 功能。例如多文件上传、集成 IoC 容器、远程过程访问（RMI、Hessian、Burlap）以及 Web Service 支持，并提供一个 RestTemplate 类来提供方便的 Restful services 访问。
-+ Web-Servlet 模块：提供了一个 Spring MVC Web 框架实现。Spring MVC 框架提供了基于注解的请求资源注入、更简单的数据绑定、数据验证等及一套非常易用的 JSP 标签，完全无缝与 Spring 其他技术协作。
-+ Web-Struts 模块：提供了与 Struts 无缝集成，Struts 1.x 和 Struts 2.x 都支持。
++ Web 模块：提供了基础的 Web 功能。例如多文件上传、集成 IoC 容器、远程过程访问（RMI、Hessian、Burlap）以及 Web Service 支持，并提供一个 RestTemplate类来提供方便的 Restful services 访问。
++ Web-Servlet 模块：提供了一个 Spring MVC Web框架实现。Spring MVC 框架提供了基于注解的请求资源注入、更简单的数据绑定、数据验证等及一套非常易用的JS 标签，完全无缝与 Spring 其他技术协作。
++ Web-Struts 模块：提供了与Struts无缝集成，Struts 1.x和Struts 2.x都支持。
 + Web-Portlet 模块提供了用于Portlet环境的MVC实现，并反映了spring-webmvc模块的功能。
 
 ### &emsp;其他模块
@@ -62,19 +64,19 @@ excerpt: "Spring介绍与IDEA创建"
 
 ## 使用IDEA构建Spring项目
 
-我们一般使用Maven构建Spring项目。
+如果你不想了解这些概念之类的东西，可以直接开始第一个项目工程。我们一般使用Maven构建Spring项目。
 
-首先还是新建一个Maven项目，选择的是quick模板。
+首先还是新建一个Maven项目，选择的是quick模板。具体见[Maven教程2——IDEA中创建quick项目]({% post_url /maven/2020-03-19-maven-build-by-idea %})，甚至你可以直接根据[Maven的quick项目源码：Maven/demo1_quickstart](https://github.com/Didnelpsun/Maven/tree/master/demo1_quickstart)来下载使用
 
-然后按原来的模式进行配置：
+然后在pom.xml中进行配置：
 
 ```xml
-  <properties>
+<properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring.version>5.2.4.RELEASE</spring.version>
-  </properties>
+</properties>
 <!--依赖-->
 <!--一个是Spring的core库-->
 <dependency>
@@ -91,6 +93,8 @@ excerpt: "Spring介绍与IDEA创建"
 <!--运行目标-->
 <defaultGoal>compile</defaultGoal>
 ```
+
+我们一般需要的就是这两个Spring容器依赖，你也可以到[Maven中央仓库](https://mvnrepository.com/)去黏贴pom依赖代码。依赖的版本并不受限制
 
 然后我们看一下对应的目录：
 

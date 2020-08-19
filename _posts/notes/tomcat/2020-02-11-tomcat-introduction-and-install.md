@@ -7,13 +7,15 @@ tags: tomcat 基础 安装 配置
 excerpt: "容器介绍与安装配置"
 ---
 
-## tomcat介绍
+## Tomcat介绍
 
-tomcat是一个开源而且免费的jsp服务器，可实现JavaWeb程序的装载，是配置JSP（Java Server Page）和JAVA系统必备的一款环境。它是apache软件基金会的jakarta项目中的一个核心项目，因为tomcat技术先进性能稳定和监督易用性已成为最为广泛的jsp服务器。
+Tomcat是一个开源而且免费的jsp服务器，可实现JavaWeb程序的装载，是配置JSP（Java Server Page）和JAVA系统必备的一款环境。它是apache软件基金会的jakarta项目中的一个核心项目，因为tomcat技术先进性能稳定和监督易用性已成为最为广泛的jJSP服务器。
 
-tomcat 服务器是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试JSP 程序的首选。
+Tomcat服务器是一个免费的开放源代码的Web应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试JSP程序的首选。
 
 同时tomcat也是web容器。在[web入门]({% post_url /notes/java/2020-02-10-java-javaweb %})中就有一个有关于tomcat的图片，就说明了tomcat的关系。
+
+简单而言，Tomcat就是一个用来运行项目的东西，类似前端的Node，没有它项目就无法启动。
 
 &emsp;
 
@@ -82,12 +84,12 @@ Servlet容器与基于非Java技术的Web服务器一起使用，通过Web服务
 
 &emsp;
 
-## tomcat安装
+## Tomcat安装
 
-到[tomcat官网](http://tomcat.apache.org/)然后选择对应的版本以及操作系统下载压缩包！然后直接解压，随便放在一个好找的地方就行了。
+到[Tomcat官网](http://tomcat.apache.org/)然后选择对应的版本以及操作系统下载压缩包！然后直接解压，随便放在一个好找的地方就行了。
 
 打开发现目录应该是这样的：  
-![tomcat目录结构][tomcat]
+![Tomcat目录结构][tomcat]
 
 然后加上环境变量：TOMCAT-HOME:D:\tomcat
 
