@@ -9,17 +9,15 @@ excerpt: "状态与生命周期函数"
 
 ## 状态
 
-### &emsp;1. 状态的含义
+### &emsp;状态的含义
 
 官方网中给了时钟的示例，不过无论是时钟还是别的组件，都可以有状态。状态是什么？就是组件自身的数据，不是依靠外部传入的，可以改变的，而不像props一样不能被改变的。
 
-那为什么要使用状态？就是组件化的思想，将逻辑封装到各个组件。就比如时钟，时钟本来就是应该依靠时间而改变数据的而不是依靠外面参数而改变的，所以就将数据放在组件里面。又如一个记录点赞数的面板，点赞数是这个面板本身的数据，点击组件发生改变，每个面板数据不一样，不是依赖父组件给它传递的数据而改变，那么这个面板就是一个有状态的组件。
+那为什么要使用状态？就是组件化的思想，将独立自有的逻辑封装到各个组件。就比如时钟，时钟本来就是应该依靠时间而改变数据的而不是依靠外面参数而改变的，所以就将数据放在组件里面。又如一个记录点赞数的面板，点赞数是这个面板本身的数据，点击组件发生改变，每个面板数据不一样，不是依赖父组件给它传递的数据而改变，那么这个面板就是一个有状态的组件。
 
-组件的状态就是`this.state`。但是状态不能直接使用，不像参数，需要首先构造组件。
+<span style="color:orange">注意：</span>组件的状态就是`this.state`。但是状态不能直接使用，不像参数，需要首先构造组件。
 
-<span style="color:orange">注意：</span>
-
-```react
+```jsx
 class 组件名 extends React.Component {
   constructor(props) {
     super(props);
@@ -30,15 +28,35 @@ class 组件名 extends React.Component {
     return (
       <返回元素>
       {this.state}
-      <返回元素>
+      </返回元素>
     );
   }
 }
 ```
 
-constructor就是构造器，传入参数，因为这些组件都是由`react.component`继承下来的，如果我们要使用状态首先要构造该组件，所以加上了constructor，并传入参数，我们知道如果要实例化组件，必须首先实例化父组件，即`react.component`，使用`super(props)`来构造父组件，然后就是赋值state，因为是本组件的状态就是`this.state`。
+#### &emsp;&emsp;constructor
 
-<span style="color:yellow">提示：</span>虽然官方给出了如此格式，但是实际上我们也可以不用构造器，直接赋值state={}也可以。但是为了使用参数还是需要使用构造器。
+constructor就是构造器，传入参数，因为这些组件都是由`react.component`继承下来的，如果我们要使用状态首先要构造该组件，所以加上了constructor，并传入参数。
+
+在ES5的继承中，会先创造子类的实例对象this，再将父类的方法添加到子类实例上（Parent.apply(this)）。
+
+而如果是ES6，则必然是先创建父类再创建子类this实例，所以先实例化`react.component`，再使用`super(props)`来构造父组件，然后就是赋值state，因为是本组件的状态，所以就是`this.state`。
+
+在ES6中，无论子类是否显式调用constructor，都会被默认添加。但是只有定义了构造器才能定义state。所以我们如果要使用state必须在类组件中定义构造器
+
+#### &emsp;&emsp;super
+
+构造器中的第一个方法一定是super方法，这个方法是实例化父类的意思的。这个super方法是必要的。
+
+一旦写了构造器方法，子类就必须在constructor方法中调用super方法，否则新建实例时会报错。
+
+子类的this对象必须首先通过父类的构造函数进行构造，然后得到与父类同样的实例属性与方法，然后对其加工，加上子类自己的实例属性与方法，才会得到子类的this实例对象，这样组件全局才能使用this，否则this将一直报错。
+
+#### &emsp;&emsp;props
+
+那么constructor和super方法中的参数props是必须的吗？
+
+因为React在除了constructor之外的生命周期中已经传入了参数this.props，不受super(props)的影响，所以如果构造器中不需要使用this.props或者props时可以不传入。
 
 ### &emsp;2. 使用状态
 
@@ -48,7 +66,7 @@ constructor就是构造器，传入参数，因为这些组件都是由`react.co
 
 也可以使用一个返回对象的方法，如：
 
-```react
+```jsx
 this.setState((prevState, props) => {
   return {
     isLiked: !prevState.isLiked
@@ -61,7 +79,7 @@ this.setState((prevState, props) => {
 因为this.state的改变会因为setState()的更新是合并的，所以会异步更新，从而和this.props不对应，处理方法就是将state和props同时传入setState()方法中：
 `this.setState((state,props)=>({变量:值}));`
 
-```react
+```jsx
 this.setState((state, props) => ({
   counter: state.counter + props.increment
 }));
@@ -82,7 +100,7 @@ this.setState(function(state, props) {
 
 上面申明的是有状态组件，当然也有无状态组件，使用class或者funciton定义，也可以使用const定义，就是只使用props，之前的一节都有说明，如：
 
-```react
+```jsx
 const componentClass = (props)=>{
   //
   constructor(props){
