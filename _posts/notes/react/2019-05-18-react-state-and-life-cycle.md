@@ -34,6 +34,17 @@ class 组件名 extends React.Component {
 }
 ```
 
+#### &emsp;&emsp;状态与属性
+
+状态是数据，是组件自有的数据，那么我们为什么不能直接在组件中使用let或者const来定义属性呢？为什么非要放在state中呢？它们之间有什么区别吗？
+
+1. 从来源上来看，状态是组件内部创建并维持的，属性虽然也可以在组件内创建，但一般是从父组件传递过来。
+2. 属性可以由父组件修改，状态不能。
+3. 父组件能设置子组件的属性初始值，状态不行。
+4. 状态只能在组件内部更新，属性除非外部组件主动传来新的props否则永远保持不变。
+5. 状态能控制页面重新渲染，而属性不行。
+6. 属性在组件完成后会被销毁，而状态不会。
+
 #### &emsp;&emsp;constructor
 
 constructor就是构造器，传入参数，因为这些组件都是由`react.component`继承下来的，如果我们要使用状态首先要构造该组件，所以加上了constructor，并传入参数。
@@ -56,11 +67,23 @@ constructor就是构造器，传入参数，因为这些组件都是由`react.co
 
 那么constructor和super方法中的参数props是必须的吗？
 
-因为React在除了constructor之外的生命周期中已经传入了参数this.props，不受super(props)的影响，所以如果构造器中不需要使用this.props或者props时可以不传入。
+因为React在除了constructor之外的生命周期中已经传入了参数this.props，不受super(props)的影响，所以如果构造器中不需要使用this.props或者props时可以不传入。你可以传入props或者this.props，两者差不多，但是this.props是具体的表示组件实例参数，而props是一个泛指的变量，也可以为其他的变量。
 
-### &emsp;2. 使用状态
+### &emsp;使用状态
 
-#### &emsp;&emsp;2.1 setState()方法
+使用上个文档我们的项目文件，或者直接下载[React项目2源码：React/demo2_props](https://github.com/Didnelpsun/React/tree/master/demo2_props)。
+
+我们现在想改变一下名片的逻辑，想定义一些卡片自有的固定的逻辑。比如用户都是人类，所以定义用户的类别都是人类；定义一个卡片被点击次数的属性，初始为0，点击一次就自动加一。
+
+用户是人类的这个属性是固定的，不能被修改的，所以应该放入子组件的state中；而卡片被点击点击次数属性就会自加一，这是由子组件自己来判断和计算的，和父组件无关，所以应该在state中定义被点击次数这个属性，用定义的方法来获取state再改变state。
+
+因为对应的数据都在User中，所以两个属性和对应方法都要放在User类中。将User改为类组件，并定义属性与方法：
+
+```jsx
+
+```
+
+#### &emsp;&emsp;setState()方法
 
 首先状态的更改使用不能直接赋值，只能使用setState()方法。且赋值也不是使用等号，而是使用对象的方式进行重新赋值。如：`this.setState({age:"1"})`
 
@@ -74,7 +97,7 @@ this.setState((prevState, props) => {
 })
 ```
 
-#### &emsp;&emsp;2.2 异步更新
+#### &emsp;&emsp;异步更新
 
 因为this.state的改变会因为setState()的更新是合并的，所以会异步更新，从而和this.props不对应，处理方法就是将state和props同时传入setState()方法中：
 `this.setState((state,props)=>({变量:值}));`
@@ -92,11 +115,11 @@ this.setState(function(state, props) {
 });
 ```
 
-#### &emsp;&emsp;2.3 数据单向
+#### &emsp;&emsp;数据单向
 
 之前说过react本身是一个单向数据流的mvc框架而不是mvvc框架，所以它的数据都是不断向下的而不是向上的或者是双向的，所以我们可以将父组件的state以参数的形式传入子组件中。如：`<FormattedDate date={this.state.date} />`
 
-#### &emsp;&emsp;2.4 无状态组件
+#### &emsp;&emsp;无状态组件
 
 上面申明的是有状态组件，当然也有无状态组件，使用class或者funciton定义，也可以使用const定义，就是只使用props，之前的一节都有说明，如：
 
