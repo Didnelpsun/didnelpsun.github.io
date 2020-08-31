@@ -66,7 +66,7 @@ Spring框架和其他框架一样，其实本质就是一个工具集，最基�
 
 如果你不想了解这些概念之类的东西，可以直接开始第一个项目工程。我们一般使用Maven构建Spring项目。
 
-首先还是新建一个Maven项目，选择的是quick模板。具体见[Maven教程2——IDEA中创建quick项目]({% post_url /maven/2020-03-19-maven-build-by-idea %})，甚至你可以直接根据[Maven的quick项目源码：Maven/demo1_quickstart](https://github.com/Didnelpsun/Maven/tree/master/demo1_quickstart)来下载使用。
+首先还是新建一个Maven项目，选择的是quick模板。具体见[Maven教程2——IDEA中创建quick项目]({% post_url notes/maven/2020-03-19-maven-build-by-idea %})，甚至你可以直接根据[Maven的quick项目源码：Maven/demo1_quickstart](https://github.com/Didnelpsun/Maven/tree/master/demo1_quickstart)来下载使用。
 
 不过我更改了包名，改成了org.didnelpsun。
 

@@ -50,6 +50,8 @@ class 组件名 extends React.Component{
 
 如我们利用上个文档所用的项目[React项目1源码：React/demo1_start](https://github.com/Didnelpsun/React/tree/master/demo1_start)，然后将App.jsx修改为一个类组件：
 
+{% raw %}
+
 ```jsx
 // App.jsx
 import React from "react";
@@ -73,6 +75,8 @@ class App extends React.Component {
 export default App;
 ```
 
+{% endraw %}
+
 类组件比函数式组件多了一个render()方法，这个方法是用来渲染组件的，而函数式组件也能渲染出来，但是函数式组件只能渲染一次，不同的内容都是依靠改变参数传入的，而类组件有状态state，所以就有一个render渲染方法，如果state改变，那么render就会重新执行并渲染，函数式组件不需要这个过程，所以就没有render方法。具体会在后面的状态部分讲到。
 
 <span style="color:yellow">提示：</span>函数式组件也可以启用状态，不过需要使用Hook。
@@ -92,6 +96,8 @@ export default App;
 <span style="color:orange">注意：</span>同时一定要在那个组件文件中的最后面使用`export default 组件名;`默认导出组件！不然是找不到这个被引用的组件的。
 
 如我们在src文件夹下新建了一个components文件夹作为组件的文件夹，然后再新建一个User文件夹，再在里面新建一个User.jsx，构建一个命为User的函数式组件，作为输出用户名的组件：
+
+{% raw %}
 
 ```jsx
 // User.jsx
@@ -114,6 +120,8 @@ function User () {
 
 export default User
 ```
+
+{% endraw %}
 
 然后在App.jsx中引用User组件并使用：
 
@@ -148,6 +156,8 @@ export default App;
 
 如我们User.jsx中有个check方法，根据传入的数值大小返回对应的元素，目前是写死的，而我们可以用参数，从父组件App.jsx中传入对应的数值，这样就是活的数据了：
 
+{% raw %}
+
 ```jsx
 // User.jsx
 import React from 'react'
@@ -170,6 +180,8 @@ function User (props) {
 
 export default User
 ```
+
+{% endraw %}
 
 ```jsx
 // App.jsx

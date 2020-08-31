@@ -293,6 +293,8 @@ export default App;
 
 或者从另一个角度来说，Style都是默认绑定字面量字符串的，但是React要求所有属性必须用{}来绑定，所以就需要加上两个大括号，从字面量转换为JavaScript变量再转换回字面量。
 
+{% raw %}
+
 ```jsx
 // App.jsx
 import React from 'react';
@@ -318,6 +320,8 @@ function App() {
 
 export default App;
 ```
+
+{% endraw %}
 
 ![打印天蓝色的Reactjs][aquareactjs]
 

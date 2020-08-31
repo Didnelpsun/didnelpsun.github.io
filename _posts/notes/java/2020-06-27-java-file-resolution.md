@@ -223,7 +223,7 @@ package org.example;
 import org.example.resolution.Excel;
 import java.io.IOException;
 
-public class App 
+public class App
 {
     public static void main( String[] args ) throws IOException {
         Excel.showExcel(Excel.readExcel("C:\\Users\\Administrator\\Desktop\\附件1：活动兑换码.xlsx"));
