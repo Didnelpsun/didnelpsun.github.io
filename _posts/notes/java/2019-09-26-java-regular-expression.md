@@ -229,10 +229,12 @@ wxj
 在Java中有四个内置的运行正则表达式的方法，分别是`matches()`、`split()`、`replaceFirst()`、`replaceAll()`。<span style="color:orange">注意：</span>`replace()`方法不支持正则表达式。
 
 方法 描述  
-`s.matches("regex")` 当仅且当正则匹配整个字符串时返回`true`  
-`s.split("regex")` 按匹配的正则表达式切片字符串  
-`s.replaceFirst("regex", "replacement")` 替换首次匹配的字符串片段  
-`s.replaceAll("regex", "replacement")` 替换所有匹配的字符  
+
++ `public boolean matches("regex")` 当仅且当正则匹配整个字符串时返回`true`。
++ `public String split("regex")` 按匹配的正则表达式切片字符串。
++ `public void replaceFirst("regex", "replacement")` 替换首次匹配的字符串片段。
++ `public void replaceAll("regex", "replacement")` 替换所有匹配的字符。
+
 示例代码：
 
 ```java

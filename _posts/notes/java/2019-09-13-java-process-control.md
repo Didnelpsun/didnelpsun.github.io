@@ -22,12 +22,12 @@ else{语句块2};
 
 4. if(条件1){语句块1}  
 else if(条件2){语句块2};  
-……  
+...  
 else if(条件n){语句块n};  
 
 5. if(条件1){语句块1}  
 else if(条件2){语句块2};  
-……  
+...  
 else{语句块n};  
 
 ### &emsp;2. switch语句
@@ -40,7 +40,7 @@ swtich(表达式)
     case 常量1：  
         语句块1  
         (break;)  
-    ……  
+    ...  
     case 常量n：  
         语句块n  
         (break;)  
@@ -51,7 +51,8 @@ swtich(表达式)
 ```
 
 switch中表达式的值何常量必须为整型字符型或字符串类型，不可为实数，如3.51。switch语句首先计算表达式的值，如果该值与某个case后的常量值相等，则执行该case后的语句块，直到break。default是可选的，如果都不符合且没有default，那么switch不做处理。
-case的值必须不同。
+
+<span style="color:orange">注意：</span>case的值必须不同。
 
 &emsp;
 
@@ -63,7 +64,7 @@ case的值必须不同。
 
 ```java
 while(条件）{  
-语句块  
+    语句块  
 }  
 ```
 
@@ -72,8 +73,8 @@ while(条件）{
 <span style="color:aqua">格式：</span>
 
 ```java
-do{  
-语句块  
+do {  
+    语句块  
 }  
 while(条件);  
 ```
@@ -96,7 +97,7 @@ for( 初始化值 ; 循环条件 ; 修整变量 ){
 
 ```java
 for( 元素变量 x : 遍历对象 obj ){  
-引用了x的Java语句  
+    引用了x的Java语句  
 }  
 ```
 
@@ -133,7 +134,7 @@ public class Pepetition{
 
 ```java
 标签名:for(){  
-……  
+    ...  
 break 标签名;  
 }  
 ```
@@ -172,7 +173,7 @@ i=0 j=3
 
 ```java
 标签名:for(){  
-……  
+...  
 continue 标签名;  
 }  
 ```

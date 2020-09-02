@@ -19,7 +19,7 @@ excerpt: "继承、多态与内部类"
 
 ### &emsp;1.getClass()
 
-是`Object`类的方法，返回对象执行时的`Class`实例，然后使用此实例调用`getName()`方法可以获取改类的名称。  
+是`Object`类的方法，返回对象执行时的`Class`实例，然后使用此实例调用`getName()`方法可以获取该类的名称。  
 
 <span style="color:aqua">格式：</span>`getClass().getName();`
 
@@ -57,24 +57,24 @@ public class Newclass{
 
 ```java
 class Test{
-    public Test(){ //构造方法，没有返回值且方法名和类名一致
+    public Test(){ // 构造方法，没有返回值且方法名和类名一致
     }
-    protected void doSometing(){ //成员方法
+    protected void doSometing(){ // 成员方法
     }
-    protected Test doIt(){ //方法返回值为Test类型
+    protected Test doIt(){ // 方法返回值为Test类型
         return new Test();
     }
 }
-class Test2 extends Test{ //定义Test2继承Test类
-    public Test2(){ //定义Test构造方法
-        super(); //super是父类，super()调用父类
-        super.doSomething(); //调用父类成员方法
+class Test2 extends Test{ // 定义Test2继承Test类
+    public Test2(){ // 定义Test构造方法
+        super(); // super是父类，super()调用父类
+        super.doSomething(); // 调用父类成员方法
     }
-    public void doSomethingnew(){ //定义子类新方法
+    public void doSomethingnew(){ // 定义子类新方法
     }
-    public void doSomething(){ //重写父类方法
+    public void doSomething(){ // 重写父类方法
     }
-    protect Test2 doIt(){ //重写父类方法，返回值为Test2
+    protect Test2 doIt(){ // 重写父类方法，返回值为Test2
         return new Test2();
     }
 }
@@ -184,12 +184,14 @@ class Cat extends Animal{
 
 ```java
 class Father{
+    // function1方法被Son类继承，且为静态方法，所以可以在main中使用
+    // 如果不为静态方法，则function1方法必须先实例化才能使用
     public static void function1(Father f){
     }
 }
 public class Son extends Father{
     public static void main(String args[]){
-        Father s = new Son();//向上转型
+        Father s = new Son();// 向上转型
         function1(s);
     }
 }
@@ -225,7 +227,7 @@ public class Son extends Father{
 
 &emsp;
 
-无论是什么转型，都需要有`父类 引用名 = new 子类`。而且不是所有的都能转型，必须<span style="color:red">这个实例是这个目标类的实例</span>才能转型到这个类。
+无论是什么转型，都需要有`父类 引用名 = new 子类`。而且不是所有的都能转型，必须<span style="color:red">这个实例是这个目标类的实例</span>才能转型到这个类（也就是是子类）。
 
 &emsp;
 
@@ -296,7 +298,7 @@ class Father{
     }
 }
 class Son extends Father{
-    //重写父类方法
+    // 重写父类方法
     public void show(){
         System.out.println("Son.show()");
     }
@@ -304,7 +306,7 @@ class Son extends Father{
 public class Override{
     public static void main(String[] args){
         Son s = new Son();
-        //调用子类重写方法
+        // 调用子类重写方法
         s.show();
     }
 }
@@ -312,7 +314,7 @@ public class Override{
 
 假如我们要使用被父类重写的属性和方法，那么我们可以使用super.属性名/方法名来使用被覆盖掉的方法或者属性。如上面这个例子如果要调用被覆盖的方法只用`super.show()`就可以了。
 
-当重写父类方法时，修改方法的权限只能从小权限向大权限改，，也就是说权限必须更开放，如如果父类成员方法权限为`protected`，那么子类重写方法只能改为`protected`或者`public`以及无权限符。
+当重写父类方法时，修改方法的权限只能从小权限向大权限改，也就是说权限必须更开放，如如果父类成员方法权限为`protected`，那么子类重写方法只能改为`protected`或者`public`以及无权限符。
 
 当子类重写父类的方法还可以修改返回值类型，但是重写的返回值类型只能是父类同一方法返回值的子类，如返回Test类型值的方法修改后返回类型为Test2就可以，而一般的Int类型就不行，因为不是其原来返回值类型的子类。
 
@@ -398,6 +400,8 @@ interface 接口1 extends 接口2 {
 }
 ```
 
+<span style="color:orange">注意：</span>接口不能继承类。
+
 ### &emsp;3.接口回调
 
 接口回调类似上转型，如果我们使用了一个类来继承一个接口，但是我们也可以实例化一个接口类的实例，这就是接口回调：
@@ -444,17 +448,17 @@ Java 8允许给接口添加一个非抽象的方法实现，只需要使用`defa
 
 ```java
 interface Defaulable {
-    //使用default关键字声明了一个默认方法
+    // 使用default关键字声明了一个默认方法
      @SuppressLint("NewApi")
      default String myDefalutMethod() {
         return "Default implementation";
     }
 }
 class DefaultableImpl implements Defaulable {
-    //DefaultableImpl实现了Defaulable接口，没有对默认方法做任何修改
+    // DefaultableImpl实现了Defaulable接口，没有对默认方法做任何修改
 }
 class OverridableImpl implements Defaulable {
-        //OverridableImpl实现了Defaulable接口重写接口的默认实现，提供了自己的实现方法。
+        // OverridableImpl实现了Defaulable接口重写接口的默认实现，提供了自己的实现方法。
         @Override
         public String myDefalutMethod() {
             return "Overridden implementation";
@@ -486,7 +490,7 @@ JVM平台的接口的默认方法实现是很高效的，并且方法调用的�
 接口与抽象类的区别：  
 
 + 接口中所有的方法必须是抽象方法，抽象类可以有非抽象方法。  
-+ 接口不能包含成员变量，除了`static`和`final`变量。即只能是常量，而抽象类可以有变量。  
++ 接口不能包含成员变量，除了`static`和`final`变量，即只能是常量；而抽象类可以有变量。  
 + 接口不是被类继承了，而是要被类实现。  
 + 接口支持多继承。
 
@@ -529,7 +533,7 @@ JVM平台的接口的默认方法实现是很高效的，并且方法调用的�
 
 #### &emsp;&emsp;1.1说明
 
-成员内部类也是最普通的内部类，它是外围类的一个成员，所以他是可以无限制的访问外围类的所有成员属性和方法，尽管是`private`的，但是外围类要访问内部类的成员属性和方法则需要通过内部类实例来访问。  
+成员内部类也是最普通的内部类，它是外围类的一个成员，所以他是可以无限制的访问外围类的所有成员属性和方法，尽管是`private`的；但是外围类要访问内部类的成员属性和方法则需要通过内部类实例来访问。  
 
 且注意内部类不能定义为public权限，因为同一个文件只能有一个public。
 
@@ -544,25 +548,25 @@ JVM平台的接口的默认方法实现是很高效的，并且方法调用的�
 
 ```java
 public class OuterClass{
-    innerClass in = new innerClass(); //在外部类实例化内部类对象引用
+    innerClass in = new innerClass(); // 在外部类实例化内部类对象引用
     public void ouf(){
-        in.inf(); //在外部类方法中调用内部类方法
+        in.inf(); // 在外部类方法中调用内部类方法
     }
     class innerClass{
-        innerClass(){ //内部类构造方法
+        innerClass(){ // 内部类构造方法
         }
-        public void inf(){ //内部类成员方法
+        public void inf(){ // 内部类成员方法
         }
-        int y = 0; //定义内部类成员变量
+        int y = 0; // 定义内部类成员变量
     }
-    public innerClass doit(){ //外部类方法，返回值为内部类引用
-    //y = 4; //外部类不可以直接访问内部类成员变量
+    public innerClass doit(){ // 外部类方法，返回值为内部类引用
+    // y = 4; // 外部类不可以直接访问内部类成员变量
         in.y = 4;
         return new innerClass();
     }
     public static void main(String[] args){
         OuterClass out = new OuterClass();
-//内部类的对象实例化操作必须在外部类或者外部类的静态方法中实现
+// 内部类的对象实例化操作必须在外部类或者外部类的静态方法中实现
         OuterClass.innerClass in = out.doit();
         OuterClass.innerClass in2 = out.new innerClass();
     }
@@ -580,26 +584,26 @@ public class OuterClass{
 如果将一个权限修饰符为`private`的内部类向上转型为父类对象，或者直接向上转型为一个接口，那么就可以隐藏内部类具体实现过程。可以在外部提供一个接口，在接口中声明一个方法。如果在实现该接口的内部类中实现该接口的方法，那么就可以定义多个内部类以不同的方式实现一个接口的同一方法，而一般类是无法多次实现接口中同一方法的。（类似于重载）
 
 ```java
-interface OutInterface{ //定义一个接口
+interface OutInterface{ // 定义一个接口
     public void f();
 }
 public class InterfaceInner{
     public static void main(String[] args){
-        OuterClass out = new OuterClass(); //实例化一个OuterClass2对象
-        OutInterface outinter = out.doit(); //调用doit()方法，返回一个OutInterface接口
-        outinter.f(); //调用f()方法
+        OuterClass out = new OuterClass(); // 实例化一个OuterClass2对象
+        OutInterface outinter = out.doit(); // 调用doit()方法，返回一个OutInterface接口
+        outinter.f(); // 调用f()方法
     }
 }
-class OuterClass{ //定义一个内部类实现OutInterface接口
+class OuterClass{ // 定义一个内部类实现OutInterface接口
     private class InnerClass implements OutInterface{
-        InnerClass(String s){ //内部类构造方法
+        InnerClass(String s){ // 内部类构造方法
             System.out.println(s);
         }
         public void f(){
             System.out.println("访问内部类中的f()方法");
         }
     }
-    public OutInterface doit(){ //定义一个方法，返回类型为OutInterface接口
+    public OutInterface doit(){ // 定义一个方法，返回类型为OutInterface接口
         return new InnerClass("访问内部类构造方法");
     }
 }
@@ -616,12 +620,13 @@ OuterClass类中定义了一个修饰权限为private的内部类，这个内部
 <span style="color:aqua">格式：</span>内部类当前对象的变量：`this.变量名` / 当前对象外部类的变量：`外部类名.this.变量名`  
 
 ```java
-public class TheSameName{
+public class TheSameName {
     private int x;
-    private class Inner{
-        public void doit(int x){ //传入的是形参x
-            x++; //调用形参x
-            this.x++； //调用内部类的变量x
+    private class Inner {
+        private int x;
+        public void doit(int x) { // 传入的是形参x
+            x++; // 调用形参x
+            this.x++； // 调用内部类的变量x
             TheSameName.this.x++;
         }
     }
@@ -635,12 +640,12 @@ public class TheSameName{
 对于这个类的使用主要是应用与解决比较复杂的问题，想创建一个类来辅助我们的解决方案，到那时又不希望这个类是公共可用的，所以就产生了局部内部类。  
 
 ```java
-interface OutInterface{ //定义一个接口
+interface OutInterface{ // 定义一个接口
 }
 class OuterClass{
     public OutInterface doit(final String x){
-    //doit方法参数设置为final类型，也就是无法修改参数
-    //定义一个内部类
+    // doit方法参数设置为final类型，也就是无法修改参数
+    // 定义一个内部类
         class InnerClass implements OutInterface{
             InnerClass(String s){
                 s = x;
@@ -675,13 +680,13 @@ class OuterClass{
 
 即没有名称的内部类。因为匿名类没有类名，所以不能直接定义对象，需要借助父类构造器定义对象。
 
-使用匿名类是因为我们不想在别的地方被使用而仅在这里使用，就是只对这个父类进行一次个性化，只被执行一次，能简介代码。
+使用匿名类是因为我们不想在别的地方被使用而仅在这里使用，就是只对这个父类进行一次个性化，只被执行一次，能简洁代码。
 
 <span style="color:aqua">格式：</span>
 
 ```java
 new 父类(){
-    //匿名类的类体
+    // 匿名类的类体
     成员变量;
     成员方法;
 }
@@ -707,29 +712,30 @@ public class Test{
 }
 ```
 
-请注意，如果你要编译这个文件，那么你会得到三个class文件，一个是A.class，一个是Test.class，一个是Test$1.class，最后一个文件即匿名类编译后的类文件。$1就代表第一个匿名类，依次排序。
+请注意，如果你要编译这个文件，那么你会得到三个class文件，一个是A.class，一个是Test.class，一个是Test\$1.class，最后一个文件即匿名类编译后的类文件。\$1就代表第一个匿名类，依次排序。
 
-#### &emsp;&emsp使用匿名类实现接口
+#### &emsp;&emsp;使用匿名类实现接口
 
 我们之前实现接口，需要类继承接口再实例化，并把实例赋值给接口。假如我们只需要实现这个接口而不用去管这个接口是实现了赋值给谁，那继续这样操作是十分麻烦的。而如果我们使用了匿名类，那么我们可以直接在接口后使用匿名类实现接口。
 
 ```java
-//首先定义一个接口
+// 首先定义一个接口
 interface SpeakHello{
     void speak();
 }
-//定义一个类，传入接口类型的实例
+// 定义一个类，传入接口类型的实例
 class HelloTv{
     public void turnOn(SpeakHello hello){
-        //调用实例方法
+        // 调用实例方法
         hello.speak();
     }
 }
 public class Test{
     public static void main(String[] args){
-        //创建一个实例
+        // 创建一个实例
         HelloTv tv = new HelloTv();
-        //传入接口类型的方法，并使用匿名类直接定义重写
+        // 传入接口类型的方法，并使用匿名类直接定义重写
+        // 匿名类看上去就是实例化接口一样，但是实际上不是
         tv.turnOn(new SpeakHello(){
             public void speack(){
                 System.out.println("Hello!Welcome!");
