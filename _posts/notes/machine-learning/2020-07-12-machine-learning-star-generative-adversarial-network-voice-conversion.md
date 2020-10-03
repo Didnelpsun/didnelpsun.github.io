@@ -194,6 +194,8 @@ $$\hat y=W_L\times h\prime_{L-1}+b_L$$
 
 这里输入输出以图像代替，hwc分别对应图像高度宽度和信道数，Conv、Batch norm、GLU、Deconv、Sigmoid、Softmax、Product分别对应卷积、批处理归一化、门控线性单元、转置卷积、Sigmoid函数、Softmax函数、池化层。kcs分别对应卷积层的内核大小、输出通道数和步长大小。
 
+训练和生成时会产生三个参数：MCEP频谱特征、FO基频特征、AP非周期分量。
+
 &emsp;
 
 ## StarGAN-VC2
@@ -209,6 +211,7 @@ StarGAN-VC2在第一个版本上没有特别大的改变，主要是对于训练
 所以为了关注到源和目标的联系，VC2使用了源目标条件损失函数：
 
 $$\mathscr L_{adv}^{s-t}=E_{(x,c)\sim P(x,c),c\prime\sim P(c\prime)}[\log D(x,c\prime,c)]$$
+
 $$+E_{(x,c)\sim P(x,c),c\prime\sim P(c\prime)}[\log D(G(x,c,c\prime),c,c\prime)]$$
 
 其中$c\prime\sim P(c\prime)$代表一个基于真实数据的简单随机独立抽样，不同于之前的公式，G和D同时都依赖于源条件域c'，之前只有G。这时我们称之为源目标条件生成器与判别器。
