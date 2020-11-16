@@ -4,7 +4,7 @@ title:  "C语言基础"
 date:   2019-01-25 16:23:06 +0800
 categories: notes c
 tags: c basic 二进制 注释 结构
-excerpt: "入门知识"
+excerpt: "C语言入门知识"
 ---
 
 ## 二进制入门

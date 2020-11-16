@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "基础"
+title:  "结构与数据类型"
 date:   2019-09-02 14:01:22 +0800
 categories: notes csharp base
 tags: C# csharp 基础 结构 语法 数据类型

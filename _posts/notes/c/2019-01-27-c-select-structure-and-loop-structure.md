@@ -4,7 +4,7 @@ title:  "选择与循环结构"
 date:   2019-01-27 13:44:33 +0800
 categories: notes c
 tags: c basic
-excerpt: ""
+excerpt: "选择与循环结构"
 ---
 
 ## 选择结构
