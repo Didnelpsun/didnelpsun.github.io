@@ -2,7 +2,7 @@
 layout: post
 title:  "选择与循环结构"
 date:   2019-01-27 13:44:33 +0800
-categories: notes c
+categories: notes c base
 tags: c basic
 excerpt: "选择与循环结构"
 ---

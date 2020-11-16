@@ -3,15 +3,54 @@
 该MarkDown文档只记录笔记部分内容，具体的内容见网站内容（有一部分网站上没有因为页面没有完全更新）。
 
 * [ASP.NET]()  
-    + ASP.NET介绍与入（[文档]()）（[网址]()）
-* [C]()
-    + C语言入门知识（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-25-c-language-basic.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/25/c-language-basic.html)）
+    >基础
+    + ASP.NET介绍（[文档]()）（[网址]()）
+* [C]()  
+    >基础
+    + C语言基础（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-25-c-language-basic.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/25/c-language-basic.html)）
     + 运算符表达式与函数（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-26-c-sequence-structure.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/26/c-sequence-structure.html)）
     + 选择与循环结构（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-27-c-select-structure-and-loop-structure.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/27/c-select-structure-and-loop-structure.html)）
-* [C#]()
+* [C#]()  
+    **基础**
     + 结构与数据类型（[文档]()）（[网址](https://didnelpsun.github.io/notes/csharp/base/2019/09/02/csharp-structure-and-data-type.html)）
-* [Git]()
-    + （[文档]()）（[网址]()）
+    + 常量变量与流程控制（[文档]()）（[网址]()）
+* [Git]()  
+    **基础**
+    + 安装与配置（[文档]()）（[网址]()）
+    + 工作原理（[文档]()）（[网址]()）
+    + 基本操作与命令（[文档]()）（[网址]()）
+    + Git Bash Shell Gui（[文档]()）（[网址]()）
+* [HTML]()  
+    >基础
+    + 入门与首部标签（[文档]()）（[网址]()）
+    + 全局属性（[文档]()）（[网址]()）
+    + 文本与段落（[文档]()）（[网址]()）
+    + 链接和图像（[文档]()）（[网址]()）
+    + 表格与列表（[文档]()）（[网址]()）
+    + 表单（上）（[文档]()）（[网址]()）
+    + 表单（下）（[文档]()）（[网址]()）
+    + 区块、布局与框架（[文档]()）（[网址]()）
+    + 脚本和字符实体（[文档]()）（[网址]()）  
+    >HTML5
+    + HTML5的说明（[文档]()）（[网址]()）
+    + Canvas画布（[文档]()）（[网址]()）
+* [Java]()
+    + 安装与基础语法（[文档]()）（[网址]()）
+    + 流程控制（[文档]()）（[网址]()）
+    + 类与对象（[文档]()）（[网址]()）
+    + 包装类（[文档]()）（[网址]()）
+    + 字符串（[文档]()）（[网址]()）
+    + 数组（[文档]()）（[网址]()）
+    + 日期（[文档]()）（[网址]()）
+    + 数字处理类（[文档]()）（[网址]()）
+    + 正则表达式（[文档]()）（[网址]()）
+    + 面向对象（[文档]()）（[网址]()）
+    + 图形化界面（[文档]()）（[网址]()）
+    + Java三大版本（[文档]()）（[网址]()）
+    + Java web入门（[文档]()）（[网址]()）
+    + JavaBean定义（[文档]()）（[网址]()）
+    + Java三层架构（[文档]()）（[网址]()）
+    + Java中的Setter和Getter方法（[文档]()）（[网址]()）
     + （[文档]()）（[网址]()）
     + （[文档]()）（[网址]()）
     + （[文档]()）（[网址]()）
