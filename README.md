@@ -7,9 +7,9 @@
     + ASP.NET介绍（[文档]()）（[网址]()）
 * [C]()  
     >**基础**
-    + C语言基础（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-25-c-language-basic.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/25/c-language-basic.html)）
-    + 运算符表达式与函数（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-26-c-sequence-structure.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/26/c-sequence-structure.html)）
-    + 选择与循环结构（[文档](https://github.com/Didnelpsun/didnelpsun.github.io/blob/master/_posts/notes/c/2019-01-27-c-select-structure-and-loop-structure.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/27/c-select-structure-and-loop-structure.html)）
+    + C语言基础（[文档](./_posts/notes/c/2019-01-25-c-language-basic.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/25/c-language-basic.html)）
+    + 运算符表达式与函数（[文档](./_posts/notes/c/2019-01-26-c-sequence-structure.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/26/c-sequence-structure.html)）
+    + 选择与循环结构（[文档](./_posts/notes/c/2019-01-27-c-select-structure-and-loop-structure.md)）（[网址](https://didnelpsun.github.io/notes/c/2019/01/27/c-select-structure-and-loop-structure.html)）
 * [C#]()  
     >**基础**
     + 结构与数据类型（[文档]()）（[网址](https://didnelpsun.github.io/notes/csharp/base/2019/09/02/csharp-structure-and-data-type.html)）
@@ -35,7 +35,7 @@
     + HTML5的说明（[文档]()）（[网址]()）
     + Canvas画布（[文档]()）（[网址]()）
 * [Java]()
-    >基础
+    >**基础**
     + 安装与基础语法（[文档]()）（[网址]()）
     + 流程控制（[文档]()）（[网址]()）
     + 类与对象（[文档]()）（[网址]()）
@@ -47,18 +47,24 @@
     + 正则表达式（[文档]()）（[网址]()）
     + 面向对象（[文档]()）（[网址]()）
     + 图形化界面（[文档]()）（[网址]()）
+    >**高级**
+    + 文件解析（[文档]()）（[网址]()）
+    >**其他**
     + Java三大版本（[文档]()）（[网址]()）
     + Java web入门（[文档]()）（[网址]()）
     + JavaBean定义（[文档]()）（[网址]()）
-    + Java三层架构（[文档]()）（[网址]()）
+    + 三层架构（[文档]()）（[网址]()）
     + Java中的Setter和Getter方法（[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
-    + （[文档]()）（[网址]()）
+    + 反射机制（[文档]()）（[网址]()）
+* [JDBC]()
+    >**基础**
+    + 介绍与创建（[文档]()）（[网址]()）
+    + 数据类型与事务（[文档]()）（[网址]()）
+    + 连接接口与结果集（[文档]()）（[网址]()）
+    + 异常与批量处理（[文档]()）（[网址]()）
+    + 存储过程与转义（[文档]()）（[网址]()）
+* [Jekyll]()
+    >**基础**
     + （[文档]()）（[网址]()）
     + （[文档]()）（[网址]()）
     + （[文档]()）（[网址]()）

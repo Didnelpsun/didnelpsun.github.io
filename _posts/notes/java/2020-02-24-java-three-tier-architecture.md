@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Java三层架构"
+title:  "三层架构"
 date:   2019-11-14 14:25:47 +0800
 categories: notes java other
 tags: java 其他 三层架构 MVC DAO ORM
