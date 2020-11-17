@@ -3,7 +3,7 @@ layout: post
 title:  "JavaBean定义"
 date:   2020-02-18 17:15:25 +0800
 categories: notes java other
-tags: javabean bean other 打包
+tags: Java 其他 Javabean bean other 打包
 excerpt: "bean对逻辑的打包"
 ---
 

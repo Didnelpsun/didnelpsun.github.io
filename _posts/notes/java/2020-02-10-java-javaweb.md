@@ -3,7 +3,7 @@ layout: post
 title:  "Java web入门"
 date:   2020-02-10 23:52:20 +0800
 categories: notes java javaweb javawebbase
-tags: javaweb 其他 JSP servlet tomcat
+tags: Java 其他 Javaweb JSP servlet tomcat
 excerpt: "Java Web入门"
 ---
 

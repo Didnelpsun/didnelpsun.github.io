@@ -3,7 +3,7 @@ layout: post
 title:  "数据操作（上）"
 date:   2020-03-09 23:26:40 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 分页 LIMIT 排序 FIELD  ORDER 运算符 匹配 正则 连接 USING 聚集函数 INSTR GROUP_CONTACT STD STDDEV STCCED_SAMP VAR_POP VAR_SAMP IFNULL ULLLIF COALESCE ISNULL LAST_INSERT_ID 子查询 派生表 临时表 TEMPORARY
+tags: MySQL 基础 mysql 分页 排序 运算符 匹配 正则 连接 聚集函数 INSTR 子查询 派生表 临时表
 excerpt: "分页排序连接聚集等"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "数据操作（下）"
 date:   2020-03-10 09:45:51 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 CTE EXPLAIN PREPARED 插入 更新 IGNORE DUPLICATE REPLACE 删除 
+tags: MySQL 基础 mysql 插入 更新 删除 
 excerpt: "数据插入删除等"
 ---
 

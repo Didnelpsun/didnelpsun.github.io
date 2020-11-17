@@ -3,7 +3,7 @@ layout: post
 title:  "Pyplot直线"
 date:   2020-05-31 22:53:26 +0800
 categories: notes python matplotlib pyplot
-tags: python matplotlib pyplot 直线 数组 plot show arrange xlim ylim aixs
+tags: Python matplotlib pyplot 直线 数组 plot show arrange xlim ylim aixs
 excerpt: "Pyplot直线与数据输入"
 ---
 

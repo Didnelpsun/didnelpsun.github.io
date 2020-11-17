@@ -3,7 +3,7 @@ layout: post
 title:  "数据类型（4）"
 date:   2020-03-08 16:39:17 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 
+tags: MySQL 基础 mysql 
 excerpt: "类型转换与空间、JSON"
 ---
 

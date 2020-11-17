@@ -3,7 +3,7 @@ layout: post
 title:  "基本管理"
 date:   2020-03-04 15:17:33 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 启动 关闭 登陆 查看 数据库 表 属性 索引 约束 结构 字符集 存储引擎 警告 SQL_MODE sql_mode
+tags: MySQL 基础 mysql 启动 关闭 登陆 查看 数据库 表 属性 索引 约束 结构 字符集 存储引擎 警告 SQL_MODE sql_mode
 excerpt: "MySQL基本管理命令"
 ---
 

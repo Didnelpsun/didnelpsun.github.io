@@ -3,7 +3,7 @@ layout: post
 title:  "Pyplot样式控制"
 date:   2020-06-01 17:35:02 +0800
 categories: notes python matplotlib pyplot
-tags: python matplotlib pyplot 样式
+tags: Python Matplotlib pyplot 样式
 excerpt: "Pyplot图像样式控制"
 ---
 

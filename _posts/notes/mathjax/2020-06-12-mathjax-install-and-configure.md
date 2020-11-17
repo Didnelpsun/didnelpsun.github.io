@@ -3,7 +3,7 @@ layout: post
 title:  "安装配置"
 date:   2020-06-12 11:16:29 +0800
 categories: notes mathjax base
-tags: maven 基础 安装 配置
+tags: Mathjax 基础 安装 配置
 excerpt: "Mathjax安装配置"
 ---
 

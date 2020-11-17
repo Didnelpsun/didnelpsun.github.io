@@ -3,7 +3,7 @@ layout: post
 title:  "语音转换原理"
 date:   2020-10-12 15:21:22 +0800
 categories: notes machine-learning
-tags: machine-learning 语音转换
+tags: 机器学习 基础 machine-learning 语音转换
 excerpt: "语音转换"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "存储过程与函数"
 date:   2020-03-11 20:03:06 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 PROCEDUERE 存储过程 DELIMTER FUNCTION 函数
+tags: MySQL 基础 mysql 存储过程 函数
 excerpt: "存储过程与自定义函数"
 ---
 

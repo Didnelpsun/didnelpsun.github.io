@@ -3,7 +3,7 @@ layout: post
 title:  "语言环境表"
 date:   2020-03-13 23:38:02 +0800
 categories: notes mysql other
-tags: mysql MySQL 其他 lc_time_names 编码
+tags: MySQL 其他 mysql lc_time_names 编码
 excerpt: "lc_time_names语言环境表"
 ---
 

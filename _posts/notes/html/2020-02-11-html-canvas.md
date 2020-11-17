@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  "canvas画布"
+title:  "Canvas画布"
 date:   2020-02-11 11:26:23 +0800
 categories: notes html html5
-tags: html html5 canvas
+tags: HTML HTML5 Canvas
 excerpt: "画布标签与脚本绘画"
 ---
 

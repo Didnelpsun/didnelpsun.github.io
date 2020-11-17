@@ -3,7 +3,7 @@ layout: post
 title:  "变量与触发器"
 date:   2020-03-12 10:45:46 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 变量 SET DECLARE 触发器 TRIGGER
+tags: MySQL 基础 mysql 变量 触发器
 excerpt: "变量与触发器"
 ---
 

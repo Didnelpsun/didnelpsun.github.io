@@ -3,7 +3,7 @@ layout: post
 title:  "表操作"
 date:   2020-03-08 17:02:00 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 表 创建 修改 删除 主键 外键 约束
+tags: MySQL 基础 mysql 表 创建 修改 删除 主键 外键 约束
 excerpt: "表操作与约束"
 ---
 

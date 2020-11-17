@@ -3,7 +3,7 @@ layout: post
 title:  "函数表"
 date:   2020-03-14 12:00:00 +0800
 categories: notes mysql other
-tags: mysql MySQL 其他
+tags: MySQL 其他 mysql
 excerpt: "相关函数表"
 ---
 

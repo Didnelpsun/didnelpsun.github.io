@@ -3,7 +3,7 @@ layout: post
 title:  "创建项目"
 date:   2020-02-13 22:31:03 +0800
 categories: notes servlet base
-tags: IDEA servlet javaweb 基础 创建 结构 XML 命名 WEB-INF @WebServelt
+tags: Servlet 基础 IDEA javaweb 创建 结构 XML 命名 WEB-INF @WebServelt
 excerpt: "使用IDEA创建Servlet实例"
 ---
 

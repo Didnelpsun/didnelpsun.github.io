@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "Lunix开始"
+title:  "Lunix开始与安装"
 date:   2020-11-15 19:11:49 +0800
 categories: notes lunix base
-tags: lunix Lunix Ubuntu
-excerpt: "Lunix开始（Ubuntu）"
+tags: Lunix 基础 lunix Ubuntu
+excerpt: "Lunix开始与安装（Ubuntu）"
 ---
 
 ## 在虚拟机上安装Ubuntu系统

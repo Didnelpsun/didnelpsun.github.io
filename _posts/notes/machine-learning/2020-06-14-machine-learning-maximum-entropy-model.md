@@ -3,7 +3,7 @@ layout: post
 title:  "最大熵模型"
 date:   2020-06-14 15:20:17 +0800
 categories: notes machine-learning
-tags: machine-learning 最大熵模型
+tags: 机器学习 基础 machine-learning 最大熵模型
 excerpt: "Maximum Entropy Model"
 ---
 

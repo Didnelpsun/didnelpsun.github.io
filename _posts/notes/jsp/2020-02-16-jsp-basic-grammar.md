@@ -3,7 +3,7 @@ layout: post
 title:  "基础语法"
 date:   2020-02-16 23:28:57 +0800
 categories: notes jsp base
-tags: javaweb jsp 基础 脚本 声明 语法
+tags: JSP 基础 javaweb 脚本 声明 语法
 excerpt: "JSP语法标签"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "存储过程与转义"
 date:   2020-03-15 19:22:13 +0800
 categories: notes jdbc base
-tags: jdbc 基础 存储过程 转义 d t ts escape fn call oj
+tags: JDBC 基础 存储过程 转义 d t ts escape fn call oj
 excerpt: "存储过程与转义语法"
 ---
 

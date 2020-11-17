@@ -3,7 +3,7 @@ layout: post
 title:  "数据库操作"
 date:   2020-03-05 10:12:45 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 数据库 创建 CREATE 修改 ALTER 删除 DROP 导入 SOURSE LOAD DATA 导出 OUTFILE
+tags: MySQL 基础 mysql 数据库 创建 修改 删除 导入 导出 OUTFILE
 excerpt: "数据库基础操作"
 ---
 

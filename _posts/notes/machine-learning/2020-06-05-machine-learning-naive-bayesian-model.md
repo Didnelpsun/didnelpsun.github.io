@@ -3,7 +3,7 @@ layout: post
 title:  "朴素贝叶斯"
 date:   2020-06-05 15:21:46 +0800
 categories: notes machine-learning
-tags: machine-learning 朴素贝叶斯 贝叶斯 NBM 多项式 高斯 伯努利
+tags: 机器学习 基础 machine-learning 朴素贝叶斯 贝叶斯 NBM 多项式 高斯 伯努利
 excerpt: "Naive Bayesian Model"
 ---
 

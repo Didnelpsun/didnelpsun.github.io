@@ -3,7 +3,7 @@ layout: post
 title: "插入数学公式"
 date: 2020-06-12 09:14:35 +0800
 categories: notes jekyll senior
-tags: jekyll 高级 数学
+tags: Jekyll 高级 数学 公式
 excerpt: "Jekyll中插入数学公式"
 --- 
 

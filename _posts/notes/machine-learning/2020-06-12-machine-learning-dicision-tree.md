@@ -3,7 +3,7 @@ layout: post
 title:  "决策树"
 date:   2020-06-12 11:19:33 +0800
 categories: notes machine-learning
-tags: machine-learning 
+tags: 机器学习 基础 machine-learning 
 excerpt: "Dicision Tree"
 ---
 

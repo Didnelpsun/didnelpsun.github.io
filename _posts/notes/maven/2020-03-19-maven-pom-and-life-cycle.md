@@ -3,7 +3,7 @@ layout: post
 title:  "POM与生命周期"
 date:   2020-03-19 21:34:55 +0800
 categories: notes maven base
-tags: maven 基础 pom 生命周期
+tags: Maven 基础 pom 生命周期
 excerpt: "POM与生命周期"
 ---
 

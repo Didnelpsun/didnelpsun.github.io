@@ -3,7 +3,7 @@ layout: post
 title:  "介绍"
 date:   2020-02-11 16:55:30 +0800
 categories: notes jsp base
-tags: javaweb jsp 基础 创建
+tags: JSP 基础 javaweb 创建
 excerpt: "JSP入门与介绍"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "结构和生命周期"
 date:   2020-02-12 17:44:14 +0800
 categories: notes jsp base
-tags: javaweb jsp 基础 结构 生命周期
+tags: JSP 基础 javaweb 结构 生命周期
 excerpt: "结构和生命周期"
 ---
 
