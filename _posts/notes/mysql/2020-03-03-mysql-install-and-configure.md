@@ -3,7 +3,7 @@ layout: post
 title:  "安装配置"
 date:   2020-03-03 19:15:10 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 安装 phpStudy
+tags: MySQL 基础 mysql 安装 phpStudy
 excerpt: "MySQL的安装配置"
 ---
 

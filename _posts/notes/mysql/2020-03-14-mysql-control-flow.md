@@ -3,7 +3,7 @@ layout: post
 title:  "控制流"
 date:   2020-03-14 20:55:33 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 CASE IF THEN IFNULL NULLIF
+tags: MySQL 基础 mysql CASE IF THEN IFNULL NULLIF
 excerpt: "分支与条件判断"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "星型生成对抗网络"
 date:   2020-07-09 13:56:15 +0800
 categories: notes machine-learning
-tags: machine-learning 生成对抗网络 GAN Star StarGAN
+tags: 机器学习 基础 machine-learning 生成对抗网络 GAN Star StarGAN
 excerpt: "StarGAN"
 ---
 

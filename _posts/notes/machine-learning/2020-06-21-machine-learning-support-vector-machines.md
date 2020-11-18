@@ -3,7 +3,7 @@ layout: post
 title:  "支持向量机"
 date:   2020-06-21 18:10:22 +0800
 categories: notes machine-learning
-tags: machine-learning 支持向量机
+tags: 机器学习 基础 machine-learning 支持向量机
 excerpt: "Support Vector Machines"
 ---
 

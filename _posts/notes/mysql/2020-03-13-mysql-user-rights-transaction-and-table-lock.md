@@ -3,7 +3,7 @@ layout: post
 title:  "权限事务与锁定"
 date:   2020-03-13 16:07:11 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础
+tags: MySQL 基础 mysql 
 excerpt: "用户权限、事务与表锁定"
 ---
 

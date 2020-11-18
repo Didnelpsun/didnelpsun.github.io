@@ -3,7 +3,7 @@ layout: post
 title:  "星型生成对抗网络——语音转换"
 date:   2020-07-12 09:22:43 +0800
 categories: notes machine-learning
-tags: machine-learning 生成对抗网络 GAN Star StarGAN StarGAN-VC
+tags: 机器学习 基础 生成对抗网络 machine-learning GAN Star StarGAN StarGAN-VC
 excerpt: "StarGAN-VC"
 ---
 

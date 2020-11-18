@@ -3,7 +3,7 @@ layout: post
 title:  "逻辑斯谛回归"
 date:   2020-06-14 08:45:05 +0800
 categories: notes machine-learning
-tags: machine-learning 逻辑斯谛回归
+tags: 机器学习 基础 machine-learning 逻辑斯谛回归
 excerpt: "Logistic Regression"
 ---
 

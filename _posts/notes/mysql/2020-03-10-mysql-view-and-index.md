@@ -3,7 +3,7 @@ layout: post
 title:  "视图与索引"
 date:   2020-03-10 17:30:49 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 重命名 查看 更新 视图 创建 索引
+tags: MySQL 基础 mysql 重命名 查看 更新 视图 创建 索引
 excerpt: "视图与索引"
 ---
 

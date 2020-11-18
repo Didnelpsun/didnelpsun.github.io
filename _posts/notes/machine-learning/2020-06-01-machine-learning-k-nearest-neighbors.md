@@ -3,7 +3,7 @@ layout: post
 title:  "k近邻算法"
 date:   2020-06-01 23:41:06 +0800
 categories: notes machine-learning
-tags: machine-learning KNN k近邻 kd树 kd-tree ball树 ball-tree
+tags: 机器学习 基础 machine-learning KNN k近邻 kd树 kd-tree ball树 ball-tree
 excerpt: "K-Nearest Neighbors"
 ---
 

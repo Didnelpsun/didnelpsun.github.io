@@ -3,7 +3,7 @@ layout: post
 title:  "数据类型（2）"
 date:   2020-03-06 13:40:10 +0800
 categories: notes mysql base
-tags: mysql MySQL 基础 CHAR VARCHAR TINYTEXT TEXT MEDIUMTEXT LONGTEXT ENUM SET
+tags: MySQL 基础 mysql CHAR VARCHAR TINYTEXT TEXT MEDIUMTEXT LONGTEXT ENUM SET
 excerpt: "字符串"
 ---
 
