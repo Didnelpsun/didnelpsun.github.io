@@ -3,7 +3,7 @@ layout: post
 title:  "Maven介绍"
 date:   2020-03-18 14:25:39 +0800
 categories: notes maven base
-tags: maven 基础 结构 下载 环境变量 仓库 镜像
+tags: Maven 基础 结构 下载 环境变量 仓库 镜像
 excerpt: "结构、配置与仓库"
 ---
 

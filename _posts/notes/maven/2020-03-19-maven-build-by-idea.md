@@ -3,7 +3,7 @@ layout: post
 title:  "使用IDEA构建项目"
 date:   2020-03-19 20:07:28 +0800
 categories: notes maven base
-tags: maven 基础 IDEA 创建 quick archetype groupid artifactid goal artifact module facets pom
+tags: Maven 基础 IDEA 创建 quick archetype groupid artifactid goal artifact module facets pom
 excerpt: "使用IDEA构建项目与配置"
 ---
 

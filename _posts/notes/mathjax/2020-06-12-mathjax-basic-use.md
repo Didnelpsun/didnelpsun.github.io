@@ -3,7 +3,7 @@ layout: post
 title:  "基本使用"
 date:   2020-06-12 11:22:45 +0800
 categories: notes mathjax base
-tags: maven 基础 安装 配置
+tags: Mathjax 基础 安装 配置
 excerpt: "基本使用与标识"
 ---
 
