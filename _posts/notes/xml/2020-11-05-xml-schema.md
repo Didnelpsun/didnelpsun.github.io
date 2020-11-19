@@ -61,4 +61,49 @@ school元素包含两个属性：
 
 当不属于任何命名空间时，我们可以通过上面的例子得到，这个属性值是且只能是一个Schema文件的URI。
 
-而如果被引入的Schema文件需要约束XML文件中属于某个特定的命名空间元素，则使用xsi:schemaLocation属性引入，<span style="color:aqua">格式：</span>`xsi:schemaLocation="XSD文件路径..."`，如果多个文件路径，则中间使用空格分隔。
+而如果被引入的Schema文件需要约束XML文件中属于某个特定的命名空间元素，Schema文件使用`targetNamespace`属性来指明命名空间URI，XML文件则使用xsi:schemaLocation属性引入，<span style="color:aqua">格式：</span>`xsi:schemaLocation="XSD文件路径..."`，如果多个文件路径，则中间使用空格分隔。
+
+```xsd
+<!--target.xsd-->
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="https://didnelpsun.github.io/xml" xmlns:d="https://didnelpsun.github.io/xml">
+    <xs:element name="collage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="d:name"></xs:element>
+                <xs:element ref="d:major" minOccurs="1" maxOccurs="unbounded"></xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="major" type="xs:string"/>
+</xs:schema>
+```
+
+```xml
+<!--test.xml-->
+<?xml version="1.0" encoding="UTF-8">
+<tar:collage xmlns:tar="https://didnelpsun.github.io/xml" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="https://didnelpsun.github.io/xml target.xsd">
+    <tar:name>信息管理学院</tar:name>
+    <tar:major>管理科学与工程</tar:major>
+    <tar:major>大数据应用与管理</tar:major>
+</tar:collage>
+```
+
+该XML文档使用了target.xsd作为XML文档的语义约束，而target.xsd文档中的元素又都属于命名空间https://didnelpsun.github.io/xml，所以需要使用xsi:schemaLocation="https://didnelpsun.github.io/xml target.xsd"来引入Schema文件，同时还需要再引入该命名空间：xmlns:tar="https://didnelpsun.github.io/xml"`，前缀为tar，对应的标签全都是以tar开头。
+
+&emsp;
+
+##  语法结构
+
+扩展名为xsd，以xml格式编写，基本的<span style="color:aqua">格式：</span>
+
+```xsd
+<?xml version="1.0" encoding="编码格式">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    ...
+</xs:schema>
+```
