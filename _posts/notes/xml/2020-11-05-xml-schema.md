@@ -107,3 +107,14 @@ xsi:schemaLocation="https://didnelpsun.github.io/xml target.xsd">
     ...
 </xs:schema>
 ```
+
+XSD的根元素必须是`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">`制定所使用的命名空间。
+
+除此之外还可以为根元素指定两个属性：
+
++ elementFormDefault：可以是qualified和unqualified，指定XML文档使用该Schema文档中定义的局部元素时是否必须使用命名空间限定。
++ attributeFormmDefault：该属性值可以是qualified和unqualified，指定XML文档使用该Schema文档中定义的局部属性时是否必须使用命名空间限定。
+
+### &emsp;元素
+
+
