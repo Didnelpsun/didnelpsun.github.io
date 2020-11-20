@@ -3,7 +3,7 @@ layout: post
 title:  "数字处理类"
 date:   2019-09-26 19:18:15 +0800
 categories: notes java base
-tags: java 基础 DecimalFormat format setGroupingSize Math sin cos tan asin acos atan toRadians toDegrees exp log log10 sqrt cbrt pow ceil floor rint round max min abs BigInteger add subtract multiply divide remainder divideAndRemainder pow negate shiftLeft shiftRight and or max min compare equals BigDeciaml Random nextInt nextLong nextBoolean nextFloat nextDouble nextGaussian
+tags: Java 基础 DecimalFormat BigInteger BigDeciaml Random
 excerpt: "数字格式化、数学与大数"
 ---
 

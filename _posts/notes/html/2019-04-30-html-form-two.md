@@ -3,7 +3,7 @@ layout: post
 title:  "表单（下）"
 date:   2019-04-30 21:50:24 +0800
 categories: notes html base
-tags: html 基础 textarea autofocus cols disabled form maxlength name placeholder readonly required rows wrap label for fieldset legend select multiple size optgroup option selected value button datalist output for
+tags: HTML 基础 textarea form select optgroup
 excerpt: "文本域、标记、下拉框等"
 ---
 

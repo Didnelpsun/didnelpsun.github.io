@@ -2,8 +2,8 @@
 layout: post
 title:  "运算符表达式与函数"
 date:   2019-01-26 09:21:55 +0800
-categories: notes c
-tags: c basic 数据类型 const 输入输出 printf scanf putchar getchar
+categories: notes c basic
+tags: C 基础 数据类型 const 输入输出 printf scanf putchar getchar
 excerpt: "运算符表达式与函数"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "入门与首部标签"
 date:   2019-04-18 19:23:01 +0800
 categories: notes html base
-tags: html 基础 首部 lang title meta charset name content http-equiv base link href hreflang media rel type script async charset defer src type style
+tags: HTML 基础 首部 lang title meta charset type style
 excerpt: "基础与首部标签及属性"
 ---
 

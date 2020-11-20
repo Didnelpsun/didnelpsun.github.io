@@ -3,7 +3,7 @@ layout: post
 title:  "Schema"
 date:   2020-11-05 19:10:00 +0800
 categories: notes xml base
-tags: xml 基础 XML Schema XSD
+tags: XML 基础 xml Schema XSD
 excerpt: "XML中使用Schema"
 ---
 

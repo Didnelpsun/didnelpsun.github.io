@@ -3,7 +3,7 @@ layout: post
 title:  "文本与段落"
 date:   2019-04-19 16:21:48 +0800
 categories: notes html base
-tags: html 基础 文本 段落 h p br hr 注释 格式化 b em i small strong sub sup ins del code samp var pre abbr address bdo blockquote q cite dnf kbd 计算机 引用 说明
+tags: HTML 基础 文本 段落 格式化 计算机 引用 说明
 excerpt: "文本和段落标签属性"
 ---
 

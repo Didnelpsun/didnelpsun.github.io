@@ -3,7 +3,7 @@ layout: post
 title:  "Git Bash Shell Gui"
 date:   2019-05-25 13:48:20 +0800
 categories: notes git base
-tags: Git bash shell gui
+tags: Git 基础 bash shell gui
 excerpt: "Git Bash、Shell、Gui是什么"
 ---
 

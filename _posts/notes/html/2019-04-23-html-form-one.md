@@ -3,7 +3,7 @@ layout: post
 title:  "表单（上）"
 date:   2019-04-23 13:25:30 +0800
 categories: notes html base
-tags: html HTML 基础 form accept-charset action autocomplete enctype method name novalidate target input accept alt autocomplete autofocus checked disabled formaction formenctype formmethod formnovalidate formtarget height list max maxlength min multiple pattern placeholder readonly required size src step type value width
+tags: HTML 基础 form action
 excerpt: "表单与输入元素"
 ---
 

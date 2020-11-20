@@ -3,7 +3,7 @@ layout: post
 title:  "字符串"
 date:   2019-09-18 12:26:56 +0800
 categories: notes java base
-tags: java 基础 字符串 String length indexOf lastIndexOf charAt substring trim replace startsWith endsWith equals equalsIngoreCase compareTo loLowerCase toUpperCase split String-Builder append insert delete 格式化 format SimpleDateFormat
+tags: Java 基础 字符串 String String-Builder 格式化 SimpleDateFormat
 excerpt: "String类"
 ---
 

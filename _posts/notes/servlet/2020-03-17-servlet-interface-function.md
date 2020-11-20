@@ -3,7 +3,7 @@ layout: post
 title: "接口方法"
 date: 2020-03-17 22:52:01 +0800
 categories: notes servlet senior
-tags: javaweb servlet 高级  接口 getServletInfo ServletInfo getServletConfig ServletConfig ServletContext
+tags: Servlet 高级 javaweb 接口 getServletInfo ServletInfo getServletConfig ServletConfig ServletContext
 excerpt: "接口方法"
 ---
 
