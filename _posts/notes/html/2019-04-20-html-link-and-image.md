@@ -3,7 +3,7 @@ layout: post
 title:  "链接和图像"
 date:   2019-04-20 21:12:53 +0800
 categories: notes html base
-tags: html 基础 a img map area
+tags: HTML 基础 a img map area
 excerpt: "a标签和img标签等"
 ---
 

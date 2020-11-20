@@ -3,7 +3,7 @@ layout: post
 title: "控制反转依赖注入"
 date: 2020-03-30 23:53:27 +0800
 categories: notes spring base
-tags: spring 基础 控制反转 IoC 依赖注入 DI
+tags: Spring 基础 控制反转 IoC 依赖注入 DI
 excerpt: "控制反转与依赖注入"
 ---
 

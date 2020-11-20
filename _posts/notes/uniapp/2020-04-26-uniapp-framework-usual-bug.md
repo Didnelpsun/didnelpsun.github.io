@@ -3,7 +3,7 @@ layout: post
 title: "框架基本的Bug"
 date:  2020-04-26 14:12:33 +0800
 categories: notes uniapp base
-tags: uniapp 基础 问题
+tags: Uni-app 基础 问题
 excerpt: "一些常见问题"
 ---
 

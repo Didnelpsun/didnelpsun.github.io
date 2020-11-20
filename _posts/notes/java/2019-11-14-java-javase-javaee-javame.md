@@ -3,7 +3,7 @@ layout: post
 title:  "Java三大版本"
 date:   2019-11-14 14:25:47 +0800
 categories: notes java other
-tags: java 其他 javase javaee javame
+tags: Java 其他 javase javaee javame
 excerpt: "java se、ee、me的区别"
 ---
 

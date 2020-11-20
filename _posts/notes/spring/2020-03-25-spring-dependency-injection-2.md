@@ -3,7 +3,7 @@ layout: post
 title: "依赖注入（下）"
 date: 2020-03-25 23:04:22 +0800
 categories: notes spring base
-tags: spring 基础 @Component @ComponentScan @ComponentScans @Configuration @Import @Scope @Bean @Repository @Service @Controller @RestController
+tags: Spring 基础 @Component @ComponentScan @ComponentScans @Configuration @Import @Scope @Bean @Repository @Service @Controller @RestController
 excerpt: "注释依赖注入"
 ---
 

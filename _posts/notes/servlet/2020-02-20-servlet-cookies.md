@@ -3,7 +3,7 @@ layout: post
 title:  "Cookies处理"
 date:   2020-02-20 09:40:38 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 Cookie setMaxAge addCookie getCookies
+tags: Servlet 基础 javaweb Cookie setMaxAge addCookie getCookies
 excerpt: "Cookies结构与处理"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "System.out.println"
 date:   2020-03-13 13:34:15 +0800
 categories: notes tomcat other
-tags: tomcat 其他 输出
+tags: Tomcat 其他 输出
 excerpt: "System.out.println输出问题"
 ---
 

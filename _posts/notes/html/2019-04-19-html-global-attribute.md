@@ -3,7 +3,7 @@ layout: post
 title:  "全局属性"
 date:   2019-04-19 08:12:21 +0800
 categories: notes html base
-tags: html 基础 全局 属性 accesskey class contenteditable contextmenu data dir draggable dropzone hidden id lang spellcheck style tabindex title tanslate
+tags: HTML 基础 全局 属性 class id style
 excerpt: "标签所公有的属性"
 ---
 

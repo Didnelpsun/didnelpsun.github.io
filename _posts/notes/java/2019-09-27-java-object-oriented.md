@@ -3,7 +3,7 @@ layout: post
 title:  "面向对象"
 date:   2019-09-27 15:48:21 +0800
 categories: notes java base
-tags: java 基础 继承 extends super 重构 Object getClass toString equals 转型 instanceof 重载 多态 抽象 abstract 接口 interface implements 内部类
+tags: Java 基础 继承 重构 转型 重载 多态 抽象 接口 内部类
 excerpt: "继承、多态与内部类"
 ---
 

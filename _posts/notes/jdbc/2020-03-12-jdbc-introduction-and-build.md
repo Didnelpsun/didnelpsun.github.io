@@ -3,7 +3,7 @@ layout: post
 title:  "JDBC介绍与创建"
 date:   2020-03-12 23:23:41 +0800
 categories: notes jdbc base
-tags: jdbc 基础 创建 API 驱动类型
+tags: JDBC 基础 创建 API 驱动类型
 excerpt: "JDBC的介绍与配置安装"
 ---
 

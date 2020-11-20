@@ -3,7 +3,7 @@ layout: post
 title:  "HTML5的说明"
 date:   2020-02-10 21:44:23 +0800
 categories: notes html html5
-tags: html html5 元素 兼容 shiv
+tags: HTML HTML5 元素 兼容 shiv
 excerpt: "H5的新特性与新元素"
 ---
 

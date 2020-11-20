@@ -2,8 +2,8 @@
 layout: post
 title:  "C语言基础"
 date:   2019-01-25 16:23:06 +0800
-categories: notes c
-tags: c basic 二进制 注释 结构
+categories: notes c basic
+tags: C 基础 二进制 注释 结构
 excerpt: "C语言入门知识"
 ---
 

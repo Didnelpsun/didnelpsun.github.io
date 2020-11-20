@@ -3,7 +3,7 @@ layout: post
 title:  "计算与侦听"
 date:   2019-07-07 12:11:14 +0800
 categories: notes vue base
-tags: vue 基础 计算属性 computed 侦听属性 watch
+tags: Vue 基础 计算属性 computed 侦听属性 watch
 excerpt: "计算属性与侦听属性"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "下载与安装"
 date:   2020-08-16 17:04:22 +0800
 categories: notes webpack base
-tags: webpack 基础 配置
+tags: Webpack 基础 配置
 excerpt: "配置项"
 ---
 

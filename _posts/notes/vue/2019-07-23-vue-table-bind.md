@@ -3,7 +3,7 @@ layout: post
 title:  "表单绑定"
 date:   2019-07-23 17:39:07 +0800
 categories: notes vue base
-tags: vue 基础 v-model v-bind v-for lazy number trim
+tags: Vue 基础 v-model v-bind v-for lazy number trim
 excerpt: "表单绑定与双向传输"
 ---
 

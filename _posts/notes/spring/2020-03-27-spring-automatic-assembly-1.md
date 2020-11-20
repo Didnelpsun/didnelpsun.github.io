@@ -3,7 +3,7 @@ layout: post
 title: "自动装配（属性）"
 date: 2020-03-27 10:57:02 +0800
 categories: notes spring base
-tags: spring 基础 autowire byName byType constructor default
+tags: Spring 基础 autowire byName byType constructor default
 excerpt: "autowire属性"
 ---
 

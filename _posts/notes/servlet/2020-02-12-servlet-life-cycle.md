@@ -3,7 +3,7 @@ layout: post
 title:  "生命周期"
 date:   2020-02-12 22:43:36 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 init service doGet doPost destroy
+tags: Servlet 基础 javaweb init service doGet doPost destroy
 excerpt: "生命周期"
 ---
 

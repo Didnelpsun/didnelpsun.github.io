@@ -3,7 +3,7 @@ layout: post
 title:  "条件渲染"
 date:   2019-07-15 09:10:53 +0800
 categories: notes vue base
-tags: vue 基础 v-if template v-else v-else-if key v-show
+tags: Vue 基础 v-if template v-else v-else-if key v-show
 excerpt: "条件渲染"
 ---
 

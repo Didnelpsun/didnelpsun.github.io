@@ -3,8 +3,8 @@ layout: post
 title: "介绍与创建"
 date:  2020-03-30 00:06:02 +0800
 categories: notes uniapp base
-tags: uniapp 基础 介绍 创建 编译
-excerpt: "Uniapp介绍与创建"
+tags: Uni-app 基础 介绍 创建 编译
+excerpt: "Uni-app介绍与创建"
 ---
 
 ## Uniapp介绍

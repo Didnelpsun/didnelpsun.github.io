@@ -3,7 +3,7 @@ layout: post
 title:  "1099端口占用"
 date:   2020-02-15 12:38:09 +0800
 categories: notes tomcat base
-tags: tomcat 基础 1099 端口 占用 停止
+tags: Tomcat 基础 1099 端口 占用 停止
 excerpt: "1099端口不能运行程序"
 ---
 

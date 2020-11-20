@@ -3,7 +3,7 @@ layout: post
 title: "基本使用"
 date:  2020-04-22 23:48:02 +0800
 categories: notes uniapp base
-tags: uniapp 基础 使用
+tags: Uni-app 基础 使用
 excerpt: "项目与页面结构"
 ---
 

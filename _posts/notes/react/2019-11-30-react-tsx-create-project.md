@@ -3,7 +3,7 @@ layout: post
 title:  "创建项目"
 date:   2019-11-30 14:20:41 +0800
 categories: notes react typescript
-tags: react typescript Ethernal 路径 事件
+tags: React typescript Ethernal 路径 事件
 excerpt: "使用ts+react新建项目"
 ---
 

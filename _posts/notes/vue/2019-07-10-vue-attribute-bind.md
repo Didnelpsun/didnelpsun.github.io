@@ -3,7 +3,7 @@ layout: post
 title:  "样式绑定"
 date:   2019-07-10 15:33:36 +0800
 categories: notes vue base
-tags: vue 基础 v-bind class style 对象 数组
+tags: Vue 基础 v-bind class style 对象 数组
 excerpt: "样式与属性绑定"
 ---
 

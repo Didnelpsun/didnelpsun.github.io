@@ -3,7 +3,7 @@ layout: post
 title:  "简介与运算符"
 date:   2019-07-02 17:54:04 +0800
 categories: notes sql base
-tags: sql SQL 基础 运算符 算术 比较 逻辑 位 成员
+tags: SQL 基础 运算符 算术 比较 逻辑 位 成员
 excerpt: "SQL简介与运算符"
 ---
 

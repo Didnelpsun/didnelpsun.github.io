@@ -3,7 +3,7 @@ layout: post
 title:  "包装类"
 date:   2019-09-16 23:01:12 +0800
 categories: notes java base
-tags: java 基础 Integer Long Short Boolean Character Double Float Number
+tags: Java 基础 Integer Long Short Boolean Character Double Float Number
 excerpt: "四种基本类型的包装对象"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title: "生命周期"
 date: 2020-03-21 15:41:17 +0800
 categories: notes spring base
-tags: spring 基础 初始化 afterPropertiesSet property init-method default-init-method @PostConstruct BeanPostProcessor destroy destroy-method default-destroy-method @PreConstruct @PreDestroy @DependsOn depends-on ref
+tags: Spring 基础 初始化 afterPropertiesSet property init-method default-init-method @PostConstruct BeanPostProcessor destroy destroy-method default-destroy-method @PreConstruct @PreDestroy @DependsOn depends-on ref
 excerpt: "生命周期与函数"
 ---
 

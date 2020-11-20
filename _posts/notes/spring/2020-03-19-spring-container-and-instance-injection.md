@@ -3,7 +3,7 @@ layout: post
 title: "容器与实例注入"
 date: 2020-03-19 21:50:03 +0800
 categories: notes spring base
-tags: spring 基础 容器 ApplicationContext 注释 xml BeanFactory FactoryBean
+tags: Spring 基础 容器 ApplicationContext 注释 xml BeanFactory FactoryBean
 excerpt: "创建容器与实例注入容器"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "脚本和字符实体"
 date:   2019-05-02 08:27:34 +0800
 categories: notes html base
-tags: html 基础 script async charset defersrc type noscript 实体
+tags: HTML 基础 script async charset defersrc type noscript 实体
 excerpt: "逻辑脚本与网页字符实体"
 ---
 

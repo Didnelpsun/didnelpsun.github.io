@@ -3,7 +3,7 @@ layout: post
 title: "事件处理"
 date: 2020-04-01 23:30:38 +0800
 categories: notes spring base
-tags: spring 基础 事件 ContextRefreshedEvent ContextStartedEvent ContextStoppedEvent ContextClosedEvent RequestHandledEvent ConfigurableApplicationContext ApplicationListener ApplicationEventPublisherAware EventMultiCaster
+tags: Spring 基础 事件 ContextRefreshedEvent ContextStartedEvent ContextStoppedEvent ContextClosedEvent RequestHandledEvent ConfigurableApplicationContext ApplicationListener ApplicationEventPublisherAware EventMultiCaster
 excerpt: "事件处理与自定义"
 ---
 

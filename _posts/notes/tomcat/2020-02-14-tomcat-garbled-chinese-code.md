@@ -3,7 +3,7 @@ layout: post
 title:  "中文乱码"
 date:   2020-02-14 15:25:00 +0800
 categories: notes tomcat base
-tags: tomcat 基础 UTF-8 GBK 编码 乱码
+tags: Tomcat 基础 UTF-8 GBK 编码 乱码
 excerpt: "解决中文乱码问题"
 ---
 

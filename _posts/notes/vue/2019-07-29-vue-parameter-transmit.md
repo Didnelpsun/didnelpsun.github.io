@@ -3,7 +3,7 @@ layout: post
 title:  "参数传递"
 date:   2019-07-29 08:29:20 +0800
 categories: notes vue base
-tags: vue 基础 
+tags: Vue 基础 
 excerpt: "参数传递与处理"
 ---
 

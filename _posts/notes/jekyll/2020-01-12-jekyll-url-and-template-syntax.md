@@ -3,7 +3,7 @@ layout: post
 title:  "地址与模板语法"
 date:   2020-01-12 16:43:22 +0800
 categories: notes jekyll base
-tags: jekyll 基础 自定义 链接 地址 模板  permalink layout title date YAML头信息
+tags: Jekyll 基础 自定义 链接 地址 模板  permalink layout title date YAML头信息
 excerpt: "自定义地址与模板使用"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "文档样式"
 date:   2020-01-20 14:41:31 +0800
 categories: notes jekyll base
-tags: jekyll 基础 文档 样式
+tags: Jekyll 基础 文档 样式
 excerpt: "博客posts文档样式"
 --- 
 

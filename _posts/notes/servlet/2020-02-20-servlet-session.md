@@ -3,7 +3,7 @@ layout: post
 title: "Session跟踪"
 date: 2020-02-20 22:45:57 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 Session HttupSession
+tags: Servlet 基础 javaweb Session HttupSession
 excerpt: "Session记录与使用"
 ---
 

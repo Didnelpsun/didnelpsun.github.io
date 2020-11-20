@@ -3,7 +3,7 @@ layout: post
 title:  "事件处理"
 date:   2019-07-20 19:15:40 +0800
 categories: notes vue base
-tags: vue 基础 事件 $event 修饰符 stop prevent capture self once passive 按键 系统 exact 鼠标
+tags: Vue 基础 事件 $event 修饰符 stop prevent capture self once passive 按键 系统 exact 鼠标
 excerpt: "事件处理"
 ---
 

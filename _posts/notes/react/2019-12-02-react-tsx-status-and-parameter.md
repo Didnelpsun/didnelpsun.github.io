@@ -3,7 +3,7 @@ layout: post
 title:  "状态与参数"
 date:   2019-12-02 22:38:14 +0800
 categories: notes react typescript
-tags: react typescript Ethernal props state 接口 sfc PropTypes DefaultProps
+tags: React typescript Ethernal props state 接口 sfc PropTypes DefaultProps
 excerpt: "组件状态参数"
 ---
 

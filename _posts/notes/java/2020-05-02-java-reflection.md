@@ -3,7 +3,7 @@ layout: post
 title:  "Java反射机制"
 date:   2020-05-02 00:22:51 +0800
 categories: notes java other
-tags: java 其他 反射
+tags: Java 其他 反射
 excerpt: "Java的反射机制"
 ---
 

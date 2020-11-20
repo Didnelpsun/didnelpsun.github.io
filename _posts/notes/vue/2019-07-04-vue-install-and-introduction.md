@@ -3,7 +3,7 @@ layout: post
 title:  "安装与介绍"
 date:   2019-07-04 17:23:27 +0800
 categories: notes vue base
-tags: vue 基础 安装 目录结构 文件结构 处理 模板 v-html v-bind v-if v-on v-model 过滤器 修饰符 
+tags: Vue 基础 安装 目录结构 文件结构 处理 模板 v-html v-bind v-if v-on v-model 过滤器 修饰符 
 excerpt: "安装构建与介绍"
 ---
 

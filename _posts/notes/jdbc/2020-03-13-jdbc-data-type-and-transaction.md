@@ -3,7 +3,7 @@ layout: post
 title:  "数据类型与事务"
 date:   2020-03-13 23:16:51 +0800
 categories: notes jdbc base
-tags: jdbc 基础 数据类型 事务 提交 commit 回滚 rollback 保存点 Savepoint
+tags: JDBC 基础 数据类型 事务 提交 commit 回滚 保存点
 excerpt: "数据类型转换与事务处理"
 ---
 

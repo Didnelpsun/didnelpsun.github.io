@@ -3,7 +3,7 @@ layout: post
 title:  "连接接口与结果集"
 date:   2020-03-13 15:54:21 +0800
 categories: notes jdbc base
-tags: jdbc 基础 连接 导入 注册 指定 创建 关闭 接口 Statement PreparedStatement CallableStatement 结果集
+tags: JDBC 基础 连接 导入 注册 指定 创建 关闭 接口 Statement PreparedStatement CallableStatement 结果集
 excerpt: "连接数据库与结果处理"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "安装与介绍"
 date:   2019-05-12 18:45:21 +0800
 categories: notes react base
-tags: react 基础 结构 ReactDom jsx
+tags: React 基础 结构 ReactDom jsx
 excerpt: "安装结构与jsx"
 ---
 

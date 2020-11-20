@@ -3,7 +3,7 @@ layout: post
 title:  "基础语法"
 date:   2019-07-03 15:40:03 +0800
 categories: notes sql base
-tags: sql SQL 基础 语法 数据类型 DDL 创建 更改 删除 DML 查询 插入 更新
+tags: SQL 基础 语法 数据类型 DDL 创建 更改 删除 DML 查询 插入 更新
 excerpt: "数据类型与DDL、DML"
 ---
 

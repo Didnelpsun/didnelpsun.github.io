@@ -3,7 +3,7 @@ layout: post
 title: "注释总结"
 date: 2020-04-04 13:13:55 +0800
 categories: notes spring senior
-tags: spring 高级 @Component @Controller @Service
+tags: Spring 高级 @Component @Controller @Service
 excerpt: "相关注释与使用"
 ---
 

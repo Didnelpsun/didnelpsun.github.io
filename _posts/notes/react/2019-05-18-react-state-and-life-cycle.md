@@ -3,7 +3,7 @@ layout: post
 title:  "状态与生命周期"
 date:   2019-05-18 23:12:56 +0800
 categories: notes react base
-tags: react 基础 state 生命周期 componentDidMount componentWillUnmount
+tags: React 基础 state 生命周期 componentDidMount componentWillUnmount
 excerpt: "状态与生命周期函数"
 ---
 

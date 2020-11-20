@@ -3,7 +3,7 @@ layout: post
 title:  "博客结构和组织"
 date:   2020-01-18 11:13:37 +0800
 categories: notes jekyll base
-tags: jekyll 基础 博客 组织 categories tags excerpt post page
+tags: Jekyll 基础 博客 组织 categories tags excerpt post page
 excerpt: "分类标签摘要与页面组织"
 --- 
 

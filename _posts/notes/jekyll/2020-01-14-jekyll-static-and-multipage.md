@@ -3,7 +3,7 @@ layout: post
 title:  "静态引用与多页面"
 date:   2020-01-14 16:41:12 +0800
 categories: notes jekyll base
-tags: jekyll 基础 静态 多页面
+tags: Jekyll 基础 静态 多页面
 excerpt: "静态文件和多页面跳转"
 --- 
 

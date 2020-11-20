@@ -3,7 +3,7 @@ layout: post
 title: "Servletcontext"
 date: 2020-02-27 22:30:00 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 getServletContext getServletConfig context-param
+tags: Servlet 基础 javaweb getServletContext getServletConfig context-param
 excerpt: "Servletcontext对象"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title:  "IDEA配置"
 date:   2020-02-12 16:19:50 +0800
 categories: notes tomcat
-tags: tomcat 基础 IDEA base
+tags: Tomcat 基础 IDEA base
 excerpt: "IDEA配置Tomcat"
 ---
 

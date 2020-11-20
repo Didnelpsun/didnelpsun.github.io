@@ -3,7 +3,7 @@ layout: post
 title:  "区块、布局与框架"
 date:   2019-05-01 19:15:19 +0800
 categories: notes html base
-tags: html 基础 div span iframe
+tags: HTML 基础 div span iframe
 excerpt: "布局控制元素块与iframe"
 ---
 

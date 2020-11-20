@@ -3,7 +3,7 @@ layout: post
 title:  "DDL操作"
 date:   2019-07-08 09:31:41 +0800
 categories: notes sql base
-tags: sql SQL 基础 语法 DDL 非空 不等 主键 外键 范围 默认值 自动 视图
+tags: SQL 基础 语法 DDL 非空 不等 主键 外键 范围 默认值 自动 视图
 excerpt: "DDL高级语法"
 ---
 

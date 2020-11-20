@@ -3,7 +3,7 @@ layout: post
 title:  "状态码"
 date:   2020-02-16 22:46:09 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 状态码 setStatus sendRedirect sendError
+tags: Servlet 基础 javaweb 状态码 setStatus sendRedirect sendError
 excerpt: "状态码操作"
 ---
 

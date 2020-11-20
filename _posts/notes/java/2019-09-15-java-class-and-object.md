@@ -3,7 +3,7 @@ layout: post
 title:  "类与对象"
 date:   2019-09-15 20:17:31 +0800
 categories: notes java base
-tags: java 基础 类 成员 protected public abstract equals finalize 构造 this 静态 static final 对象 包 import package 不定长参数
+tags: Java 基础 类 成员 构造 this 静态 final 对象 包 不定长参数
 excerpt: "类、对象、包与参数"
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title: "依赖注入（上）"
 date: 2020-03-23 17:17:09 +0800
 categories: notes spring base
-tags: spring 基础 xml 构造器 constructor-arg ref type value index 设值函数 property p-namespace 内部类 list set map properties null
+tags: Spring 基础 xml 构造器 constructor-arg ref type value index 设值函数 property p-namespace 内部类 list set map properties null
 excerpt: "代码依赖注入"
 ---
 

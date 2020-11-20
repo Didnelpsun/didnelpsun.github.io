@@ -3,7 +3,7 @@ layout: post
 title:  "组件注册"
 date:   2019-07-27 19:03:42 +0800
 categories: notes vue base
-tags: vue 基础 组件 注册 全局 局部 Vue.component export 脚手架
+tags: Vue 基础 组件 注册 全局 局部 Vue.component export 脚手架
 excerpt: "组件注册"
 ---
 

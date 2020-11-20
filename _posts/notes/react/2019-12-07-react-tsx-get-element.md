@@ -3,7 +3,7 @@ layout: post
 title:  "获取元素"
 date:   2019-12-07 11:41:14 +0800
 categories: notes react typescript
-tags: react typescript Ethernal
+tags: React typescript Ethernal
 excerpt: "获取DOM与自定义元素"
 ---
 

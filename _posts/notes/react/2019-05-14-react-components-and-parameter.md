@@ -3,7 +3,7 @@ layout: post
 title:  "组件与参数"
 date:   2019-05-14 14:25:49 +0800
 categories: notes react base
-tags: react 基础 组件 参数 props
+tags: React 基础 组件 参数 props
 excerpt: "组件与参数"
 ---
 

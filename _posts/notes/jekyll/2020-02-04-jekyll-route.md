@@ -3,7 +3,7 @@ layout: post
 title:  "路由"
 date:   2020-02-04 12:36:12 +0800
 categories: notes jekyll base
-tags: jekyll 基础 路由 博文 主页面 自定义
+tags: Jekyll 基础 路由 博文 主页面 自定义
 excerpt: "路由引用与定义"
 --- 
 

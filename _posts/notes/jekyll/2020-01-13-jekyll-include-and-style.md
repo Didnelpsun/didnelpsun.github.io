@@ -3,7 +3,7 @@ layout: post
 title:  "引用与样式"
 date:   2020-01-13 11:12:41 +0800
 categories: notes jekyll base
-tags: jekyll 基础 include 引用 sass scss
+tags: Jekyll 基础 include 引用 sass scss
 excerpt: "引用组件和Sass样式"
 ---
 

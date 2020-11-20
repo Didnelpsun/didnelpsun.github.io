@@ -3,7 +3,7 @@ layout: post
 title:  "下载与安装"
 date:   2020-08-15 11:20:35 +0800
 categories: notes webpack base
-tags: webpack 基础 下载 安装
+tags: Webpack 基础 下载 安装
 excerpt: "Webpack的基本使用"
 ---
 

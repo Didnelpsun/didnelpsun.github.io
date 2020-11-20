@@ -3,7 +3,7 @@ layout: post
 title:  "列表渲染"
 date:   2019-07-17 08:47:22 +0800
 categories: notes vue base
-tags: vue 基础 v-for key index data of v-if
+tags: Vue 基础 v-for key index data of v-if
 excerpt: "列表渲染"
 ---
 

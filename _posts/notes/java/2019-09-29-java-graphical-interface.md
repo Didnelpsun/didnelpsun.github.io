@@ -3,7 +3,7 @@ layout: post
 title:  "图形化界面"
 date:   2019-09-29 21:13:45 +0800
 categories: notes java base
-tags: java 基础 
+tags: Java 基础 
 excerpt: "Swing程序设计"
 ---
 

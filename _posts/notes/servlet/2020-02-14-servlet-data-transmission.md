@@ -3,7 +3,7 @@ layout: post
 title:  "数据传输"
 date:   2020-02-14 17:44:35 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 get post getParameter getParameValues getParameterNames
+tags: Servlet 基础 javaweb get post getParameter getParameValues getParameterNames
 excerpt: "GET和POST的数据传输"
 ---
 

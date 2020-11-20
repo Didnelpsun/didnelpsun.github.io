@@ -3,7 +3,7 @@ layout: post
 title:  "安装与配置"
 date:   2020-02-11 16:51:25 +0800
 categories: notes servlet base
-tags: javaweb servlet 基础 包
+tags: Servlet 基础 javaweb 包
 excerpt: "Servlet入门与安装包"
 ---
 
