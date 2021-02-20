@@ -91,7 +91,7 @@ Servlet容器与基于非Java技术的Web服务器一起使用，通过Web服务
 打开发现目录应该是这样的：  
 ![Tomcat目录结构][tomcat]
 
-然后加上环境变量：TOMCAT-HOME:D:\tomcat
+然后加上环境变量：TOMCAT_HOME:D:\tomcat
 
 然后在tomcat文件夹中点击到bin目录中，双击startup.bat，就可以启动了。
 

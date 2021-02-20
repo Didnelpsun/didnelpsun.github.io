@@ -59,6 +59,8 @@ Test.java|Maven只会自动运行符合该命名规则的测试类
 
 就可以了。
 
+<span style="color:orange">注意：</span>JAVA_HOME中只能有一个JDK路径，否则多个JDK路径下，会出现分号，也会导致Maven报错JRE问题。
+
 ### &emsp;关于环境变量
 
 现在是Maven3版本，网上的教程可能比较乱。有说MAVEN_HOME的，有说M2_HOME的，配置该变量后再引用定义的变量到path里。据说MAVEN_HOME是maven1的时候的配置，M2_HOME是maven2以上的版本的配置（包括现在的maven3也是配M2_HOME，注意不是M3_HOME，但是我使用了MAVEN_HOME来配置Maven3并没有报错）
