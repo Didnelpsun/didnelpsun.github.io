@@ -165,6 +165,3 @@ maxOccurs最小出现值默认为1，为unbounded就代表这个元素是可以�
 ```
 
 引用<span style="color:aqua">格式：</span>`<xs:group ref="元素组名称" />`。
-
-
-
