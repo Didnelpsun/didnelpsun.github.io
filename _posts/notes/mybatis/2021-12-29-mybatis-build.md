@@ -11,7 +11,7 @@ SSM包括Spring MVC、MyBatis和Spring。Spring MVC是MVC框架，负责表现�
 
 MyBatis封装JDBC的细节，使得开发者只用关心SQL语句而无需关心注册驱动等。
 
-## 基础配置与工程
+## XML方式
 
 ### 搭建基础工程
 
@@ -152,7 +152,7 @@ public interface UserDAO {
             <dataSource type="POOLED">
                 <!--配置数据库连接的基本信息-->
                 <!--jdbc驱动程序-->
-                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
                 <!--数据库连接字符串-->
                 <property name="url" value="jdbc:mysql://localhost:3306/default"/>
                 <property name="username" value="root"/>
@@ -179,8 +179,114 @@ public interface UserDAO {
 <!--namespace是DAO的地址-->
 <mapper namespace="org.didnelpsun.dao.UserDAO">
     <!--配置查询所有，id为对应类的方法名，不能随便改-->
-    <select id="FindAllUsers">
+    <!--resultType即持久层返回的数据应该封装成什么样的数据类-->
+    <select id="FindAllUsers" resultType="org.didnelpsun.entity.User">
         select * from user
     </select>
 </mapper>
 ```
+
+<span style="color:orange">注意：</span>MyBatis的映射配置文件必须和DAO接口的包结构相同。即配置文件UserDAO.xml在resources的org.didnelpsun.dao下，那对应的UserDAO比如也应该在org.didnelpsun.dao下。
+
+### 配置测试
+
+最后更改对应的test文件夹里的测试文件：
+
+```java
+package org.didnelpsun;
+
+// import static org.junit.Assert.assertTrue;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.didnelpsun.dao.UserDAO;
+import org.didnelpsun.entity.User;
+import org.junit.Test;
+
+/**
+ * Unit test for simple App.
+ */
+public class AppTest 
+{
+    /**
+     * Rigorous Test :-)
+     */
+    @Test
+    public void shouldAnswerWithTrue()
+    {
+        //1.读取配置文件
+        InputStream in = null;
+        try {
+            // 由于代码可能移动到各种地方，所以基本读取路径都不适用绝对路径和相对路径
+            // 使用类加载器，只能读取类路径的配置文件
+            // 使用ServletContext对象的getRealPath()，读取当前项目运行路径。
+            in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 2.创建SqlSessionFactory工厂
+        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        // SqlSessionFactory不能new
+        // 这个工厂使用的是一个工厂builder，并调用build方法创建
+        // 创建工厂MyBatis使用的是创建者模式
+        SqlSessionFactory factory = builder.build(in);
+        // 3.使用工厂生产SqlSession对象
+        SqlSession session = factory.openSession();
+        // 4.使用SqlSession创建DAO接口的代理对象
+        UserDAO userDAO = session.getMapper(UserDAO.class);
+        // 5.使用代理对象执行方法
+        List<User> users = userDAO.FindAllUsers();
+        for(User user : users){
+//          System.out.println(user);
+            System.out.println(user.toString());
+        }
+        // 6.释放资源
+        session.close();
+        try {
+            assert in != null;
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        assertTrue( true );
+    }
+}
+```
+
+整个案例[XML方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
+
+&emsp;
+
+## 注解方式
+
+直接将java/resources下的org.didnelpsun.dao文件夹删除。
+
+然后更改UserDAO，给对应方法加上注解，里面是SQL语句：
+
+```java
+public interface UserDAO {
+    // 查询所有用户
+    @Select("select * from user")
+    List<User> FindAllUsers();
+}
+```
+
+然后对SqlMapConfig.xml更改对应的DAO的mapper的resource属性，使用class属性指定被注解的dao全限定类名：
+
+```xml
+<mappers>
+    <!--class是对应dao的全限定类名-->
+    <mapper class="org.didnelpsun.dao.UserDAO"/>
+</mappers>
+```
+
+最后结果是一样的。
+
+所以注解是什么意思呢？就是DAO实现方式的简化。若是我们自己写FindAllUsers方法，就必须接受一个SessionFactory然后对这个Session进行处理，并进行对应的操作，而使用注解或XML就直接写一个SQL语句就可以了，其他的对应的Session维护代码由MyBatis自动完成。
+
+案例[注解方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_annotation)。
