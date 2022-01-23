@@ -233,11 +233,11 @@ public class AppTest
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
         // SqlSessionFactory不能new
         // 这个工厂使用的是一个工厂builder，并调用build方法创建
-        // 创建工厂MyBatis使用的是创建者模式
+        // 创建工厂MyBatis使用的是创建者模式，隐藏实现细节，使得使用者专注于方法
         SqlSessionFactory factory = builder.build(in);
-        // 3.使用工厂生产SqlSession对象
+        // 3.使用工厂模式生产SqlSession对象，解耦，即降低了类之间的依赖关系
         SqlSession session = factory.openSession();
-        // 4.使用SqlSession创建DAO接口的代理对象
+        // 4.使用SqlSession创建DAO接口的代理对象，使用了代理模式，不修改源码方法上对已有方法增强
         UserDAO userDAO = session.getMapper(UserDAO.class);
         // 5.使用代理对象执行方法
         List<User> users = userDAO.FindAllUsers();
@@ -258,13 +258,34 @@ public class AppTest
 }
 ```
 
+### XML方式总结
+
+除了编写User这种实体类和UserDAO这种持续对象，XML方式的主要实现方式就是通过XML。
+
+第一就是在main的resources下新建一个SqlMapConfig.xml编写配置。配置内容有两个：一是environment标签的数据库连接配置，包括链接、用户名和密码；二是mapper标签的用于配置DAO持久对象的XML配置文件。（路径是相对于resources文件夹）
+
+第二就是承接上面所说的DAO配置文件，每一个DAO都有一个XML配置文件。每一个持久层的SQL操作都包含在mapper标签中，里面包含SQL操作标签，再包含一个SQL语句。
+
+上面的三个都是XML配置，解析XML配置的技术是dom4j。
+
+最后就根据读取配置文件的信息来创建对象工厂封装对象。
+
+其中这个工厂生产封装过程由MyBatis自己完成：
+
+1. 根据配置文件的信息创建Connection对象注册驱动，获取数据库连接。
+2. 获取预处理对象PreparedStatement，此时需要SQL语句：`conn.prepareStatement(sql);`，其中这个sql就是由上面的第二的mapper标签包含的SQL语句。
+3. 执行查询方法，即获取`ResultSet resultSet = preparedStatement.executeQuery();`。
+4. 遍历结果集并封装返回结果，`while(resultSet.next()){}`。其中结果集中的每一个对象类型就是select标签的resultType属性所指向的。然后利用反射根据名称获取结果集的每个属性并赋值给对象。
+
+我们要完成封装这一步就需要知道两个信息：连接信息和映射信息。主要是映射信息，包含：执行的SQL语句、封装结果的实体类全限定类名。将这两个信息组合起来定义一个对象。键名为对应DAO的全限定类名加上点再加上SQL方法名，键值为一个Mapper对象，包含一个String的SQL语句和一个String的domainClassPath即作用类域。
+
 整个案例[XML方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
 
 &emsp;
 
 ## 注解方式
 
-直接将java/resources下的org.didnelpsun.dao文件夹删除。
+不用编写DAO文件与编写DAO配置，直接将java/resources下的org.didnelpsun.dao文件夹删除。
 
 然后更改UserDAO，给对应方法加上注解，里面是SQL语句：
 
