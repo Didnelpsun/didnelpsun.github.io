@@ -276,7 +276,7 @@ public class AppTest
 
 根据读取配置文件的信息来创建对象工厂封装对象。
 
-其中这个工厂生产封装过程由MyBatis自己完成：
+其中这个工厂生产封装过程由MyBatis自己完成，下面使用伪代码来掩饰：
 
 1. 根据配置文件的信息创建Connection对象注册驱动，获取数据库连接。
 2. 获取预处理对象PreparedStatement，此时需要SQL语句：`conn.prepareStatement(sql);`，其中这个sql就是由上面的第二的mapper标签包含的SQL语句。
@@ -290,6 +290,12 @@ public class AppTest
 即利用SqlSession创建DAO接口的代理对象。传入的参数为DAO对象这个类。
 
 创建代理的方法为`public <T> getMapper(Class<T> daoInterfaceClass){}`。传入参数为返回类型为T的DAO接口，方法返回值为T。
+
+其中方法包含的具体实现为`Proxy.newProxyInstance()`，其中三个参数为：
+
+1. 类加载器：与被代理对象是相同的类加载器，即xxx.Class。
+2. 代理对象要实现的接口字节码数组：和被代理对象实现相同的接口。
+3. 代理方式：是最重要的，就是增强的实现功能的方法，需要自己来编写。
 
 整个案例[XML方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
 
