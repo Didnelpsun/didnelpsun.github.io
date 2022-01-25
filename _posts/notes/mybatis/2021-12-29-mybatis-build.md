@@ -289,7 +289,7 @@ public class AppTest
 
 即利用SqlSession创建DAO接口的代理对象。传入的参数为DAO对象这个类。
 
-创建代理的方法为`public <T> getMapper(Class<T> daoInterfaceClass){}`。传入参数为返回类型为T的DAO接口，方法返回值为T。
+创建代理的方法为`public <T> T getMapper(Class<T> daoInterfaceClass){}`。传入参数为返回类型为T的DAO接口，方法返回值为T。
 
 其中方法包含的具体实现为`Proxy.newProxyInstance()`，其中三个参数为：
 
