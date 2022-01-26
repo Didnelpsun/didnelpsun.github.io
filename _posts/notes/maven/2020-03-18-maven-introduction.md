@@ -227,7 +227,7 @@ maven-3.xxx版本之后，在maven可以找到这个文件：/lib/maven-model-bu
 </repositories> 
 ```
 
-中央仓库的id为central，远程url地址为<http://repo.maven.apache.org/maven2>，它关闭了snapshot版本构件下载的支持。
+中央仓库的id为central，远程url地址为<http://repo.maven.apache.org/maven2>或<https://mvnrepository.com/>，它关闭了snapshot版本构件下载的支持。
 
 ### &emsp;远程私有仓库
 
