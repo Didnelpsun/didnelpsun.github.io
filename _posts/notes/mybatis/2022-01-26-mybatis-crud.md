@@ -20,3 +20,252 @@ excerpt: "基于代理DAO进行CRUD"
    + getMapper方法：①先用SqlSessionFactory读取的数据库连接信息创建Connection对象。②通过JDK代理模式创建出代理对象作为getMapper方法返回值。主要工作是创建代理时第三个参数处理类中得到SQL语句。③执行对应CRUD操作。
    + CRUD方法（selectList、selectOne、Insert等）：①用SqlSessionFactory读取的数据库连接信息创建出JDBC的Connection对象。②直接得到SQL语句，使用JDBC的Connection对象进行CRUD操作。
 5. 封装结果集。无论是使用代理对象还是通用CRUD方法，都要对返回的数据库结果集进行封装，变成Java对象返回给调用者，所以必须知道调用者所需要的返回类型。
+
+&emsp;
+
+## 基本CRUD操作
+
+CRUD操作如果是使用XML来实现基本上都是只用修改两个文件，一个是UserDAO.xml，其类似于一个申明文件，表明对User实体类的DAO操作方法的列表，另外一个是UserDAO.xml，用来具体实现对User类的增删改查，这里就是用来写SQL语句的。
+
+最后在测试文件中通过UserDAO代理对象调用这些方法来执行SQL操作。
+
+### 插入
+
+在UserDAO的接口中：
+
+```java
+// 插入用户
+void insertUser(User user);
+```
+
+表明插入的是一个User对象。
+
+在UserDAO.xml中：
+
+```xml
+<!--插入用户-->
+<insert id="insertUser" parameterType="org.didnelpsun.entity.User">
+   insert into user(name,sex,birthday,address) values (#{name},#{sex},#{birthday},#{address});
+</insert>
+```
+
+其中parameterType代表的就是方法中传入的参数的类型，要标明其类的全限定类名。
+
+参数以#{value}的形式来引入SQL语句。如#{name}与parameterType="org.didnelpsun.entity.User"结合后编译就变成了org.didnelpsun.entity.User.name。
+
+### 更新
+
+在UserDAO的接口中：
+
+```java
+// 更新用户
+void updateUser(User user);
+```
+
+在UserDAO.xml中：
+
+```xml
+<!--更新用户-->
+<update id="updateUser" parameterType="org.didnelpsun.entity.User">
+        update user set name=#{name},sex=#{sex},birthday=#{birthday},address=#{address} where id=#{id};
+</update>
+```
+
+### 删除
+
+在UserDAO的接口中：
+
+```java
+// 删除用户
+void deleteUser(Integer id);
+```
+
+直接传入用户的ID就可以了。
+
+在UserDAO.xml中：
+
+```xml
+<!--删除用户-->
+<delete id="deleteUser" parameterType="Integer">
+   <!--由于只有一个参数，所以这个参数就是个占位符，叫什么都可以-->
+   delete from user where id=#{id};
+</delete>
+```
+
+首先对于parameterType="Integer"，这个参数可以是INT，INTEGER，int，也可以是java.lang.integer。这里的具体名称无所谓。
+
+然后是对于只有一个值类型的参数，如String、Char这种，而不是对象的，SQL语句中参数名可以为任何值，如id，uid等，只起到占位符的作用。因为如果参数是对象类型，则SQL语句的参数是默认以parameterType所指向的值为基础的，如#{name}就是org.didnelpsun.entity.User.name，而指向的如果是值类型，则参数就直接指向java.lang.integer包装类这种或直接int，其下面不包含对象的成员，所以就默认指向的是这个类型本身。
+
+### 查询
+
+#### 简单查询
+
+在UserDAO的接口中：
+
+```java
+// 查询一个用户
+User selectUser(Integer id);
+```
+
+在UserDAO.xml中：
+
+```xml
+<!--查询一个用户-->
+<select id="selectUser" parameterType="Integer" resultType="org.didnelpsun.entity.User">
+   select * from user where id=#{id};
+</select>
+```
+
+通过上面的CRUD基本操作，可以进一步深入了解MyBatis的基本结构。最核心的还是DAO文件。在测试程序中调用DAO中的方法，然后根据DAO的Java文件中的方法在XML中找到对应的配置，将参数传入，通过对应的SQL语句获取结果集，然后根据resultType属性封装成Java对象返回给DAO，最后返回给测试程序进行处理。
+
+#### 聚合函数
+
+可以直接使用聚合函数。
+
+在UserDAO的接口中：
+
+```java
+// 获取用户总数
+Integer getUsersSum();
+```
+
+在UserDAO.xml中：
+
+```xml
+<!--获取用户总数，即记录总条数-->
+<select id="getUsersSum" resultType="Integer">
+   select count(id) from user;
+</select>
+```
+
+#### 模糊查询
+
+在UserDAO的接口中：
+
+```java
+// 根据用户名模糊查询用户
+List<User> selectUsersByName(String name);
+```
+
+在UserDAO.xml中：
+
+```xml
+<!--根据名称模糊查询用户-->
+<select id="selectUsersByName" parameterType="String" resultType="org.didnelpsun.entity.User">
+   <!--这里不能使用百分号来模糊查询，必须在测试代码中写-->
+   <!--这种方式参数是以PreparedStatement占位参数的形式变成SQL语句，即进行预处理，所以更推荐-->
+   select * from user where name like #{name}
+   <!--如果是模糊查询也可以使用下面的方式，不过里面的参数固定为 ${value} -->
+   <!-- select * from user where name like '${value}'; -->
+   <!--这种方式参数是以Statement拼接字符串的形式变成SQL语句-->
+</select>
+```
+
+所以不建议使用下面的引号方式编写SQL语句。直接将在测试时将模糊字符串传入，如`List<User> users = userDAO.selectUsersByName("%黄%");`。
+
+&emsp;
+
+## 输入类型
+
+即xml标签中的parameterType属性。
+
+### 简单类型
+
+即Java基本类型。如之前所说整形可以是INT也可以是Interger。
+
+### 传递POJO对象
+
+之前一般使用的都是POJO对象。使用OGNL表达式解析对象字段的值，#{}或者使用${}中的值为POJO属性名称。
+
+POJO（Plain Ordinary Java Object）简单的Java对象，没有使用Entity Beans的普通Java对象，实际就是普通JavaBeans，是为了避免和EJB混淆所创造的简称。
+
+POJO不担当任何特殊的角色，也不实现任何特殊的Java框架的接口如，EJB，JDBC等等。如我们现在定义的UserDAO就是POJO，其只起到数据库持久层的作用，不进行其他特色功能。
+
+而OGNL表达式即Object Graphic Navigation Language，通过对象的取值方式来获取数据，实际上将getter省略了，如类中`user.getName()`，而OGNL表达式为`user.name`，虽然name属性值仍是私有，看着方法将name属性变成public的，但是OGNL默认就调用getter方法。
+
+### 传递POJO包装对象
+
+主要用于联级查询。
+
+定义一个Query类：
+
+```java
+package org.didnelpsun.entity;
+
+public class Query {
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+}
+```
+
+在UserDAO的接口中：
+
+```java
+// 根据查询条件对象Query混合模糊查询
+List<User> selectUsersByQuery(Query query);
+```
+
+在UserDAO.xml中：
+
+```xml
+<!--根据Query对象模糊查询用户-->
+<select id="selectUsersByQuery" parameterType="org.didnelpsun.entity.Query" resultType="org.didnelpsun.entity.User">
+   select * from user where name like #{user.username};
+</select>
+```
+
+主要针对多个表联合查询，由于select标签传入的参数只能有一个对象，所以可以将多个表的公共键即多个查询条件合并为一个类来进行查询。
+
+&emsp;
+
+## 输出类型
+
+封装时要求实体类的属性与数据库的列名保持一致。
+
+### 基本类型
+
+如int等。
+
+### POJO对象
+
+如之前使用的User对象。
+
+### POJO列表
+
+这里返回封装的目标是一个类，在实际返回时由于可能返回多个值所以可以返回List泛型即POJO列表。
+
+### 插入后自动生成主键获取
+
+在进行插入操作时，如果一条记录的主键是由数据库自动生成的话，那我们基本上是不能直接插入这个属性的，那么我们插入记录后如何获取这个记录所自动生成的主键呢？
+
+### Java属性与数据库列名关系
+
+对于Windows的SQL数据库而言是不区分大小写的，而对于Linux的SQL数据库是严格区分大小写的，所以数据库列名与用来封装的Java实体类的属性名必须完全一样。
+
+有两种处理方法：
+
+1. SQL语句中使用as：数据库列名 as 实体类属性名。
+2. 配置列名与属性名的对应关系：
+
+```xml
+<!--配置Map-->
+<!--id属性的标识符可以任意-->
+<resultMap id="标识符" type="实体类名">
+   <!--主键字段的对应-->
+   <id property="实体类属性名" column="数据库列名"></id>
+   <!--非主键字段的对应-->
+   <!--必须严格大小写-->
+   <result property="实体类属性名" column="数据库列名"></result>
+</resultMap>
+<!--需要配置对应关系的标签，如select标签-->
+<!--不需要parameterType属性-->
+<select id="DAO方法名" resultMap="对应resultMap的标识符">
+</select>
+```
