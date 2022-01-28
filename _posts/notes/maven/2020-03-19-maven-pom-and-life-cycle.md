@@ -33,6 +33,19 @@ groupId|这是项目组的编号，这在组织或项目中通常是独一无二
 artifactId|这是项目的ID。这通常是项目的名称。 例如，consumer-banking。 除了groupId之外，artifactId还定义了artifact在存储库中的位置。
 version|这是项目的版本。与groupId一起使用，artifact在存储库中用于将版本彼此分离。 例如：com.company.bank:consumer-banking:1.0，com.company.bank:consumer-banking:1.1
 
+### The compiler compliance specified is 1.x but a JRE xx is used
+
+即当前编译环境与配置不匹配的问题，在对应项目的pom.xml中可以进行更改：
+
+```xml
+<!--当前编译环境为Java17-->
+<properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.17</maven.compiler.source>
+    <maven.compiler.target>1.17</maven.compiler.target>
+</properties>
+```
+
 &emsp;
 
 ## 生命周期

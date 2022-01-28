@@ -108,6 +108,28 @@ public class User implements Serializable{
 }
 ```
 
+给User实体类添加构造方法：
+
+```java
+public User() {
+}
+
+public User(Integer id, String name, String sex, Date birthday, String address){
+    this.id = id;
+    this.name = name;
+    this.sex = sex;
+    this.birthday = birthday;
+    this.address = address;
+}
+
+public User(String name, String sex, Date birthday, String address){
+    this.name = name;
+    this.sex = sex;
+    this.birthday = birthday;
+    this.address = address;
+}
+```
+
 由于Java的都是对象，而MyBatis是管理数据库，所以要将对象序列化为字节才能保存与传输，所以需要继承java.io.Serializable接口。可以在main/java/org.xxx/下新建一个类，如User类。至于为什么要将类序列化可以参考这个[博客](https://blog.csdn.net/u011568312/article/details/57611440)：把原本在内存中的对象状态变成可存储或传输的过程称之为序列化。序列化之后，就可以把序列化后的内容写入磁盘，或者通过网络传输到别的机器上。
 
 #### 持久对象
@@ -123,7 +145,7 @@ import java.util.List;
 
 public interface UserDAO {
     // 查询所有用户
-    List<User> FindAllUsers();
+    List<User> selectAllUsers();
 }
 ```
 
@@ -180,7 +202,7 @@ public interface UserDAO {
 <mapper namespace="org.didnelpsun.dao.UserDAO">
     <!--配置查询所有，id为对应类的方法名，不能随便改-->
     <!--resultType即持久层返回的数据应该封装成什么样的数据类-->
-    <select id="FindAllUsers" resultType="org.didnelpsun.entity.User">
+    <select id="selectAllUsers" resultType="org.didnelpsun.entity.User">
         select * from user
     </select>
 </mapper>
@@ -240,7 +262,7 @@ public class AppTest
         // 4.使用SqlSession创建DAO接口的代理对象，使用了代理模式，不修改源码方法上对已有方法增强
         UserDAO userDAO = session.getMapper(UserDAO.class);
         // 5.使用代理对象执行方法
-        List<User> users = userDAO.FindAllUsers();
+        List<User> users = userDAO.selectAllUsers();
         for(User user : users){
 //          System.out.println(user);
             System.out.println(user.toString());
@@ -311,7 +333,7 @@ public class AppTest
 public interface UserDAO {
     // 查询所有用户
     @Select("select * from user")
-    List<User> FindAllUsers();
+    List<User> selectAllUsers();
 }
 ```
 
@@ -326,6 +348,6 @@ public interface UserDAO {
 
 最后结果是一样的。
 
-所以注解是什么意思呢？就是DAO实现方式的简化。若是我们自己写FindAllUsers方法，就必须接受一个SessionFactory然后对这个Session进行处理，并进行对应的操作，而使用注解或XML就直接写一个SQL语句就可以了，其他的对应的Session维护代码由MyBatis自动完成。
+所以注解是什么意思呢？就是DAO实现方式的简化。若是我们自己写selectAllUsers方法，就必须接受一个SessionFactory然后对这个Session进行处理，并进行对应的操作，而使用注解或XML就直接写一个SQL语句就可以了，其他的对应的Session维护代码由MyBatis自动完成。
 
 案例[注解方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_annotation)。

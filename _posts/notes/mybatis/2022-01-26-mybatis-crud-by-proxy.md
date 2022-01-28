@@ -1,11 +1,13 @@
 ---
 layout: post
-title:  "CRUD操作"
+title:  "代理DAO的CRUD操作"
 date:   2022-01-26 16:08:33 +0800
 categories: notes mybatis base
-tags: MyBatis 基础 CRUD
+tags: MyBatis 基础 代理 CRUD
 excerpt: "基于代理DAO进行CRUD"
 ---
+
+使用[案例一代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
 
 ## CRUD基本流程
 
@@ -163,6 +165,133 @@ List<User> selectUsersByName(String name);
 
 所以不建议使用下面的引号方式编写SQL语句。直接将在测试时将模糊字符串传入，如`List<User> users = userDAO.selectUsersByName("%黄%");`。
 
+### 测试
+
+最后的测试文件为：
+
+```java
+package org.didnelpsun;
+
+//import static org.junit.Assert.assertTrue;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.didnelpsun.dao.UserDAO;
+import org.didnelpsun.entity.User;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class AppTest {
+    // 这些成员都是公共的所以提取出来
+    private InputStream in;
+    private SqlSession session;
+    private UserDAO userDAO;
+
+    // 测试之前执行
+    @Before
+    public void init() {
+        // 1.读取配置文件
+        in = null;
+        try {
+            in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 2.创建SqlSessionFactory工厂
+        // SqlSessionFactory不能new
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in);
+        // 3.使用工厂生产SqlSession对象
+        session = factory.openSession();
+        // 4.使用SqlSession创建DAO接口的代理对象
+        userDAO = session.getMapper(UserDAO.class);
+    }
+
+    // 测试之后执行
+    @After
+    public void destroy() throws Exception {
+        // 提交事务，否则事务会回滚
+        session.commit();
+        // 6.释放资源
+        session.close();
+        assert in != null;
+        in.close();
+    }
+
+    @Test
+    public void Test() {
+
+        // 5.使用代理对象执行方法
+        // testInsertUser();
+        // testSelectAllUsers();
+        // testDeleteUser();
+        // System.out.println("更新后：");
+        // testSelectAllUsers();
+        // testSelectUsersByName();
+        testGetUsersSum();
+    }
+
+    // 测试查询所有用户
+    public void testSelectAllUsers() {
+        List<User> users = userDAO.selectAllUsers();
+        for (User user : users) {
+            System.out.println(user.toString());
+        }
+    }
+
+    // 测试插入用户
+    public void testInsertUser() {
+        Calendar c = Calendar.getInstance();
+        c.set(2000, 2, 14);
+        Date d = new Date();
+        d = c.getTime();
+        User user = new User("蓝新煜", "男", d, "福建省福州市");
+        userDAO.insertUser(user);
+    }
+
+    // 测试更新用户
+    public void testUpdateUser() {
+        Calendar c = Calendar.getInstance();
+        c.set(1998, 8, 21);
+        Date d = new Date();
+        d = c.getTime();
+        User user = new User(2, "黄桓康", "男", d, "湖北省鄂州市");
+        userDAO.updateUser(user);
+    }
+
+    // 测试删除用户
+    public void testDeleteUser() {
+        userDAO.deleteUser(3);
+    }
+
+    // 测试查询用户
+    public void testSelectUser() {
+        User user = userDAO.selectUser(1);
+        System.out.println(user.toString());
+    }
+
+    // 测试根据名称查询用户
+    public void testSelectUsersByName() {
+        List<User> users = userDAO.selectUsersByName("%黄%");
+        for (User user : users) {
+            System.out.println(user.toString());
+        }
+    }
+
+    // 测试获取用户总数
+    public void testGetUsersSum() {
+        System.out.println("用户总数为：" + userDAO.getUsersSum());
+    }
+}
+```
+
 &emsp;
 
 ## 输入类型
@@ -245,6 +374,20 @@ List<User> selectUsersByQuery(Query query);
 
 在进行插入操作时，如果一条记录的主键是由数据库自动生成的话，那我们基本上是不能直接插入这个属性的，那么我们插入记录后如何获取这个记录所自动生成的主键呢？
 
+使用SQL语句插入时：`insert into 表名(属性列) values (属性值); select last_insert_id();`。
+
+而在MyBatis需要在XML配置中：
+
+```xml
+<insert id="DAO处理类方法名" parameterType="参数名">
+   插入语句
+   <!--配置插入操作后获取插入数据的ID-->
+   <selectKey keyProperty="ID对应实体类属性名" keyColumn="ID对应表列名" resultType="返回的ID类型" order="AFTER">
+    select last_insert_id();
+   </selectKey>
+</insert>
+```
+
 ### Java属性与数据库列名关系
 
 对于Windows的SQL数据库而言是不区分大小写的，而对于Linux的SQL数据库是严格区分大小写的，所以数据库列名与用来封装的Java实体类的属性名必须完全一样。
@@ -269,3 +412,5 @@ List<User> selectUsersByQuery(Query query);
 <select id="DAO方法名" resultMap="对应resultMap的标识符">
 </select>
 ```
+
+[最后代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)
