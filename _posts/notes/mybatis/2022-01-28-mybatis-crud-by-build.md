@@ -365,7 +365,7 @@ password=root
 
 然后在UserDAO.xml中将所有全限定类名全部改成别名。
 
-#### package
+#### 别名package
 
 用于指定要配置别名的包名（而不是实体类名），当指定后，该包下的实体类都会自动注册别名，并且类名就是别名，不再区分大小写：
 
@@ -374,3 +374,21 @@ password=root
     <package name="org.didnelpsun.entity"/>
 </typeAliases>
 ```
+
+### mappers
+
+#### mapper
+
+mapper标签之前已经使用过，基本上使用resource属性，这个标签还有一个url属性，也跟之前的properties属性一样需要使用URL格式路径。
+
+#### 映射器package
+
+映射器package标签与别名package标签类似，用于指定DAO接口所在的包，当指定了之后就不需要再写mapper以及resource或class了，前提是UserDAO的java文件与对应的xml文件同名，如UserDAO.java对应UserDAO.xml。否则也还是需要全限定类名：
+
+```xml
+<mappers>
+    <package name="org.didnelpsun.dao"/>
+</mappers>
+```
+
+[案例四代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo4_crud_by_build)。

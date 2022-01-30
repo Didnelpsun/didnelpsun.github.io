@@ -413,4 +413,4 @@ List<User> selectUsersByQuery(Query query);
 </select>
 ```
 
-[最后代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)
+[案例三代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)。
