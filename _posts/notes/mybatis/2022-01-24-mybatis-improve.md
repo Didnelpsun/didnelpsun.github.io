@@ -4,7 +4,7 @@ title:  "MyBatis底层实现"
 date:   2022-01-24 23:44:02 +0800
 categories: notes mybatis base
 tags: MyBatis 基础 改造
-excerpt: "工程改进"
+excerpt: "自动封装与反射"
 ---
 
 我们之前的工程都是使用MyBatis来创建的，而这次我们将MyBatis的依赖删掉，尝试自己实现MyBatis的功能。

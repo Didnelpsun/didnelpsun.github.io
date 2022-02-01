@@ -211,7 +211,9 @@ public void testSelectUsersInIDs(){
 + 一对一。
 + 多对多。
 
-这里使用账户的例子，一个用户可以有多个账户，而一个账户只能属于一个用户。
+### 一对一查询
+
+一对一和一对多使用账户的例子，一个用户可以有多个账户，而一个账户只能属于一个用户。
 
 步骤：
 
@@ -219,3 +221,533 @@ public void testSelectUsersInIDs(){
 2. 建立用户实体类与账户实体类：需要属性体现一对多关系。
 3. 建立用户与账户的配置关系。
 4. 实现配置：查询用户可以获取名下账户信息，查询账户可以获取对应用户信息。
+
+#### 定义Account类
+
+使用[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。
+
+首先在UserDAO.xml与UserDAO.xml中将除了`selectAllUsers`和`selectUser`两个方法外的其他所有方法都删除，在UserDAO.xml将sql和include标签内容改成一般的SQL语句，然后将测试类中对应的测试方法都删除，再将实体类中将Query实体类删除。
+
+然后在entity文件夹下新建一个Account实体类：
+
+```java
+package org.didnelpsun.entity;
+
+import java.io.Serializable;
+
+public class Account implements Serializable {
+    private Integer id;
+    private Integer userid;
+    private Float money;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getUserid() {
+        return userid;
+    }
+
+    public void setUserid(Integer userid) {
+        this.userid = userid;
+    }
+
+    public Float getMoney() {
+        return money;
+    }
+
+    public void setMoney(Float money) {
+        this.money = money;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" + "id=" + id + ", userid=" + userid + ", money=" + money + '}';
+    }
+}
+```
+
+根据实体类向数据库增加一个Account表，id为主键，userid为外键。
+
+然后定义对应的AccountDAO.java中的相关方法：
+
+```java
+package org.didnelpsun.dao;
+
+import org.didnelpsun.entity.Account;
+
+import java.util.List;
+
+public interface AccountDAO {
+    // 查询所有账户
+    List<Account> selectAllAccounts();
+    // 查询一个账户
+    Account selectAccount(Integer id);
+}
+```
+
+定义对应的AccountDAO.xml：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.didnelpsun.dao.AccountDAO">
+    <!--查询所有账户-->
+    <select id="selectAllAccounts" resultType="org.didnelpsun.entity.Account">
+        select * from account
+    </select>
+    <!--查询一个账户-->
+    <select id="selectAccount" parameterType="Integer" resultType="org.didnelpsun.entity.Account">
+        select * from account where id=#{id};
+    </select>
+</mapper>
+```
+
+在SqlMapConfig.xml的mappers标签中加入映射`<mapper resource="org/didnelpsun/dao/AccountDAO.xml"/>`。
+
+编写测试类：
+
+```java
+package org.didnelpsun;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.didnelpsun.dao.AccountDAO;
+import org.didnelpsun.dao.UserDAO;
+import org.didnelpsun.entity.Account;
+import org.didnelpsun.entity.User;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class AppTest {
+    private InputStream in;
+    private SqlSession session;
+    private UserDAO userDAO;
+    private AccountDAO accountDAO;
+
+    // 测试之前执行
+    @Before
+    public void init() {
+        // 1.读取配置文件
+        in = null;
+        try {
+            in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 2.创建SqlSessionFactory工厂
+        // SqlSessionFactory不能new
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in);
+        // 3.使用工厂生产SqlSession对象
+        session = factory.openSession();
+        // 4.使用SqlSession创建DAO接口的代理对象
+        userDAO = session.getMapper(UserDAO.class);
+        accountDAO = session.getMapper(AccountDAO.class);
+    }
+
+    // 测试之后执行
+    @After
+    public void destroy() throws Exception {
+        // 提交事务，否则事务会回滚
+        session.commit();
+        // 6.释放资源
+        session.close();
+        assert in != null;
+        in.close();
+    }
+
+    @Test
+    public void Test() {
+        // 5.使用代理对象执行方法
+        testSelectAllAccounts();
+    }
+
+    // 测试查询所有用户
+    public void testSelectAllUsers() {
+        List<User> users = userDAO.selectAllUsers();
+        for (User user : users) {
+            System.out.println(user.toString());
+        }
+    }
+
+    // 测试查询用户
+    public void testSelectUser() {
+        User user = userDAO.selectUser(1);
+        System.out.println(user.toString());
+    }
+
+    // 测试查询所有账户
+    public void testSelectAllAccounts(){
+        List<Account> accounts = accountDAO.selectAllAccounts();
+        for (Account account : accounts) {
+            System.out.println(account.toString());
+        }
+    }
+
+    // 测试查询账户
+    public void testSelectAccount() {
+        Account account = accountDAO.selectAccount(1);
+        System.out.println(account.toString());
+    }
+}
+```
+
+我们定义一个方法，根据Account的id查询账户信息并获取对应的userid查询用户信息。这是一对一的查询，SQL语句是`select account.id as accountid, account.money, user.* from account, user where user.id = account.userid;;`。
+
+这时候我们有两种解决方法。
+
+#### AccountUser类
+
+是定义一个AccountUser实体类继承Account类从而在Account的基础上多定义User相关属性：
+
+```java
+package org.didnelpsun.entity;
+
+import java.util.Date;
+
+public class AccountUser extends Account {
+    private String name;
+    private String sex;
+    private Date birthday;
+    private String address;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "AccountUser{" + "name='" + name + '\'' + ", sex='" + sex + '\'' + ", birthday=" + birthday + ", address='" + address + '\'' + '}';
+    }
+}
+```
+
+然后在AccountDAO.java中定义一个获取方法`List<AccountUser> selectAllAccountUsers();`，并在AccountDAO.xml中配置：
+
+```xml
+<!--查询所有账户与用户信息-->
+<select id="selectAllAccountUsers" resultType="org.didnelpsun.entity.AccountUser">
+    select account.* , user.name, user.sex, user.birthday, user.address from account, user where user.id = account.userid;
+</select>
+```
+
+定义一个测试方法：
+
+```java
+// 测试查询账户与用户
+public void testSelectAllAccountUsers(){
+    List<AccountUser> accountUsers = accountDAO.selectAllAccountUsers();
+    for (Account accountUser : accountUsers) {
+        System.out.println(accountUser.toString());
+    }
+}
+```
+
+#### Account类引用
+
+上面的重新定义一个实体类的方法并不方便，而且在联合查询的时候注重的是两个表之间的关系，而不是单纯的复制到一起，假如对其外键userid进行改动AccountUser类的数据影响不大，只是数值变化，但是实际上会影响两个表的数据的映射。
+
+所以最好是在Account类中引用其所属的User类，Account中定义`private User user;`，然后生成其对应的getter与setter。重新重写其`toString()`方法。
+
+```java
+@Override
+public String toString() {
+    return "Account{" + "id=" + id + ", userid=" + userid + ", money=" + money + ", user=" + user.toString() + '}';
+}
+```
+
+重写对应的AccountDAO.java中就是`List<Account> selectAllAccountUsers();`这个方法。
+
+然后定义对应的XML文件，使用resultMap进行映射：
+
+```xml
+<resultMap id="accountUserMap" type="org.didnelpsun.entity.Account">
+    <id property="id" column="id"/>
+    <result property="userid" column="userid"/>
+    <result property="money" column="money" />
+    <!--一对一配置User的映射，使用association标签表示引用-->
+    <!--property是对应的表名，column是匹配字段名，javaType为封装成的类型-->
+    <association property="user" column="userid" javaType="org.didnelpsun.entity.User">
+        <!--将表格中的userid填充到对应user的id中-->
+        <!--如果column写的是id则其默认是account的id而不是user的id-->
+        <id property="id" column="userid"/>
+        <result property="name" column="name"/>
+        <result property="sex" column="sex"/>
+        <result property="birthday" column="birthday"/>
+        <result property="address" column="address"/>
+    </association>
+</resultMap>
+<select id="selectAllAccountUsers" resultMap="accountUserMap">
+    select account.*, user.* from account, user where user.id = account.userid;
+</select>
+```
+
+### 一对多查询
+
+即查询一个用户下对应的所有账户，这个就是一对多。
+
+#### 重写User类
+
+根据上面的做法我们先在原来的User类中增加对Account的引用：
+
+```java
+private List<Account> accounts;
+
+public List<Account> getAccounts() {
+    return accounts;
+}
+
+    public void setAccounts(List<Account> accounts) {
+    this.accounts = accounts;
+}
+```
+
+#### 重写UserDAO
+
+不用更改UserDAO.java，直接更改UserDAO.xml的具体实现：
+
+```xml
+<!--由于需要联合查询，所以需要定义resultMap-->
+<resultMap id="userMap" type="org.didnelpsun.entity.User">
+    <!--由于id名重复，所以这里起个别名-->
+    <id property="id" column="uid" />
+    <result property="name" column="name" />
+    <result property="birthday" column="birthday" />
+    <result property="sex" column="sex" />
+    <result property="address" column="address" />
+    <!--配置User对象中accounts集合的映射-->
+    <!--collection代表集合，propertys为User属性对象的名称，ofType为对象类型-->
+    <collection property="accounts" ofType="org.didnelpsun.entity.Account">
+        <id property="id" column="id" />
+        <result property="userid" column="userid" />
+        <result property="money" column="money" />
+    </collection>
+</resultMap>
+<!--使用左外连接，保存左边的数据-->
+<!--由于要设置一个别名，所以不能使用*，而必须把所有要查询的属性名全部列出来-->
+<select id="selectAllUsers" resultMap="userMap">
+    select user.id as uid, name, sex, birthday, address, account.id, account.userid, account.money from user left outer join account on user.id = account.userid;
+</select>
+```
+
+重写Account的`toString()`方法，因为我们这里没有设置user属性所以会报错：
+
+```java
+public String toString() {
+    return "Account{" + "id=" + id + ", userid=" + userid + ", money=" + money + '}';
+}
+```
+
+编写测试类：
+
+```java
+// 测试查询所有用户
+public void testSelectAllUsers() {
+    List<User> users = userDAO.selectAllUsers();
+    for (User user : users) {
+        System.out.println(user.toString());
+        for (Account account : user.getAccounts()){
+            System.out.println(account.toString());
+        }
+    }
+}
+```
+
+我们可以看到使用了collection标签后MyBatis就自动将同样userid的记录合并到一起了，而如果我们直接使用SQL语句查询会发现它们是分开的。
+
+[案例六用户与账户代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。
+
+### 多对多查询
+
+步骤：
+
+1. 建立用户表和角色表两张表。需要使用中间表，包含各自的主键，在中间表中是外键。
+2. 建立用户和角色两个实体类。各自包含对方的一个集合引用来体现多对多关系。
+3. 建立角色和用户的两个配置文件。
+
+#### 定义Role类
+
+根据定义Account类的操作一样，使用[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。在UserDAO.xml与UserDAO.xml中将除了`selectAllUsers`和`selectUser`两个方法外的其他所有方法都删除，在UserDAO.xml将sql和include标签内容改成一般的SQL语句，然后将测试类中对应的测试方法都删除，再将实体类中将Query实体类删除。
+
+新建Role实体类：
+
+```java
+package org.didnelpsun.entity;
+
+import java.io.Serializable;
+
+public class Role implements Serializable {
+    private Integer id;
+    private String name;
+    private String description;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Role{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + '}';
+    }
+}
+```
+
+在数据库新建对应的role表，其中id为主键。然后建立user_role表为中间表，有userid和roleid两列，其中userid和roleid既是主键也是外键。
+
+然后新建一个接口RoleDAO.java，定义一个获取方法`List<Role> selectAllRoles();`，并在RoleDAO.xml中配置：
+
+```xml
+<select id="selectAllRoles" resultType="org.didnelpsun.entity.Role">
+    select * from role
+</select>
+```
+
+在SqlMapConfig.xml中加上`<mapper resource="org/didnelpsun/dao/RoleDAO.xml"/>`。
+
+定义测试：
+
+```java
+package org.didnelpsun;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.didnelpsun.dao.RoleDAO;
+import org.didnelpsun.dao.UserDAO;
+import org.didnelpsun.entity.Role;
+import org.didnelpsun.entity.User;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class AppTest {
+    private InputStream in;
+    private SqlSession session;
+    private UserDAO userDAO;
+    private RoleDAO roleDAO;
+
+    // 测试之前执行
+    @Before
+    public void init() {
+        // 1.读取配置文件
+        in = null;
+        try {
+            in = Resources.getResourceAsStream("SqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 2.创建SqlSessionFactory工厂
+        // SqlSessionFactory不能new
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(in);
+        // 3.使用工厂生产SqlSession对象
+        session = factory.openSession();
+        // 4.使用SqlSession创建DAO接口的代理对象
+        userDAO = session.getMapper(UserDAO.class);
+        roleDAO = session.getMapper(RoleDAO.class);
+    }
+
+    // 测试之后执行
+    @After
+    public void destroy() throws Exception {
+        // 提交事务，否则事务会回滚
+        session.commit();
+        // 6.释放资源
+        session.close();
+        assert in != null;
+        in.close();
+    }
+
+    @Test
+    public void Test() {
+        // 5.使用代理对象执行方法
+        testSelectAllRoles();
+    }
+
+    // 测试查询所有用户
+    public void testSelectAllUsers() {
+        List<User> users = userDAO.selectAllUsers();
+        for (User user : users) {
+            System.out.println(user.toString());
+        }
+    }
+
+    // 测试查询用户
+    public void testSelectUser() {
+        User user = userDAO.selectUser(1);
+        System.out.println(user.toString());
+    }
+
+    // 测试查询所有角色
+    public void testSelectAllRoles() {
+        List<Role> roles = roleDAO.selectAllRoles();
+        for (Role role : roles) {
+            System.out.println(role.toString());
+        }
+    }
+}
+```
