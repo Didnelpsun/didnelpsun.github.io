@@ -615,11 +615,13 @@ public void testSelectAllUsers() {
 package org.didnelpsun.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Role implements Serializable {
     private Integer id;
     private String name;
     private String description;
+    private List<User> users;
 
     public Integer getId() {
         return id;
@@ -643,6 +645,14 @@ public class Role implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     @Override
@@ -751,3 +761,85 @@ public class AppTest {
     }
 }
 ```
+
+#### 查询角色赋予用户
+
+即根据roleid左外连接查询role表，再根据user_role表的roleid对应的userid左外连接查询user表。SQL语句是`select role.*, user.id as uid, user.name as uname, user.sex, user.birthday, user.address from role left outer join user_role on role.id = user_role.roleid left outer join user on user.id = user_role.userid`，其中给user的id和name起别名。
+
+给定RoleDAO.java一个`List<Role> selectAllRoleUsers();`，由于Role.users是一个集合，所以再次使用collection标签，在XML中定义：
+
+```xml
+<resultMap id="roleMap" type="org.didnelpsun.entity.Role">
+    <id property="id" column="id" />
+    <result property="name" column="name" />
+    <result property="description" column="description" />
+    <collection property="users" ofType="org.didnelpsun.entity.User">
+        <id property="id" column="uid" />
+        <result property="name" column="uname" />
+        <result property="sex" column="sex" />
+        <result property="birthday" column="birthday" />
+        <result property="address" column="address" />
+    </collection>
+</resultMap>
+<select id="selectAllRoleUsers"  resultMap="roleMap">
+    select role.*, user.id as uid, user.name as uname, user.sex, user.birthday, user.address from role left outer join user_role on role.id = user_role.roleid left outer join user on user.id = user_role.userid
+</select>
+```
+
+测试：
+
+```java
+// 测试查询所有角色与用户
+public void testSelectAllRoleUsers() {
+    List<Role> roles = roleDAO.selectAllRoleUsers();
+    for (Role role : roles) {
+        System.out.println(role.toString());
+        for(User user: role.getUsers()){
+            System.out.println(user.toString());
+        }
+    }
+}
+```
+
+#### 查询用户所属角色
+
+SQL语句类似，只不过左连接的先是user再是user_role，最后是role。可以按照左连接改一遍，也可以直接改成右连接：`select user.id as uid, user.name as uname, user.sex, user.birthday, user.address, role.* from role right outer join user_role on role.id = user_role.roleid right outer join user on user.id = user_role.userid`。
+
+在User类上增加`private List<Role> roles;`并定义setter和getter。
+
+在UserDAO.java中增加`List<User> selectAllUserRoles();`并在XML中配置：
+
+```xml
+<resultMap id="userMap" type="org.didnelpsun.entity.User">
+    <id property="id" column="uid" />
+    <result property="name" column="uname" />
+    <result property="sex" column="sex" />
+    <result property="birthday" column="birthday" />
+    <result property="address" column="address" />
+    <collection property="roles" ofType="org.didnelpsun.entity.Role">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="description" column="description" />
+    </collection>
+</resultMap>
+<select id="selectAllUserRoles"  resultMap="userMap">
+    select user.id as uid, user.name as uname, user.sex, user.birthday, user.address, role.* from role right outer join user_role on role.id = user_role.roleid right outer join user on user.id = user_role.userid
+</select>
+```
+
+测试方法：
+
+```java
+// 测试查询所有用户与角色
+public void testSelectAllUserRoles() {
+    List<User> users = userDAO.selectAllUserRoles();
+    for (User user : users) {
+        System.out.println(user.toString());
+        for(Role role: user.getRoles()){
+            System.out.println(role.toString());
+        }
+    }
+}
+```
+
+[案例六用户与角色代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_role)。
