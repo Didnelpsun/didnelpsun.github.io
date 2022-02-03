@@ -13,8 +13,6 @@ excerpt: "连接池使用与事务控制分析"
 
 连接池里面包括多个连接。连接池负责对连接的维护。其实就是一个集合对象，且必须是线程安全的，必须实现队列的特性，先进先出。
 
-使用[案例一代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
-
 ### 连接池分类
 
 MyBaits连接池提供了三种方式的配置。
@@ -33,9 +31,19 @@ MyBaits连接池提供了三种方式的配置。
 
 是SUN公司提供的一种标准的Java命名系统接口，JNDI提供统一的客户端API，通过不同的访问提供者接口JNDI服务供应接口（SPI）的实现，由管理者将JNDI API映射为特定的命名服务和目录系统，使得Java应用程序可以和这些命名服务和目录服务之间进行交互。
 
-利用Tomcat模拟Windows的注册表。
+利用Tomcat模拟Windows的注册表。其中key是字符串，包括固定的dirctory和自定的name，value是对象。
+
+<!-- 使用IDEA，从原型创建，选择org.apache.maven.archetypes::maven-archetype-webapp。
+
+在在src/main下新建一个java与resources文件夹，src文件夹下新建一个test文件夹并也新建java和resources文件夹。并将其标注为源文件与测试文件。
+
+复制src代码并修改pom.xml。 -->
+
+直接部署代码到Tomcat上。这时候刷新就能看到控制台的输出。但是此时直接调用test的Java文件是用不了的，因为这个数据源是由Tomcat提供的，由Tomcat解析，而直接调用test测试数据源没有就会报错。
 
 [JNDI参考](https://www.cnblogs.com/xdp-gacl/p/3951952.html)。
+
+[案例五JNDI代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo5_jndi)。
 
 &emsp;
 
