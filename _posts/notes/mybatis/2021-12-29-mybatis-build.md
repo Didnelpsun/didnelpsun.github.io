@@ -11,9 +11,7 @@ SSM包括Spring MVC、MyBatis和Spring。Spring MVC是MVC框架，负责表现�
 
 MyBatis封装JDBC的细节，使得开发者只用关心SQL语句而无需关心注册驱动等。
 
-## XML方式
-
-### 搭建基础工程
+## 搭建基础工程
 
 直接使用IDEA的Maven工程创建，使用quick-start就可以了，不用使用webapp文件模板。
 
@@ -42,9 +40,11 @@ MyBatis封装JDBC的细节，使得开发者只用关心SQL语句而无需关心
 
 由于需要使用数据库，所以需要建立一个MySQL数据库文件，具体方式可以见[MySQL安装配置](../mysql/2020-03-03-mysql-install-and-configure.md)。
 
-### 编写对象
+&emsp;
 
-#### 实体对象
+## 编写对象
+
+### 实体对象
 
 在java/org.didnelpsun这种组织名文件夹下新建一个文件夹，名字任意，我取的是entity，新建实体类，即处理数据的对象。如我要处理一个User数据，里面有id等属性：
 
@@ -132,7 +132,7 @@ public User(String name, String sex, Date birthday, String address){
 
 由于Java的都是对象，而MyBatis是管理数据库，所以要将对象序列化为字节才能保存与传输，所以需要继承java.io.Serializable接口。可以在main/java/org.xxx/下新建一个类，如User类。至于为什么要将类序列化可以参考这个[博客](https://blog.csdn.net/u011568312/article/details/57611440)：把原本在内存中的对象状态变成可存储或传输的过程称之为序列化。序列化之后，就可以把序列化后的内容写入磁盘，或者通过网络传输到别的机器上。
 
-#### 持久对象
+### 持久对象
 
 为了对User对象进行处理，所以需要一个User的持久层接口，在在java/org.didnelpsun这种组织名文件夹下新建一个文件夹dao，新建一个接口UserDAO：
 
@@ -151,9 +151,11 @@ public interface UserDAO {
 
 这里定义了一个方法就是查询所有User用户类。
 
-### 创建配置文件
+&emsp;
 
-#### 创建MyBatis配置文件
+## 创建配置文件
+
+### 创建MyBatis配置文件
 
 创建一个xml文件对MyBatis进行整体的配置，一般命名为SqlMapConfig，将其放在resources下：
 
@@ -190,7 +192,7 @@ public interface UserDAO {
 </configuration>
 ```
 
-#### 创建DAO映射配置文件
+### 创建DAO映射配置文件
 
 可以对每一个持久层接口DAO文件进行单独的映射配置，在resources下创建org.didnelpsun文件夹，并再创建一个dao文件夹，放入对应的DAO配置文件，我用的是UserDAO.xml：
 
@@ -210,7 +212,9 @@ public interface UserDAO {
 
 <span style="color:orange">注意：</span>MyBatis的映射配置文件必须和DAO接口的包结构相同。即配置文件UserDAO.xml在resources的org.didnelpsun.dao下，那对应的UserDAO比如也应该在org.didnelpsun.dao下。
 
-### 配置测试
+&emsp;
+
+## 配置测试
 
 最后更改对应的test文件夹里的测试文件：
 
@@ -280,21 +284,23 @@ public class AppTest
 }
 ```
 
-### XML方式总结
+&emsp;
+
+## XML方式总结
 
 除了编写User这种实体类和UserDAO这种持续对象，XML方式的主要实现方式就是通过XML。
 
-#### XML配置
+### XML配置
 
 在main的resources下新建一个SqlMapConfig.xml编写配置。配置内容有两个：一是environment标签的数据库连接配置，包括链接、用户名和密码；二是mapper标签的用于配置DAO持久对象的XML配置文件。（路径是相对于resources文件夹）
 
-#### DAO配置
+### DAO配置
 
 承接上面所说的DAO配置文件，每一个DAO都有一个XML配置文件。每一个持久层的SQL操作都包含在mapper标签中，里面包含SQL操作标签，再包含一个SQL语句。
 
 上面的三个都是XML配置，解析XML配置的技术是dom4j。
 
-#### 封装对象
+### 封装对象
 
 根据读取配置文件的信息来创建对象工厂封装对象。
 
@@ -307,7 +313,7 @@ public class AppTest
 
 我们要完成封装这一步就需要知道两个信息：连接信息和映射信息。主要是映射信息，包含：执行的SQL语句、封装结果的实体类全限定类名。将这两个信息组合起来定义一个对象。键名为对应DAO的全限定类名加上点再加上SQL方法名，键值为一个Mapper对象，包含一个String的SQL语句和一个String的domainClassPath即作用类域。
 
-#### 创建代理
+### 创建代理
 
 即利用SqlSession创建DAO接口的代理对象。传入的参数为DAO对象这个类。
 
@@ -319,35 +325,4 @@ public class AppTest
 2. 代理对象要实现的接口字节码数组：和被代理对象实现相同的接口。
 3. 代理方式：是最重要的，就是增强的实现功能的方法，需要自己来编写。
 
-整个案例[XML方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
-
-&emsp;
-
-## 注解方式
-
-不用编写DAO文件与编写DAO配置，直接将java/resources下的org.didnelpsun.dao文件夹删除。
-
-然后更改UserDAO，给对应方法加上注解，里面是SQL语句：
-
-```java
-public interface UserDAO {
-    // 查询所有用户
-    @Select("select * from user")
-    List<User> selectAllUsers();
-}
-```
-
-然后对SqlMapConfig.xml更改对应的DAO的mapper的resource属性，使用class属性指定被注解的dao全限定类名：
-
-```xml
-<mappers>
-    <!--class是对应dao的全限定类名-->
-    <mapper class="org.didnelpsun.dao.UserDAO"/>
-</mappers>
-```
-
-最后结果是一样的。
-
-所以注解是什么意思呢？就是DAO实现方式的简化。若是我们自己写selectAllUsers方法，就必须接受一个SessionFactory然后对这个Session进行处理，并进行对应的操作，而使用注解或XML就直接写一个SQL语句就可以了，其他的对应的Session维护代码由MyBatis自动完成。
-
-案例[注解方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_annotation)。
+[案例一XML创建方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
