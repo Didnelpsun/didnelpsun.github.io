@@ -13,13 +13,13 @@ excerpt: "基于自定义DAO进行CRUD"
 
 ## 实现DAO层
 
-### DAO实现类
+### &emsp;DAO实现类
 
 使用MyBatis的XML方式代理DAO时就是使用XML来实现UserDAO.java文件，而我们自定义DAO就是需要自己定义一个UserDAO的实现类。
 
 在main\java\org\didnelpsun\dao下新建一个implement文件夹，下面新建一个文件UserDAOImplement：
 
-#### 简单查询
+#### &emsp;&emsp;简单查询
 
 ```java
 package org.didnelpsun.dao.implement;
@@ -73,7 +73,7 @@ public class UserDAOImplement implements UserDAO {
 }
 ```
 
-#### 插入
+#### &emsp;&emsp;插入
 
 ```java
 @Override
@@ -91,7 +91,7 @@ public void insertUser(User user) {
 
 这时候你会发现插入失败，因为方法使用不对，应该是`session.insert("org.didnelpsun.dao.UserDAO.insertUser", user);`。
 
-#### 更新
+#### &emsp;&emsp;更新
 
 ```java
 @Override
@@ -107,7 +107,7 @@ public void updateUser(User user) {
 }
 ```
 
-#### 删除
+#### &emsp;&emsp;删除
 
 ```java
 @Override
@@ -123,7 +123,7 @@ public void deleteUser(Integer id) {
 }
 ```
 
-### 编写测试类
+### &emsp;编写测试类
 
 然后编写测试文件，模仿[案例三代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)：
 
@@ -254,9 +254,9 @@ public class AppTest {
 
 标签有顺序，不然会报错。
 
-### properties
+### &emsp;properties
 
-#### 自定义
+#### &emsp;&emsp;自定义
 
 property标签包含在properties标签中，之前property标签在dataSource标签中：
 
@@ -310,7 +310,7 @@ property标签包含在properties标签中，之前property标签在dataSource�
 </environments>
 ```
 
-#### 引用文件
+#### &emsp;&emsp;引用文件
 
 这种方法因为冗余了所以不经常使用，这个标签一般用来通过属性引用外部配置信息，属性resource用来指定配置文件的位置，安装类路径的写法，且必须存在类路径下。
 
@@ -347,11 +347,11 @@ password=root
 
 定位位置也可以使用url属性，url属性要求以URL的根路径方式来写值。是必须绝对定位的：`<properties url="file:///E:/Github/File-Manage-System/src/main/resources/jdbcConfig.properties" />`。前面加个file\:///是因为Windows系统默认使用file协议来定位文件，且使用默认端口。url属性比较不方便所以基本上不怎么使用。
 
-### typeAliases
+### &emsp;typeAliases
 
 之前在UserDAO.xml文件中，写参数类型parameterType和返回类型resultType时曾经提到，整形可以是INT、INTEGER等，而具体的实体类只能是全限定类名，如org.didnelpsun.entity.User，这是因为MyBatis已经为整形起了很多别名，而User实体类没有，所以只能写全限定类名。
 
-#### typeAlias
+#### &emsp;&emsp;typeAlias
 
 而typeAlias就是可以定义别名，type属性指定实体类全限定类名，alias属性指定别名，别名不区分大小写，如user和UsEr是一样的。
 
@@ -365,7 +365,7 @@ password=root
 
 然后在UserDAO.xml中将所有全限定类名全部改成别名。
 
-#### 别名package
+#### &emsp;&emsp;别名package
 
 用于指定要配置别名的包名（而不是实体类名），当指定后，该包下的实体类都会自动注册别名，并且类名就是别名，不再区分大小写：
 
@@ -375,13 +375,13 @@ password=root
 </typeAliases>
 ```
 
-### mappers
+### &emsp;mappers
 
-#### mapper
+#### &emsp;&emsp;mapper
 
 mapper标签之前已经使用过，基本上使用resource属性，这个标签还有一个url属性，也跟之前的properties属性一样需要使用URL格式路径。
 
-#### 映射器package
+#### &emsp;&emsp;映射器package
 
 映射器package标签与别名package标签类似，用于指定DAO接口所在的包，当指定了之后就不需要再写mapper以及resource或class了，前提是UserDAO的java文件与对应的xml文件同名，如UserDAO.java对应UserDAO.xml。否则也还是需要全限定类名：
 

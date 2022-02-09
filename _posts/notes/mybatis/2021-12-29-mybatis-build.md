@@ -44,7 +44,7 @@ MyBatis封装JDBC的细节，使得开发者只用关心SQL语句而无需关心
 
 ## 编写对象
 
-### 实体对象
+### &emsp;实体对象
 
 在java/org.didnelpsun这种组织名文件夹下新建一个文件夹，名字任意，我取的是entity，新建实体类，即处理数据的对象。如我要处理一个User数据，里面有id等属性：
 
@@ -132,7 +132,7 @@ public User(String name, String sex, Date birthday, String address){
 
 由于Java的都是对象，而MyBatis是管理数据库，所以要将对象序列化为字节才能保存与传输，所以需要继承java.io.Serializable接口。可以在main/java/org.xxx/下新建一个类，如User类。至于为什么要将类序列化可以参考这个[博客](https://blog.csdn.net/u011568312/article/details/57611440)：把原本在内存中的对象状态变成可存储或传输的过程称之为序列化。序列化之后，就可以把序列化后的内容写入磁盘，或者通过网络传输到别的机器上。
 
-### 持久对象
+### &emsp;持久对象
 
 为了对User对象进行处理，所以需要一个User的持久层接口，在在java/org.didnelpsun这种组织名文件夹下新建一个文件夹dao，新建一个接口UserDAO：
 
@@ -155,7 +155,7 @@ public interface UserDAO {
 
 ## 创建配置文件
 
-### 创建MyBatis配置文件
+### &emsp;创建MyBatis配置文件
 
 创建一个xml文件对MyBatis进行整体的配置，一般命名为SqlMapConfig，将其放在resources下：
 
@@ -192,7 +192,7 @@ public interface UserDAO {
 </configuration>
 ```
 
-### 创建DAO映射配置文件
+### &emsp;创建DAO映射配置文件
 
 可以对每一个持久层接口DAO文件进行单独的映射配置，在resources下创建org.didnelpsun文件夹，并再创建一个dao文件夹，放入对应的DAO配置文件，我用的是UserDAO.xml：
 
@@ -290,17 +290,17 @@ public class AppTest
 
 除了编写User这种实体类和UserDAO这种持续对象，XML方式的主要实现方式就是通过XML。
 
-### XML配置
+### &emsp;XML配置
 
 在main的resources下新建一个SqlMapConfig.xml编写配置。配置内容有两个：一是environment标签的数据库连接配置，包括链接、用户名和密码；二是mapper标签的用于配置DAO持久对象的XML配置文件。（路径是相对于resources文件夹）
 
-### DAO配置
+### &emsp;DAO配置
 
 承接上面所说的DAO配置文件，每一个DAO都有一个XML配置文件。每一个持久层的SQL操作都包含在mapper标签中，里面包含SQL操作标签，再包含一个SQL语句。
 
 上面的三个都是XML配置，解析XML配置的技术是dom4j。
 
-### 封装对象
+### &emsp;封装对象
 
 根据读取配置文件的信息来创建对象工厂封装对象。
 
@@ -313,7 +313,7 @@ public class AppTest
 
 我们要完成封装这一步就需要知道两个信息：连接信息和映射信息。主要是映射信息，包含：执行的SQL语句、封装结果的实体类全限定类名。将这两个信息组合起来定义一个对象。键名为对应DAO的全限定类名加上点再加上SQL方法名，键值为一个Mapper对象，包含一个String的SQL语句和一个String的domainClassPath即作用类域。
 
-### 创建代理
+### &emsp;创建代理
 
 即利用SqlSession创建DAO接口的代理对象。传入的参数为DAO对象这个类。
 

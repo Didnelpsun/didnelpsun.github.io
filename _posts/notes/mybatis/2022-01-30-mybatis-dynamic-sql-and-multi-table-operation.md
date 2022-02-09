@@ -24,7 +24,7 @@ List<User> selectUsersByQuery(Query query);
 
 ## 动态SQL
 
-### if标签
+### &emsp;if标签
 
 此时我们可以看到上面所说的查询都是按某个条件查询的，即如果要通过id查询就使用selectUser方法，如果通过name查询就是selectUsersByName方法。
 
@@ -75,7 +75,7 @@ public void testSelectUsersByCondition() {
 
 由于使用等号所以不能进行模糊查询。如果要使用模糊查询就要将UserDAO.xml中用like代替等号，并在测试文件中将u的name设置为%名字%。
 
-### where标签
+### &emsp;where标签
 
 if标签使用比较麻烦，在条件之前需要加一个true，这时候就需要where标签来把查询条件都套上：
 
@@ -104,7 +104,7 @@ if标签使用比较麻烦，在条件之前需要加一个true，这时候就�
 </select>
 ```
 
-### foreach标签
+### &emsp;foreach标签
 
 之前的查询都是直接将传入参数进行拼接到SQL，而当查询需要传入参数时应该如何实现？如查询id在2到4之间的用户？
 
@@ -184,7 +184,7 @@ public void testSelectUsersInIDs(){
 }
 ```
 
-### sql标签与include标签
+### &emsp;sql标签与include标签
 
 由于我们之前使用select标签查询都是用`select * from user`开头，所以我们可以使用sql标签将这个SQL语句定义为常量，然后使用include标签来引用sql标签定义的SQL语句：
 
@@ -211,7 +211,7 @@ public void testSelectUsersInIDs(){
 + 一对一。
 + 多对多。
 
-### 一对一查询
+### &emsp;一对一查询
 
 一对一和一对多使用账户的例子，一个用户可以有多个账户，而一个账户只能属于一个用户。
 
@@ -222,7 +222,7 @@ public void testSelectUsersInIDs(){
 3. 建立用户与账户的配置关系。
 4. 实现配置：查询用户可以获取名下账户信息，查询账户可以获取对应用户信息。
 
-#### 定义Account类
+#### &emsp;&emsp;定义Account类
 
 使用[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。
 
@@ -408,7 +408,7 @@ public class AppTest {
 
 这时候我们有两种解决方法。
 
-#### AccountUser类
+#### &emsp;&emsp;AccountUser类
 
 是定义一个AccountUser实体类继承Account类从而在Account的基础上多定义User相关属性：
 
@@ -483,7 +483,7 @@ public void testSelectAllAccountUsers(){
 }
 ```
 
-#### Account类引用
+#### &emsp;&emsp;Account类引用
 
 上面的重新定义一个实体类的方法并不方便，而且在联合查询的时候注重的是两个表之间的关系，而不是单纯的复制到一起，假如对其外键userid进行改动AccountUser类的数据影响不大，只是数值变化，但是实际上会影响两个表的数据的映射。
 
@@ -522,11 +522,11 @@ public String toString() {
 </select>
 ```
 
-### 一对多查询
+### &emsp;一对多查询
 
 即查询一个用户下对应的所有账户，这个就是一对多。
 
-#### 重写User类
+#### &emsp;&emsp;重写User类
 
 根据上面的做法我们先在原来的User类中增加对Account的引用：
 
@@ -542,7 +542,7 @@ public List<Account> getAccounts() {
 }
 ```
 
-#### 重写UserDAO
+#### &emsp;&emsp;重写UserDAO
 
 不用更改UserDAO.java，直接更改UserDAO.xml的具体实现：
 
@@ -597,7 +597,7 @@ public void testSelectAllUsers() {
 
 [案例六用户与账户代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。
 
-### 多对多查询
+### &emsp;多对多查询
 
 步骤：
 
@@ -605,7 +605,7 @@ public void testSelectAllUsers() {
 2. 建立用户和角色两个实体类。各自包含对方的一个集合引用来体现多对多关系。
 3. 建立角色和用户的两个配置文件。
 
-#### 定义Role类
+#### &emsp;&emsp;定义Role类
 
 根据定义Account类的操作一样，使用[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。在UserDAO.xml与UserDAO.xml中将除了`selectAllUsers`和`selectUser`两个方法外的其他所有方法都删除，在UserDAO.xml将sql和include标签内容改成一般的SQL语句，然后将测试类中对应的测试方法都删除，再将实体类中将Query实体类删除。
 
@@ -762,7 +762,7 @@ public class AppTest {
 }
 ```
 
-#### 查询角色赋予用户
+#### &emsp;&emsp;查询角色赋予用户
 
 即根据roleid左外连接查询role表，再根据user_role表的roleid对应的userid左外连接查询user表。SQL语句是`select role.*, user.id as uid, user.name as uname, user.sex, user.birthday, user.address from role left outer join user_role on role.id = user_role.roleid left outer join user on user.id = user_role.userid`，其中给user的id和name起别名。
 
@@ -801,7 +801,7 @@ public void testSelectAllRoleUsers() {
 }
 ```
 
-#### 查询用户所属角色
+#### &emsp;&emsp;查询用户所属角色
 
 SQL语句类似，只不过左连接的先是user再是user_role，最后是role。可以按照左连接改一遍，也可以直接改成右连接：`select user.id as uid, user.name as uname, user.sex, user.birthday, user.address, role.* from role right outer join user_role on role.id = user_role.roleid right outer join user on user.id = user_role.userid`。
 

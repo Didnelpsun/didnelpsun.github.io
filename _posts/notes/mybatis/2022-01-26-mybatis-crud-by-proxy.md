@@ -31,7 +31,7 @@ CRUD操作如果是使用XML来实现基本上都是只用修改两个文件，�
 
 最后在测试文件中通过UserDAO代理对象调用这些方法来执行SQL操作。
 
-### 插入
+### &emsp;插入
 
 在UserDAO的接口中：
 
@@ -55,7 +55,7 @@ void insertUser(User user);
 
 参数以#{value}的形式来引入SQL语句。如#{name}与parameterType="org.didnelpsun.entity.User"结合后编译就变成了org.didnelpsun.entity.User.name。
 
-### 更新
+### &emsp;更新
 
 在UserDAO的接口中：
 
@@ -73,7 +73,7 @@ void updateUser(User user);
 </update>
 ```
 
-### 删除
+### &emsp;删除
 
 在UserDAO的接口中：
 
@@ -98,9 +98,9 @@ void deleteUser(Integer id);
 
 然后是对于只有一个值类型的参数，如String、Char这种，而不是对象的，SQL语句中参数名可以为任何值，如id，uid等，只起到占位符的作用。因为如果参数是对象类型，则SQL语句的参数是默认以parameterType所指向的值为基础的，如#{name}就是org.didnelpsun.entity.User.name，而指向的如果是值类型，则参数就直接指向java.lang.integer包装类这种或直接int，其下面不包含对象的成员，所以就默认指向的是这个类型本身。
 
-### 查询
+### &emsp;查询
 
-#### 简单查询
+#### &emsp;&emsp;简单查询
 
 在UserDAO的接口中：
 
@@ -120,7 +120,7 @@ User selectUser(Integer id);
 
 通过上面的CRUD基本操作，可以进一步深入了解MyBatis的基本结构。最核心的还是DAO文件。在测试程序中调用DAO中的方法，然后根据DAO的Java文件中的方法在XML中找到对应的配置，将参数传入，通过对应的SQL语句获取结果集，然后根据resultType属性封装成Java对象返回给DAO，最后返回给测试程序进行处理。
 
-#### 聚合函数
+#### &emsp;&emsp;聚合函数
 
 可以直接使用聚合函数。
 
@@ -140,7 +140,7 @@ Integer getUsersSum();
 </select>
 ```
 
-#### 模糊查询
+#### &emsp;&emsp;模糊查询
 
 在UserDAO的接口中：
 
@@ -165,7 +165,7 @@ List<User> selectUsersByName(String name);
 
 所以不建议使用下面的引号方式编写SQL语句。直接将在测试时将模糊字符串传入，如`List<User> users = userDAO.selectUsersByName("%黄%");`。
 
-### 测试
+### &emsp;测试
 
 最后的测试文件为：
 
@@ -298,11 +298,11 @@ public class AppTest {
 
 即xml标签中的parameterType属性。
 
-### 简单类型
+### &emsp;简单类型
 
 即Java基本类型。如之前所说整形可以是INT也可以是Interger。
 
-### 传递POJO对象
+### &emsp;传递POJO对象
 
 之前一般使用的都是POJO对象。使用OGNL表达式解析对象字段的值，#{}或者使用${}中的值为POJO属性名称。
 
@@ -312,7 +312,7 @@ POJO不担当任何特殊的角色，也不实现任何特殊的Java框架的接
 
 而OGNL表达式即Object Graphic Navigation Language，通过对象的取值方式来获取数据，实际上将getter省略了，如类中`user.getName()`，而OGNL表达式为`user.name`，虽然name属性值仍是私有，看着方法将name属性变成public的，但是OGNL默认就调用getter方法。
 
-### 传递POJO包装对象
+### &emsp;传递POJO包装对象
 
 主要用于联级查询。
 
@@ -358,19 +358,19 @@ List<User> selectUsersByQuery(Query query);
 
 封装时要求实体类的属性与数据库的列名保持一致。
 
-### 基本类型
+### &emsp;基本类型
 
 如int等。
 
-### POJO对象
+### &emsp;POJO对象
 
 如之前使用的User对象。
 
-### POJO列表
+### &emsp;POJO列表
 
 这里返回封装的目标是一个类，在实际返回时由于可能返回多个值所以可以返回List泛型即POJO列表。
 
-### 插入后自动生成主键获取
+### &emsp;插入后自动生成主键获取
 
 在进行插入操作时，如果一条记录的主键是由数据库自动生成的话，那我们基本上是不能直接插入这个属性的，那么我们插入记录后如何获取这个记录所自动生成的主键呢？
 
@@ -388,7 +388,7 @@ List<User> selectUsersByQuery(Query query);
 </insert>
 ```
 
-### Java属性与数据库列名关系
+### &emsp;Java属性与数据库列名关系
 
 对于Windows的SQL数据库而言是不区分大小写的，而对于Linux的SQL数据库是严格区分大小写的，所以数据库列名与用来封装的Java实体类的属性名必须完全一样。
 

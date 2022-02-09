@@ -13,7 +13,7 @@ excerpt: "延迟加载与缓存管理"
 
 使用[案例六用户与账户代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。把实体类AccountUser删掉。
 
-### Assocation
+### &emsp;Assocation
 
 一对一方式，一个账户对应一个用户。
 
@@ -54,7 +54,7 @@ association标签的select属性指定查询当前对象的方法，即根据当
 
 这个就相当于子查询。如果我们不使用Account的user成员那么就不会查询这个属性。
 
-### Collection
+### &emsp;Collection
 
 多对多方式，一个用户对应多个账户，基本上思路是一致的，也是使用association标签。
 
@@ -97,13 +97,13 @@ association标签的select属性指定查询当前对象的方法，即根据当
 
 使用缓存可以减少和数据库的交互次数，提高执行效率。经常查询、不经常改变且数据时效性低的数据适用缓存。
 
-### 一级缓存
+### &emsp;一级缓存
 
 指SqlSession对象的缓存，即执行查询后其结果会同时存入SqlSession的一块区域中。其结构是一个Map。当再次查询时MyBatis会先去查询缓存是否存在。
 
 当SqlSession对象消失时一级缓存也会消失。
 
-#### 清除一级缓存
+#### &emsp;清除一级缓存
 
 [案例三代码]
 
@@ -202,7 +202,7 @@ public class AppTest {
 
 除了close关闭可以清除缓存外还有一个`clearCache()`方法专门用来清除缓存。
 
-#### 一级缓存同步
+#### &emsp;一级缓存同步
 
 更新对一级缓存有什么作用呢？
 
@@ -224,7 +224,7 @@ public void testCacheClear() {
 
 当调用SqlSession的修改，添加，删除，提交，关闭方法时，就会清空一级缓存。
 
-### 二级缓存
+### &emsp;二级缓存
 
 指SqlSessionFactory对象的缓存，由同一个SqlSessionFactory对象创建的SqlSession共享其缓存。
 
