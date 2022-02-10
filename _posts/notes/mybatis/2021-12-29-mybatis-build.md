@@ -49,6 +49,7 @@ MyBatis封装JDBC的细节，使得开发者只用关心SQL语句而无需关心
 在java/org.didnelpsun这种组织名文件夹下新建一个文件夹，名字任意，我取的是entity，新建实体类，即处理数据的对象。如我要处理一个User数据，里面有id等属性：
 
 ```java
+// User.java
 package org.didnelpsun.entity;
 
 import java.io.Serializable;
@@ -137,6 +138,7 @@ public User(String name, String sex, Date birthday, String address){
 为了对User对象进行处理，所以需要一个User的持久层接口，在在java/org.didnelpsun这种组织名文件夹下新建一个文件夹dao，新建一个接口UserDAO：
 
 ```java
+// UserDAO.java
 package org.didnelpsun.dao;
 
 import org.didnelpsun.entity.User;
@@ -219,6 +221,7 @@ public interface UserDAO {
 最后更改对应的test文件夹里的测试文件：
 
 ```java
+// AppTest.java
 package org.didnelpsun;
 
 // import static org.junit.Assert.assertTrue;
@@ -325,4 +328,4 @@ public class AppTest
 2. 代理对象要实现的接口字节码数组：和被代理对象实现相同的接口。
 3. 代理方式：是最重要的，就是增强的实现功能的方法，需要自己来编写。
 
-[案例一XML创建方式代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
+[案例一XML创建方式代码：MyBatis/demo1_build_xml](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。

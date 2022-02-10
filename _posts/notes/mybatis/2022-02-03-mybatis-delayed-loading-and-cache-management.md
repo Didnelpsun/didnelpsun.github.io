@@ -11,7 +11,7 @@ excerpt: "延迟加载与缓存管理"
 
 只在需要时查询，否则不查询。一对多和多对多使用延迟加载（懒加载），一对一和多对一使用立即加载。
 
-使用[案例六用户与账户代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。把实体类AccountUser删掉。
+使用[案例六用户与账户代码：MyBatis/demo6_user_and_account](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。把实体类AccountUser删掉。
 
 ### &emsp;Assocation
 
@@ -89,7 +89,7 @@ association标签的select属性指定查询当前对象的方法，即根据当
 </select>
 ```
 
-[案例七延迟加载](https://github.com/Didnelpsun/MyBatis/tree/main/demo7_delayed_loading)。
+[案例七延迟加载代码：MyBatis/demo7_delayed_loading](https://github.com/Didnelpsun/MyBatis/tree/main/demo7_delayed_loading)。
 
 &emsp;
 
@@ -105,7 +105,7 @@ association标签的select属性指定查询当前对象的方法，即根据当
 
 #### &emsp;清除一级缓存
 
-[案例三代码]
+使用[案例三使用代理CRUD代码：MyBatis/demo3_crud_by_proxy](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)。
 
 更改测试代码：
 
@@ -122,6 +122,7 @@ public void Test() {
 然后尝试关闭SqlSession再打开重新获取user1看看：
 
 ```java
+// AppTest.java
 package org.didnelpsun;
 
 //import static org.junit.Assert.assertTrue;
@@ -237,6 +238,7 @@ public void testCacheClear() {
 重新定义一个测试文件，将SqlSession和UserDAO从公共的变成每个方法手动获取和释放：
 
 ```java
+// AppTest2.java
 package org.didnelpsun;
 
 //import static org.junit.Assert.assertTrue;
@@ -308,4 +310,4 @@ public class AppTest2 {
 
 但是最后打印的是false而不是true，这是因为二级缓存存放的内容是数据（类似JSON格式）而不是User对象。所以当访问时会把二级缓存的数据填充到User对象中，由于这里调用`session.close()`一级缓存关闭了所以会按正常流程新建一个User对象，所以最后是false。
 
-[案例七缓存管理](https://github.com/Didnelpsun/MyBatis/tree/main/demo7_cache_management)。
+[案例七缓存管理代码：MyBatis/demo7_cache_management](https://github.com/Didnelpsun/MyBatis/tree/main/demo7_cache_management)。

@@ -7,7 +7,7 @@ tags: MyBatis 基础 动态 多表
 excerpt: "SQL动态注入与多表联合"
 ---
 
-使用[案例三代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)。
+使用[案例三使用代理CRUD代码：MyBatis/demo3_crud_by_proxy](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)。
 
 然后在UserDAO.xml和UserDAO.java以及AppTest.java中将所有的CUD方法全部删掉，只留下查询方法，在UserDAO.xml中：
 
@@ -200,7 +200,7 @@ public void testSelectUsersInIDs(){
 
 由于SQL语句是拼接上的，所以之前所有的地方都可以替换。
 
-[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。
+[案例六动态SQL语句代码：MyBatis/demo6_dynamic_sql](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。
 
 ## 多表操作
 
@@ -224,13 +224,14 @@ public void testSelectUsersInIDs(){
 
 #### &emsp;&emsp;定义Account类
 
-使用[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。
+使用[案例六动态SQL语句代码：MyBatis/demo6_dynamic_sql](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。
 
 首先在UserDAO.xml与UserDAO.xml中将除了`selectAllUsers`和`selectUser`两个方法外的其他所有方法都删除，在UserDAO.xml将sql和include标签内容改成一般的SQL语句，然后将测试类中对应的测试方法都删除，再将实体类中将Query实体类删除。
 
 然后在entity文件夹下新建一个Account实体类：
 
 ```java
+// Account.java
 package org.didnelpsun.entity;
 
 import java.io.Serializable;
@@ -276,6 +277,7 @@ public class Account implements Serializable {
 然后定义对应的AccountDAO.java中的相关方法：
 
 ```java
+// AccountDAO.java
 package org.didnelpsun.dao;
 
 import org.didnelpsun.entity.Account;
@@ -313,6 +315,7 @@ public interface AccountDAO {
 编写测试类：
 
 ```java
+// AppTest.java
 package org.didnelpsun;
 
 import java.io.IOException;
@@ -413,6 +416,7 @@ public class AppTest {
 是定义一个AccountUser实体类继承Account类从而在Account的基础上多定义User相关属性：
 
 ```java
+// AccountUser.java
 package org.didnelpsun.entity;
 
 import java.util.Date;
@@ -595,7 +599,7 @@ public void testSelectAllUsers() {
 
 我们可以看到使用了collection标签后MyBatis就自动将同样userid的记录合并到一起了，而如果我们直接使用SQL语句查询会发现它们是分开的。
 
-[案例六用户与账户代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。
+[案例六用户与账户代码：MyBatis/demo6_user_and_account](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。
 
 ### &emsp;多对多查询
 
@@ -607,11 +611,12 @@ public void testSelectAllUsers() {
 
 #### &emsp;&emsp;定义Role类
 
-根据定义Account类的操作一样，使用[案例六动态SQL语句代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。在UserDAO.xml与UserDAO.xml中将除了`selectAllUsers`和`selectUser`两个方法外的其他所有方法都删除，在UserDAO.xml将sql和include标签内容改成一般的SQL语句，然后将测试类中对应的测试方法都删除，再将实体类中将Query实体类删除。
+根据定义Account类的操作一样，使用[案例六动态SQL语句代码：MyBatis/demo6_dynamic_sql](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_dynamic_sql)。在UserDAO.xml与UserDAO.xml中将除了`selectAllUsers`和`selectUser`两个方法外的其他所有方法都删除，在UserDAO.xml将sql和include标签内容改成一般的SQL语句，然后将测试类中对应的测试方法都删除，再将实体类中将Query实体类删除。
 
 新建Role实体类：
 
 ```java
+// Role.java
 package org.didnelpsun.entity;
 
 import java.io.Serializable;
@@ -677,6 +682,7 @@ public class Role implements Serializable {
 定义测试：
 
 ```java
+// AppTest.java
 package org.didnelpsun;
 
 import java.io.IOException;
@@ -842,4 +848,4 @@ public void testSelectAllUserRoles() {
 }
 ```
 
-[案例六用户与角色代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_role)。
+[案例六用户与角色代码：MyBatis/demo6_user_and_role](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_role)。

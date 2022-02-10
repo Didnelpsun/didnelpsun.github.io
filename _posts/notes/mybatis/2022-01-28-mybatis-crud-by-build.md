@@ -7,7 +7,7 @@ tags: MyBatis 基础 编写 CRUD
 excerpt: "基于自定义DAO进行CRUD"
 ---
 
-使用[案例一代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
+使用[案例一XML创建方式代码：MyBatis/demo1_build_xml](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
 
 由于实际开发中基本上都是使用代理DAO，所以使用自定义DAO的机会较少。
 
@@ -22,6 +22,7 @@ excerpt: "基于自定义DAO进行CRUD"
 #### &emsp;&emsp;简单查询
 
 ```java
+// UserDAOImplement.java
 package org.didnelpsun.dao.implement;
 
 import java.util.List;
@@ -125,9 +126,10 @@ public void deleteUser(Integer id) {
 
 ### &emsp;编写测试类
 
-然后编写测试文件，模仿[案例三代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)：
+然后编写测试文件，模仿[案例三使用代理CRUD代码：MyBatis/demo3_crud_by_proxy](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)：
 
 ```java
+// AppTest.java
 package org.didnelpsun;
 
 //import static org.junit.Assert.assertTrue;
@@ -391,4 +393,4 @@ mapper标签之前已经使用过，基本上使用resource属性，这个标签
 </mappers>
 ```
 
-[案例四代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo4_crud_by_build)。
+[案例四自定义CRUD代码：MyBatis/demo4_crud_by_build](https://github.com/Didnelpsun/MyBatis/tree/main/demo4_crud_by_build)。

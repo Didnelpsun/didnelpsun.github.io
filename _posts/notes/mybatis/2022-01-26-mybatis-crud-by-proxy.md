@@ -7,7 +7,7 @@ tags: MyBatis 基础 代理 CRUD
 excerpt: "基于代理DAO进行CRUD"
 ---
 
-使用[案例一代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
+使用[案例一XML创建方式代码：MyBatis/demo1_build_xml](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
 
 ## CRUD基本流程
 
@@ -170,6 +170,7 @@ List<User> selectUsersByName(String name);
 最后的测试文件为：
 
 ```java
+// AppTest.java
 package org.didnelpsun;
 
 //import static org.junit.Assert.assertTrue;
@@ -319,6 +320,7 @@ POJO不担当任何特殊的角色，也不实现任何特殊的Java框架的接
 定义一个Query类：
 
 ```java
+// Query.java
 package org.didnelpsun.entity;
 
 public class Query {
@@ -413,4 +415,4 @@ List<User> selectUsersByQuery(Query query);
 </select>
 ```
 
-[案例三代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)。
+[案例三使用代理CRUD代码：MyBatis/demo3_crud_by_proxy](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)。

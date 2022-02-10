@@ -13,7 +13,7 @@ excerpt: "连接池使用与事务控制分析"
 
 连接池里面包括多个连接。连接池负责对连接的维护。其实就是一个集合对象，且必须是线程安全的，必须实现队列的特性，先进先出。
 
-### &emsp;s连接池分类
+### &emsp;连接池分类
 
 MyBaits连接池提供了三种方式的配置。
 
@@ -43,7 +43,7 @@ MyBaits连接池提供了三种方式的配置。
 
 [JNDI参考](https://www.cnblogs.com/xdp-gacl/p/3951952.html)。
 
-[案例五JNDI代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo5_jndi)。
+[案例五JNDI代码：MyBatis/demo5_jndi](https://github.com/Didnelpsun/MyBatis/tree/main/demo5_jndi)。
 
 &emsp;
 
@@ -58,7 +58,7 @@ MyBaits连接池提供了三种方式的配置。
 
 MyBatis通过sqlSession对象的commit方法来提交事务（CUD事务），并通过rollback来回滚事务。
 
-### &emsp;s提交
+### &emsp;提交
 
 之前我们提交事务需要使用`session.commit()`方法，但是实际上可以提供了`factory.openSession(true)`这个方法来自动进行事务提交从而不用每次写提交方法。
 

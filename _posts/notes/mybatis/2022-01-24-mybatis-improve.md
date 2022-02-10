@@ -47,6 +47,7 @@ excerpt: "自动封装与反射"
 这个文件解析返回的是XML配置，所以还需要定义一个配置类。在mybatis下新建一个cfg包，并新建一个Configuration类。
 
 ```java
+// Configuration.java
 package org.didnelpsun.mybatis.cfg;
 
 // 自定义MyBaits的配置类

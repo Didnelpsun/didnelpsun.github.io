@@ -15,7 +15,7 @@ XML方式多用于复杂的联表，注释方式多用于简单的单表。所�
 
 ## 改造构建
 
-使用[案例一代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
+使用[案例一XML创建方式代码：MyBatis/demo1_build_xml](https://github.com/Didnelpsun/MyBatis/tree/main/demo1_build_xml)。
 
 不用编写DAO.xml文件与编写DAO配置，直接将java/resources下的org.didnelpsun.dao文件夹删除。
 
@@ -48,7 +48,7 @@ public interface UserDAO {
 
 在注释下根据包名org.didnelpsun.dao、DAO接口名UserDAO、DAO方法名selectAllUsers就能合成这个方法的全限定类名org.didnelpsun.dao.UserDAO.selectAllUsers，从而得到DAO操作方法名可以用来调用。然后是Select注释，将SQL语句获取并执行得到结果集。最后根据接口文件方法的返回值类型标识就决定了结果集封装对象的类型。
 
-[案例八注解方式构建代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_build)。
+[案例八注解方式构建代码：MyBatis/demo8_annotation_build](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_build)。
 
 <span style="color:orange">注意：</span>当resources文件夹下存在对应的DAO的XML文件，此时你配置使用的方式是注解也会报错。即若是使用注解方式，则不能存在DAO的XML配置文件。
 
@@ -85,9 +85,9 @@ List<User> selectUsersByName(String name);
 Integer getUsersSum();
 ```
 
-最后直接将[案例三代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)的测试文件粘过来直接就可以用了。
+最后直接将[案例三使用代理CRUD代码：MyBatis/demo3_crud_by_proxy](https://github.com/Didnelpsun/MyBatis/tree/main/demo3_crud_by_proxy)的测试文件粘过来直接就可以用了。
 
-[案例八单表操作代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_single)。
+[案例八单表操作代码：MyBatis/demo8_annotation_single](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_single)。
 
 ### &emsp;别名设置
 
@@ -121,7 +121,7 @@ Integer getUsersSum();
 
 ## 多表操作
 
-使用[案例六用户与账户代码](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。
+使用[案例六用户与账户代码：MyBatis/demo6_user_and_account](https://github.com/Didnelpsun/MyBatis/tree/main/demo6_user_and_account)。
 
 将java/resources下的org.didnelpsun.dao文件夹删除。修改SqlMapConfig.xml的mappers为`<package name="org.didnelpsun.dao"/>`。
 
@@ -209,4 +209,4 @@ public interface UserDAO {
 }
 ```
 
-[案例八多表操作](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_multi)。
+[案例八注释多表操作代码：MyBatis/demo8_annotation_multi](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_multi)。
