@@ -131,7 +131,7 @@ Singleton是单例类型，就是在创建起容器时就同时自动创建了�
 如[Spring项目基础模板文件：Spring/demo2_container](https://github.com/Didnelpsun/Spring/tree/master/demo2_container)中的HelloWorldBean：
 
 ```xml
-<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld" scope="singleton">
+<bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld" scope="singleton">
     <property name="words" value="This is Didnelpsun Spring test"/>
 </bean>
 ```
@@ -142,9 +142,9 @@ Singleton是单例类型，就是在创建起容器时就同时自动创建了�
 
 当一个Bean的作用域为Prototype，表示一个Bean定义对应多个对象实例。Prototype作用域的Bean会导致在每次对该Bean请求（将其注入到另一个Bean中，或者以程序的方式调用容器的getBean()方法）时都会创建一个新的bean实例。Prototype是原型类型，它在我们创建容器的时候并没有实例化，而是当我们获取bean的时候才会去创建一个对象，而且我们每次获取到的对象都不是同一个对象。根据经验，对有状态的Bean应该使用prototype作用域，而对无状态的Bean则应该使用singleton作用域。也就是说对于那些会改变属性的实例应该用原型方法。
 
-首先我抽离出了基本会用到的一些代码合成了[标准Spring项目模板：Spring/basic](https://github.com/Didnelpsun/Spring/tree/master/basic)，因为一般使用的是XML配置，所以我将用注释配置的部分删掉。我们后面一般都会根据这个文件进行编写。一般先下载好文件打开，点击项目结构标注文件夹，然后使用pom.xml导入依赖就可以了，准备流程后面将不会赘述。
+首先我抽离出了基本会用到的一些代码合成了[标准Spring项目XML模板：Spring/basic_xml](https://github.com/Didnelpsun/Spring/tree/master/basic_xml)和[标准Spring项目注释模板：Spring/basic_annotation](https://github.com/Didnelpsun/Spring/tree/master/basic_annotation)。我们后面一般都会根据XML文件进行编写。一般先下载好文件打开，点击项目结构标注文件夹，然后使用pom.xml导入依赖就可以了，准备流程后面将不会赘述。
 
-首先我们将XML对于helloworld类的配置更改，把原来的参数删除并加上原型作用域：`<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld" scope="prototype"/>`
+首先我们将XML对于helloworld类的配置更改，把原来的参数删除并加上原型作用域：`<bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld" scope="prototype"/>`
 
 然后更改App.java：
 
@@ -152,7 +152,7 @@ Singleton是单例类型，就是在创建起容器时就同时自动创建了�
 // App.java
 package org.didnelpsun;
 //项目入口
-import org.didnelpsun.test.HelloWorld;
+import org.didnelpsun.entity.HelloWorld;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class App
@@ -219,11 +219,14 @@ Spring Bean定义的继承与Java类的继承无关，但是继承的概念是�
 
 ```java
 // HelloWorld.java
-package org.didnelpsun.test;
+package org.didnelpsun.entity;
 public class HelloWorld {
     // 定义两个私有属性
     private String words;
     private String user;
+    public HelloWorld(){
+        System.out.println("HelloWorldClass");
+    }
     // 定义属性的setter方法
     public void setWords(String words){
         this.words = words;
@@ -241,11 +244,11 @@ public class HelloWorld {
 XML配置两个Bean：
 
 ```xml
-<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld">
+<bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld">
     <property name="user" value="Didnelpsun"/>
     <property name="words" value="hello!"/>
 </bean>
-<bean id = "HelloWorldBean2" class="org.didnelpsun.test.HelloWorld">
+<bean id = "HelloWorldBean2" class="org.didnelpsun.entity.HelloWorld">
     <property name="user" value="Ameng" />
     <property name="words" value="hello2!"/>
 </bean>
@@ -257,7 +260,7 @@ XML配置两个Bean：
 // App.java
 package org.didnelpsun;
 // 项目入口
-import org.didnelpsun.test.HelloWorld;
+import org.didnelpsun.entity.HelloWorld;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class App
@@ -279,7 +282,7 @@ public class App
 
 ![result3][result3]
 
-这两个实例，每一个实例都是独立的，都是从从一个类org.didnelpsun.test.HelloWorld实例化而来。注意这里的Bean和上面所说的作用域不同，上面作用域是只定义了一个Bean，如果是单例那么Bean池中永远只会有一个Bean，如果是原型模式会有多个Bean，而这里定义了两个Bean，永远只有两个Bean。相当于Java的继承。
+这两个实例，每一个实例都是独立的，都是从从一个类org.didnelpsun.entity.HelloWorld实例化而来。注意这里的Bean和上面所说的作用域不同，上面作用域是只定义了一个Bean，如果是单例那么Bean池中永远只会有一个Bean，如果是原型模式会有多个Bean，而这里定义了两个Bean，永远只有两个Bean。相当于Java的继承。
 
 ### &emsp;XML定义原型模式
 
@@ -287,7 +290,7 @@ public class App
 
 ```xml
 <!--将Bean2删掉并设置为原型作用域，配置不变-->
-<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld" scope="prototype">
+<bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld" scope="prototype">
     <property name="user" value="Didnelpsun"/>
     <property name="words" value="hello!"/>
 </bean>
@@ -325,11 +328,11 @@ hello2.saySomeThing();
 使用parent属性指定要继承的Bean实例的id：
 
 ```xml
-<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld">
+<bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld">
     <property name="user" value="Didnelpsun"/>
     <property name="words" value="hello!"/>
 </bean>
-<bean id = "HelloWorldBean2" class="org.didnelpsun.test.HelloWorld" parent="HelloWorldBean">
+<bean id = "HelloWorldBean2" class="org.didnelpsun.entity.HelloWorld" parent="HelloWorldBean">
     <property name="words" value="get out"/>
 </bean>
 ```
@@ -347,7 +350,7 @@ hello2.saySomeThing();
 当我们在HelloWorldBean实例上加上abstract="true"：
 
 ```xml
-<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld" abstract="true">
+<bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld" abstract="true">
     <property name="user" value="Didnelpsun"/>
     <property name="words" value="hello!"/>
 </bean>

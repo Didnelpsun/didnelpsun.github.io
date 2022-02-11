@@ -51,7 +51,7 @@ Application Context是Spring中较高级的容器。和BeanFactory类似，它�
 
 ### &emsp;编写HelloWorld文件
 
-首先利用上个文档的项目文件[案例一Spring使用IDEA构建的源码：Spring/demo1_start](https://github.com/Didnelpsun/Spring/tree/master/demo1_start)，使用Maven重新导入依赖，在org.didnelpsun下面新建一个test包，并建立一个HelloWorld文件。
+首先利用上个文档的项目文件[案例一Spring使用IDEA构建的源码：Spring/demo1_start](https://github.com/Didnelpsun/Spring/tree/master/demo1_start)，使用Maven重新导入依赖，在org.didnelpsun下面新建一个entity包，并建立一个HelloWorld文件。
 
 然后我们看一下对应的目录：
 
@@ -59,14 +59,14 @@ Application Context是Spring中较高级的容器。和BeanFactory类似，它�
 
 ```java
 // HelloWorld.java
-package org.didnelpsun.test;
+package org.didnelpsun.entity;
 
 public class HelloWorld {
     // 私有变量words
     private String words;
     private String user = "Didnelpsun";
     public HelloWorld(){
-        System.out.println("HelloWorldClass...");
+        System.out.println("HelloWorldClass");
     }
     //如果我们要对这个类的属性赋值，那么一定要是set开头，如果需要参数就要传入参数
     //set开头是因为这是对应的setter方法，用来设置属性
@@ -98,7 +98,7 @@ public class 类名 {
 
 ```java
 // HelloWorld.java
-package org.didnelpsun.test;
+package org.didnelpsun.entity;
 // 引入Components注释
 import org.springframework.stereotype.Component;
 
@@ -106,8 +106,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class HelloWorld {
     // 默认构造函数，一旦HelloWorld类被实例化就会被调用
-    HelloWorld () {
-        System.out.println("HelloWorldClass...");
+    public HelloWorld(){
+        System.out.println("HelloWorldClass");
     }
     // 私有变量words
     private String words;
@@ -132,7 +132,7 @@ public class HelloWorld {
 // App.java
 package org.didnelpsun;
 // 引入依赖类HelloWorld
-import org.didnelpsun.test.HelloWorld;
+import org.didnelpsun.entity.HelloWorld;
 // 引入ApplicationContext容器
 import org.springframework.context.ApplicationContext;
 // 引入支持注释类的context容器
@@ -178,12 +178,12 @@ public class App
 
 ```java
 //HelloWorld.java
-package org.didnelpsun.test;
+package org.didnelpsun.entity;
 
 public class HelloWorld {
     // 默认构造函数，一旦HelloWorld类被实例化就会被调用
-    HelloWorld () {
-        System.out.println("HelloWorldClass...");
+    public HelloWorld(){
+        System.out.println("HelloWorldClass");
     }
     // 私有变量words
     private String words;
@@ -206,7 +206,7 @@ public class HelloWorld {
 // App.java
 package org.didnelpsun;
 // 引入依赖类HelloWorld
-import org.didnelpsun.test.HelloWorld;
+import org.didnelpsun.entity.HelloWorld;
 // 引入ApplicationContext容器
 import org.springframework.context.ApplicationContext;
 // 引入支持XML配置的context容器
@@ -239,7 +239,7 @@ public class App
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld">
+    <bean id = "HelloWorldBean" class="org.didnelpsun.entity.HelloWorld">
         <property name="words" value="This is Didnelpsun Spring test"/>
     </bean>
 </beans>
@@ -251,7 +251,7 @@ public class App
 
 #### &emsp;&emsp;XML流程
 
-这种XML配置的方式是如何实现的呢？首先前面获取容器的方式类似，根据SpringBeans.xml这个配置文件生成一个容器，编译器会自动根据这个配置文件生成\<beans>标签里面的所有Bean。这里只生成一个id为HelloWorldBean的Bean，来源的类为org.didnelpsun.test.HelloWorld，其中property子标签可以配置对应的属性，这里将words默认变为This is Didnelpsun Spring test，编译器会自动根据name属性的值找到对应的Bean成员，然后调用Setter方法将值赋值进去，这个Bean就包装完成了。假如将`hello.setWords("nmsl");`注释掉，那么就会输出Didnelpsun says This is Didnelpsun Spring test。最后从容器中获取名为HelloWorldBean的hello，并调用相关方法。
+这种XML配置的方式是如何实现的呢？首先前面获取容器的方式类似，根据SpringBeans.xml这个配置文件生成一个容器，编译器会自动根据这个配置文件生成\<beans>标签里面的所有Bean。这里只生成一个id为HelloWorldBean的Bean，来源的类为org.didnelpsun.entity.HelloWorld，其中property子标签可以配置对应的属性，这里将words默认变为This is Didnelpsun Spring test，编译器会自动根据name属性的值找到对应的Bean成员，然后调用Setter方法将值赋值进去，这个Bean就包装完成了。假如将`hello.setWords("nmsl");`注释掉，那么就会输出Didnelpsun says This is Didnelpsun Spring test。最后从容器中获取名为HelloWorldBean的hello，并调用相关方法。
 
 #### &emsp;&emsp;XML配置文件
 
