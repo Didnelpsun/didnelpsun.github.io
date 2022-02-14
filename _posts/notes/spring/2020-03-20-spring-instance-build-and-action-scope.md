@@ -30,7 +30,7 @@ name|Spring 容器同样可以通过此属性对容器中的Bean进行配置和�
 class|该属性指定了Bean的具体实现类，它必须是一个完整的类名，使用类的全限定类名
 scope|用于设定Bean实例的作用域，其属性值有 singleton（单例）、prototype（原型）、request、session 和 global Session。其默认值是singleton
 constructor-arg|\<bean>元素的子元素，可以使用此元素传入构造参数进行实例化。该元素的index属性指定构造参数的序号（从0开始），type属性指定构造参数的类型
-property|\<bean>元素的子元素，用于调用Bean实例中的Set方法完成属性赋值，从而完成依赖注入。该元素的name属性指定Bean实例中的相应属性名
+property|\<bean>元素的子元素，用于调用Bean实例中的Set方法完成属性赋值，从而完成依赖注入。该元素的name属性指定Bean实例中的相应属性名。且对应类必须有Setter方法
 ref|\<property> 和\<constructor-arg>等元素的子元索，该元素中的bean属性用于指定对Bean工厂中某个Bean实例的引用
 value|\<property>和\<constractor-arg>等元素的子元素，用于直接指定一个常量值
 list|用于封装List或数组类型的依赖注入

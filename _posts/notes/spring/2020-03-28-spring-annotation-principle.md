@@ -7,7 +7,7 @@ tags: Spring 其他 xml 配置
 excerpt: "自动装配后的注解原理"
 ---
 
-## xml格式分析
+## XML格式分析
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
