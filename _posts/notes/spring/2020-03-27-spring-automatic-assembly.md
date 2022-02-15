@@ -7,7 +7,7 @@ tags: Spring 基础 autowire byName byType constructor default @Autowired @Quali
 excerpt: "autowire属性与注释"
 ---
 
-依赖注入和自动装配息息相关。依赖注入的本质就是装配，装配是依赖注入的具体行为。
+依赖注入和自动装配息息相关。依赖注入的本质就是装配，装配是依赖注入的具体行为。依赖注入是两个相互关联的Bean，我们自己加一个Bean加到另外一个Bean的依赖中。而自动装配就是我们直接定义两个Bean或者使用注释，Spring自动添加对应的依赖。
 
 依赖注入有两种形式：构造器注入和Setter注入。也就是我们在XML中写的一堆\<bean></bean>，我们每一个依赖Bean就要写一个实例，如果Bean太多我们还这样写就会非常麻烦，更何况我们还有把有关联的Bean装配起来，一旦Bean很多，就不好维护了。
 
@@ -33,7 +33,7 @@ XML的\<bean>配置中通添加autowire属性实现四种形式的自动装配�
 原始数据类型|你不能自动装配所谓的简单类型包括基本类型，字符串和类。
 混乱的本质|自动装配不如显式装配精确，所以如果可能的话尽可能使用显式装配。
 
-## XML方式
+## autowire属性
 
 ### &emsp;搭建XML环境
 
@@ -127,7 +127,9 @@ public class App
 
 我们也可以不在App.java中实例化这个HelloWorld类。这些是不影响对应的依赖的。如果我们不在XML中配置依赖，也就是删除`<property name="helloWorld" ref="HelloWorldBean"></property>`，然后再加上`user.setHelloWorld(new HelloWorld());`也可以配置成功依赖。但是你要注意这是因为在应用程序中配置的，所以这种实例的依赖不是由Spring容器控制的，而是由应用程序控制的，所以你需要关注这些依赖的创建和销毁，当然这是不被建议使用的。
 
-### &emsp;autowire属性
+### &emsp;相关参数
+
+即通过autowire属性替代显式的ref依赖设置。让Spring自己根据依赖关系去找对应的Bean。
 
 名称|说明
 :--:|:--
@@ -187,7 +189,7 @@ public User(HelloWorld helloWorld){
 
 由上级标签\<beans>的default-autowire属性确定，即默认自动装配的方式。在配置bean时，\<bean>标签中Autowire属性的优先级比其上级标签高，即是说，如果在上级标签中定义default-autowire属性为byName，而在\<bean>中定义为byType时，Spring IoC容器会优先使用\<bean>标签的配置。
 
-[案例六XML方式自动装配：Spring/demo6_automatic_assembly_xml](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_xml)。
+[案例六autowried属性自动装配：Spring/demo6_automatic_assembly_autowried](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_autowried)。
 
 &emsp;
 
@@ -242,9 +244,9 @@ public User(HelloWorld helloWorld){
 
 @Autowired注释对在哪里和如何完成自动连接提供了更多的细微的控制。可以在Setter方法中被用于自动连接Bean，就像@Autowired注释，容器，一个属性或者任意命名的可能带有多个参数的方法。它会默认使用byType类型的识别。
 
-### &emsp;XML混合模式
+### &emsp;@AutowiredXML混合模式
 
-使用之前[案例六XML方式自动装配：Spring/demo6_automatic_assembly_xml](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_xml)，在XML文件配置中修改两个实例：
+使用之前[案例六autowried属性自动装配：Spring/demo6_automatic_assembly_autowried](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_autowried)，在XML文件配置中修改两个实例：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -313,15 +315,15 @@ public class User {
 
 因为我们要依赖的类的Setter函数是setHelloWorld，所以就在它上面加上@Autowired。
 
-[案例六XML与注解混合自动装配：Spring/demo6_automatic_assembly_xml_and_annotation](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_xml_and_annotation)。
+这里在Setter方法上加注释，但是如果使用构造函数，则<span style="color:red">构造器下如果你不加注释也可以！</span>这是因为扫描标签会扫描所有实例，然后根据构造器来加入依赖（而setter函数则不会这样做）。但是你要注意加入扫描标签，且在与XML混合模式下要加入依赖实例的标签。
 
-### &emsp;纯注释模式
+### &emsp;@Autowired纯注释模式
 
 在XML与注释混合的模式下，我们可以看到我们使用@Autowired的流程，首先在XML中配置好资源和所有要用到的实例，然后在依赖的类的setter方法上加上@Autowired就可以了。这样我们就不用管哪个类依赖哪个类，而只用把所有的类都实例化就可以了。
 
 但是有时候我们也会觉得很麻烦，我们还要知道哪些类需要用到，如果不用到的类要删掉，那么我们有没有方法不用管哪些类被使用到呢？那就是使用纯注释的方式。即@Autowired与@Compontent以及@CompontentScan混合。
 
-使用[标准Spring项目注释模板：Spring/basic_annotation](https://github.com/Didnelpsun/Spring/tree/master/basic_annotation)。
+#### &emsp;&emsp;Setter函数
 
 修改Java文件：
 
@@ -399,240 +401,208 @@ public class App
 }
 ```
 
-### &emsp;属性与构造器
+直接在对应的地方加上@Autowired就可以了。并注意由于是自动装配，所以需要把User的依赖类HelloWorld也加上@Component注解，否则Spring找不到HelloWorld实例。
 
-我们之前是在Setter方法上注释的，而如果我们将注释放在需要注入的属性上也是没有问题的。
+#### &emsp;&emsp;属性与构造器
+
+我们之前是在Setter方法上注释的，而如果我们将注释放在需要注入的属性上也是没有问题的，但是不建议在字段上注入：
 
 ```java
-//User.java
 @Autowired
-private HelloWorld helloworldAttri;
-//@Autowired
-public void setHelloWorld(HelloWorld helloworldPara){
-    this.helloworldAttri = helloworldPara;
+private HelloWorld helloWorld;
+```
+
+在带有依赖参数的构造函数上加注释也是可以的：
+
+```java
+@Autowired
+public User(HelloWorld helloWorld){
+    this();
+    this.helloWorld = helloWorld;
 }
 ```
 
-比如这样，将setHelloWorld对应的helloworldAttri属性上加上注释也可以。
-
-```java
-//User.java
-private HelloWorld helloworldAttri;
-@Autowired
-public User(HelloWorld helloWorldPara){
-    helloworldAttri = helloWorldPara;
-}
-```
-
-构造函数也可以自动连接，不过其实<span style="color:red">构造器下如果你不加注释也可以！</span>这是因为扫描标签会扫描所有实例，然后根据构造器来加入依赖（而setter函数则不会这样做）。但是你要注意加入扫描标签，且在与xml混合模式下要加入依赖实例的标签。
-
-### &emsp;required=false
+#### &emsp;&emsp;required=false
 
 现在有两种情况：
 
-假如xml文件的bean标签里面有property，而对应的Java文件中里面却去掉了属性的getter/setter，并使用@Autowired注解标注这两个属性会怎么样？答案是Spring会按照xml优先的原则去Java文件中寻找这两个属性的getter/setter，导致的结果就是初始化bean报错。因为xml的配置是在后置处理器前面处理的。如果属性找不到又不想让Spring容器抛出异常，就是显示null，那应该怎么做呢？
+假如XML文件的bean标签里面有property，而对应的Java文件中里面却去掉了属性的Getter/Setter，并使用@Autowired注解标注这两个成员属性会怎么样？答案是Spring会按照XML优先的原则去Java文件中寻找这两个属性的Getter/Setter，导致的结果就是找不到对应的Getter/Setter，从而不能把property进行赋值，从而初始化bean报错。因为XML的配置是在后置处理器前面处理的。如果属性找不到又不想让Spring容器抛出异常，就是显示null，那应该怎么做呢？
 
 又假如你要设置一个类，比如Person类，有一个属性Home来表示房子的住址，但是并不是所有人都有住址，所以这个依赖类并不是必要的，所以我们就想如果我们不传入依赖它也不会报错，我们又应该如何做呢？
 
-默认情况下，@Autowired注释意味着依赖是必须的，它类似于@Required注释，然而，你可以使用@Autowired的（required=false）选项关闭默认行为。
-
-虽然我们可以在我们定义的类上使用这个，但是它还是会报错，我们一般只会在简单类型的属性上使用这个注释方式。
+默认情况下，@Autowired注释意味着依赖是必须的，它类似于@Required注释，然而，你可以使用@Autowired的required=false选项关闭默认行为。
 
 比如我们在User.java中修改：
 
 ```java
-private static String username;
+private static String name;
 @Autowired
 public void setUsername(String name){
-    username = name;
+    name = name;
 }
 ```
 
 这时候就会报错，因为你没有传入一个String类型的参数进入。如果你不想将这个参数作为必要传入的参数，可以加上required=false（但是我觉得这个并不是必要，你完全可以不加注释，这样它就不会报错，并且直接输出null）。
 
-&emsp;
+[案例六@Autowried标签自动装配：Spring/demo6_automatic_assembly_@Autowried](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_@Autowried)。
+
+<!-- &emsp;
 
 ## @Named
 
-由JavaEE提供，使用方式和@Qualifier类似。如我们使用Hi类型的Bean就用`@Named("HiBean")`，同理如果使用HelloWorld就用：
-
-```java
-@Inject
-@Named("HelloWorldBean1")
-public void setHelloWorld(HelloWorld sayword){
-    say = sayword;
-}
-```
-
-其实@Name的注释就等价于name属性配置。
+由JavaEE提供，使用方式和@Qualifier配合。@Name的注释就等价于name属性配置，用来给组件添加名字。 -->
 
 &emsp;
 
 ## @Qualifier
 
-由Spring提供，可能会有这样一种情况，当你创建多个具有相同类型的bean时，并且想要用一个属性只为它们其中的一个进行装配，在这种情况下，你可以使用@Qualifier注释和@Autowired注释通过指定哪一个真正的bean将会被装配来消除混乱。
+由Spring提供。@Autowired按类型装配Spring Bean。可能会有这样一种情况，当你创建多个具有相同类型的Bean时，并且想要用一个属性只为它们其中的一个进行装配，在这种情况下，你可以使用@Qualifier注释和@Autowired注释通过指定哪一个真正的Bean将会被装配来消除混乱。（在autowired属性中是使用byName这种设置来避免的）
 
-### &emsp;纯注释模式
+使用[标准Spring项目注释模板：Spring/basic_annotation](https://github.com/Didnelpsun/Spring/tree/master/basic_annotation)。
 
-我们首先将原来的HelloWorld变成一个实现接口的类，然后定义一个接口Say，最后再实例化一个Hi类。
-
-```java
-//HelloWorld.java
-package org.didnelpsun.test;
-
-import org.springframework.stereotype.Component;
-
-@Component
-// @Named("HelloWorld")
-public class HelloWorld implements Say {
-    private String words;
-    //重写构造方法
-    public HelloWorld(){ System.out.println("HelloWorldClass..."); }
-    @Override
-    public void setWords(String sayword){ this.words = sayword; }
-    @Override
-    public void SayWord() { System.out.println(this.words); }
-}
-```
+并添加一个User类：
 
 ```java
-//Hi.java
-package org.didnelpsun.test;
+// User.java
+package org.didnelpsun.entity;
 
-import org.springframework.stereotype.Component;
-
-@Component
-// @Named("Hi")
-public class Hi implements Say {
-    private String words;
-    //重写构造方法
-    public Hi(){
-        System.out.println("HiClass...");
-    }
-    @Override
-    public void setWords(String sayword){
-        this.words = sayword;
-    }
-    @Override
-    public void SayWord() {
-        System.out.println(this.words);
-    }
-}
-```
-
-```java
-//Say.java
-package org.didnelpsun.test;
-
-public interface Say {
-    public String words = null;
-    abstract public void setWords(String words);
-    public void SayWord();
-}
-```
-
-```java
-//User.java
-package org.didnelpsun.test;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class User {
-    private static final String username = "Didnelpsun";
-    private Say say;
-    @Autowired
-    // @Qualifier("HelloWorld")
-    public void setHelloWorld(Say sayword){
-        say = sayword;
+    private String name;
+    private Integer age;
+    private HelloWorld helloWorld;
+    public User(){
+        this.name = "";
+        this.age = 0;
+        this.helloWorld = null;
+        System.out.println("UserClass");
     }
-    public void Say(){
-        System.out.println(this.username);
-        say.SayWord();
+    public User(int age){
+        this();
+        this.age = age;
+    }
+    public User(HelloWorld helloWorld){
+        this();
+        this.helloWorld = helloWorld;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Integer getAge() {
+        return age;
+    }
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+    public HelloWorld getHelloWorld() {
+        return helloWorld;
+    }
+    @Autowried
+    public void setHelloWorld(HelloWorld helloWorld) {
+        this.helloWorld = helloWorld;
     }
 }
 ```
 
+修改App.java：
+
 ```java
-//App.java
+// App.java
 package org.didnelpsun;
-//项目入口
-import org.didnelpsun.test.HelloWorld;
-import org.didnelpsun.test.Hi;
-import org.didnelpsun.test.User;
+// 引入依赖类HelloWorld
+import org.didnelpsun.entity.HelloWorld;
+// 引入ApplicationContext容器
+import org.didnelpsun.entity.User;
 import org.springframework.context.ApplicationContext;
+// 引入支持注释类的context容器
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+// 引入ComponentScan注释
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 @ComponentScan
+//项目入口
 public class App
 {
-    //获取私有属性，这个属性是应用文档属性
+    // 获取私有属性，这个属性是应用文档属性
     private static ApplicationContext welcomeContext;
-    public static void main(String args[]){
+    public static void main(String[] args){
+        // 表明实例后的对象都将放到welcomeContext的容器中，后面这一串的方法是
+        // 利用注释的config来构造context容器的意思，参数是主类名.class，即获取App这个类创建容器
         welcomeContext = new AnnotationConfigApplicationContext(App.class);
-        User Didnelpsun = (User) welcomeContext.getBean(User.class);
-        HelloWorld hello = (HelloWorld) welcomeContext.getBean(HelloWorld.class);
-        hello.setWords("Hello");
-        Hi hi = (Hi)welcomeContext.getBean(Hi.class);
-        hi.setWords("Hi");
-        Didnelpsun.Say();
+        // 使用getBean方法来从容器中获取实例，参数为想要取得的实例类名.class，通过HelloWorld类来获取容器中的Bean
+        User user = welcomeContext.getBean(User.class);
+        user.getHelloWorld().setWords("hi");
+        user.getHelloWorld().saySomeThing();
     }
 }
 ```
 
-请注意我们没有将接口也注释为@Component，因为它不会是一个实例，所以没必要注释到。我们在App.java中将两个Say实例都已经配置好了。而这时User.java中的Say sayword参数传入依赖会报错：Could not autowire. There is more than one bean of 'Say' type.Beans:helloWorld(HelloWorld.java) hi(Hi.java)。
+此时自动装配是没有问题的。
 
-我们只用在这里加上@Qualifier("HelloWorld")标注要注入的实例是HelloWorld，然后再将两个Say实例分别加上@Named("HelloWorld")和@Named("Hi")给它们取好名字就可以了。如我在上面注释掉的那几行。
-
-### &emsp;xml混合模式
-
-我们可能会觉得上面这个例子和我们想象的不太一样。我们修改成原来的样子：
-
-```xml
-<context:component-scan base-package="org.didnelpsun" />
-<bean id = "HelloWorldBean" class="org.didnelpsun.test.HelloWorld">
-    <property name="words" value="hello"/>
-</bean>
-<bean id="UserBean" class="org.didnelpsun.test.User">
-</bean>
-```
-
-将所有的@Qualifier和@ComponentScan、@Component删除：
+而如果我们想在App.java中将`user.getHelloWorld().setWords("hi");`这条语句删掉，并重新定义一个Hi类继承HelloWorld类并装配到User类中：
 
 ```java
-//App.java
-welcomeContext = new ClassPathXmlApplicationContext("SpringBeans.xml");
-User Didnelpsun = (User) welcomeContext.getBean("UserBean");
-Didnelpsun.Say();
-```
+// Hi.java
+package org.didnelpsun.entity;
 
-```java
-//User.java
-private static final String username = "Didnelpsun";
-private Say say;
-@Autowired
-public void setHelloWorld(Say sayword){say = sayword;}
-public void Say(){
-    System.out.println(this.username);
-    say.SayWord();
+import org.springframework.stereotype.Component;
+
+@Component
+public class Hi extends HelloWorld{
+    public Hi(){
+        System.out.println("HiClass");
+        this.setWords("hi");
+    }
 }
 ```
 
-这样运行是没有问题，而如果我们实例两个HelloWorld类的bean呢？
+此时User会调用HelloWorld实例而不会调用Hi实例，因为@AutoWried注解是byType的，所以会优先HelloWorld。
+
+那么如何让User使用Hi实例呢？
+
+### &emsp;@Qualifier纯注释模式
+
+首先给HelloWorld和Hi实例取名字，即在@Component注解上添加名字：`@Component("HelloWorld")`和`@Component("Hi")`。
+
+然后在User.java的@Autowried下添加`@Qualifier("Hi")`，这样Hi就会被当做HelloWorld参数被注入User里了。
+
+### &emsp;@QualifierXML混合模式
+
+在resources下添加一个SpringBean.xml，并添加三个Bean：
 
 ```xml
-<bean id = "HelloWorldBean1" class="org.didnelpsun.test.HelloWorld">
-    <property name="words" value="hello1"/>
-</bean>
-<bean id = "HelloWorldBean2" class="org.didnelpsun.test.HelloWorld">
-    <property name="words" value="hello2"/>
-</bean>
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--用于扫描文件包下所有组件，作用等同于@ComponentScan-->
+    <context:component-scan base-package="org.didnelpsun" />
+    <bean id = "HelloWorld" class="org.didnelpsun.entity.HelloWorld">
+        <property name="words" value="hi"/>
+    </bean>
+    <bean id = "Hi" class="org.didnelpsun.entity.Hi" />
+    <bean id="User" class="org.didnelpsun.entity.User">
+    </bean>
+</beans>
 ```
 
-同样会注入出问题，应该使用@Qualifier来标注到底注入哪个实例：`@Qualifier("HelloWorldBean1")`，位置就是@Autowired下面。这样就没有问题了。
+将所有的@ComponentScan、@Component删除，并修改App.java：
+
+```java
+welcomeContext = new ClassPathXmlApplicationContext("SpringBeans.xml");
+User user = (User) welcomeContext.getBean("User");
+user.getHelloWorld().saySomeThing();
+```
+
+不修改@Qualifier和@Autowried，运行也正确。
+
+<span style="color:orange">注意：</span>使用纯注解模式时Spring的@AutoWried会根据最接近依赖HelloWorld类来确定实例，所以纯注解模式下虽然有HelloWorld实例和继承HelloWorld的Hi实例，但是Spring默认会选择HelloWorld实例而不是Hi实例。但是现在使用XML混合模式，已经创建了HelloWorld和Hi实例，根据类型HelloWorld和Hi都是HelloWorld类的实例，所以此时会报错因为不知道选哪个。最根本的原因是使用注解是隐式地声明实例，Spring会根据注释和依赖关系创建实例，所以此时实例池只有User和HelloWorld实例，而XML混合模式下Hi、User、HelloWorld实例都是已经显式声明，已经被Spring创建在Bean池中，然后Spring再根据Bean池中的Bean池来构建对应依赖关系，而这时由于存在两个依赖的类所以会报错。
 
 ### &emsp;单独使用@Qualifier
 
@@ -640,44 +610,239 @@ public void Say(){
 
 ```java
 @Autowired
-public void setHelloWorld(@Qualifier("HelloWorld") HelloWorld sayword){
-    say = sayword;
+public void setHelloWorld(@Qualifier("HelloWorld") HelloWorld helloWorld){
+    this.helloWorld = helloWorld;
 }
 ```
 
 但是这个单独使用不是说就不用@Autowired了，而是指将他们两个注释分开，将@Qualifier放到方法参数前。
 
+[案例六@Qualifier标签自动装配：Spring/demo6_automatic_assembly_@Qualifier](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_@Qualifier)。
+
+&emsp;
+
+## @Primary
+
+当我们使用自动配置的方式装配Bean时，如果这个Bean有多个候选者，假如其中一个候选者具有@Primary注解修饰，该候选者会被选中，作为自动配置的值。
+
 &emsp;
 
 ## @Resource
 
-由JavaEE提供，是JSR250中的规范，你可以在字段中或者setter方法中使用@Resource注释，它和在Java EE5中的运作是一样的。基本和@Autowired用法一致。通过这个注释也可以取代@Autowired和@Qualifier很多用法。
+由JavaEE提供，是JSR250中的规范，你可以在字段中或者Setter方法中使用@Resource注释，它和在Java EE5中的运作是一样的。基本和@Autowired用法一致。通过这个注释也可以取代@Autowired和@Qualifier很多用法。
 
-1. @Resource后面没有任何内容，默认通过name属性去匹配bean，找不到再按type去匹配。
-2. 指定了name或者type则根据指定的类型去匹配bean。
-3. 指定了name和type则根据指定的name和type去匹配bean，任何一个不匹配都会报错。
+1. @Resource后面没有任何内容，默认通过name属性去匹配Bean，找不到再按type去匹配。
+2. 指定了name或者type则根据指定的类型去匹配Bean。
+3. 指定了name和type则根据指定的name和type去匹配Bean，任何一个不匹配都会报错。
 
-我们将使用上面定义的三个实例HelloWorldBean1、HelloWorldBean2、HiBean来判断。
+@Autowire与@Resource的不同：
+
++ @Autowired默认按byType自动装配，而@Resource默认byName自动装配。
++ @Autowired只包含一个参数：required，表示是否开启自动准入，默认是true。而@Resource包含七个参数，其中最重要的两个参数是：name和type。
++ @Autowired如果要使用byName，需要使用@Qualifier一起配合。而@Resource如果指定了name，则用byName自动装配，如果指定了type，则用byType自动装配。
++ @Autowired能够用在：构造器、方法、参数、成员变量和注解上，而@Resource能用在：类、成员变量和方法上。
++ @Autowired是spring定义的注解，而@Resource是JSR-250定义的注解。
+
+Spring中找不到@Resource注解是因为@Resource注解是javax.annotacion包下的，属于java的扩展包，在标准JDK中没有。解决方法：添加javax.annotation-api。
+
+```xml
+<!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
+<dependency>
+    <groupId>javax.annotation</groupId>
+    <artifactId>javax.annotation-api</artifactId>
+    <version>1.3.2</version>
+</dependency>
+```
+
+继续使用@Qualifier的案例代码，并把@Qualifier相关的全部删掉，包括SpringBean.xml以及Java文件中的相关注释。
+
+```java
+// App.java
+package org.didnelpsun;
+// 引入依赖类HelloWorld
+import org.didnelpsun.entity.HelloWorld;
+// 引入ApplicationContext容器
+import org.didnelpsun.entity.User;
+import org.springframework.context.ApplicationContext;
+// 引入支持注释类的context容器
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+// 引入ComponentScan注释
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+@ComponentScan
+//项目入口
+public class App
+{
+    // 获取私有属性，这个属性是应用文档属性
+    private static ApplicationContext welcomeContext;
+    public static void main(String[] args){
+        // 表明实例后的对象都将放到welcomeContext的容器中，后面这一串的方法是
+        // 利用注释的config来构造context容器的意思，参数是主类名.class，即获取App这个类创建容器
+        welcomeContext = new AnnotationConfigApplicationContext(App.class);
+        // 使用getBean方法来从容器中获取实例，参数为想要取得的实例类名.class，通过HelloWorld类来获取容器中的Bean
+        User user = (User) welcomeContext.getBean(User.class);
+        user.getHelloWorld().saySomeThing();
+    }
+}
+```
+
+```java
+// HelloWorld.java
+package org.didnelpsun.entity;
+// 引入Components注释
+import org.springframework.stereotype.Component;
+
+// 这种标注被放在被管理和引用的类上
+@Component("HelloWorld")
+public class HelloWorld {
+    // 默认构造函数，一旦HelloWorld类被实例化就会被调用
+    public HelloWorld () {
+        System.out.println("HelloWorldClass");
+    }
+    // 私有变量words
+    private String words;
+    private String user = "Didnelpsun";
+    // 如果我们要对这个类的属性赋值，那么一定要是set开头，这是符合settergetter规范的
+    // 如果需要参数就要传入参数
+    public void setWords(String word){
+        this.words = word;
+    }
+    // 定义方法调用对应属性并输出
+    public void saySomeThing(){
+        System.out.println(this.user +" says "+ this.words);
+    }
+}
+```
+
+```java
+// Hi.java
+package org.didnelpsun.entity;
+
+import org.springframework.stereotype.Component;
+
+@Component("Hi")
+public class Hi extends HelloWorld{
+    public Hi(){
+        System.out.println("HiClass");
+        this.setWords("hi");
+    }
+}
+```
 
 ### &emsp;1. @Resource默认
 
-如果我们使用@Resource而不加任何参数，它会默认按照依赖参数的类型名来匹配。如参数是Hi sayword，则它匹配的是Hi，而如果是HelloWorld类型，则会报错，因为有两个实例，同样Say也会报错，因为有三个实例。
+```java
+// User.java
+package org.didnelpsun.entity;
+
+import org.springframework.stereotype.Component;
+import javax.annotation.Resource;
+
+@Component
+public class User {
+    private String name;
+    private Integer age;
+    private HelloWorld helloWorld;
+    public User(){
+        this.name = "";
+        this.age = 0;
+        this.helloWorld = null;
+        System.out.println("UserClass");
+    }
+    public User(int age){
+        this();
+        this.age = age;
+    }
+    public User(HelloWorld helloWorld){
+        this();
+        this.helloWorld = helloWorld;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Integer getAge() {
+        return age;
+    }
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+    public HelloWorld getHelloWorld() {
+        return helloWorld;
+    }
+    @Resource
+    public void setHelloWorld(HelloWorld helloWorld) {
+        this.helloWorld = helloWorld;
+    }
+}
+```
+
+这时发现会报错，因为有两个HelloWorld实例，一个是HelloWorld一个是Hi。（如果把HelloWorld实例的@Component注解去掉则只有一个实例从而正确）
 
 ### &emsp;2. type属性
 
-如果我们传入的参数是Hi类型，那么如果使用type属性来配置又应该如何做呢？应该<span style="color:aqua">格式：</span>`@Resource(type = 类完整路径.class)`，如我的就是`@Resource(type = org.didnelpsun.test.Hi.class)`。这样没有问题。
-
-同样如果我们使用的是@Resource(type = org.didnelpsun.test.HelloWorld.class)它还是会报错，因为有两个实例。
+如果我们传入的参数是类型，则应该使用type属性，<span style="color:aqua">格式：</span>`@Resource(type = 类完整路径.class)`。
 
 ### &emsp;3. description属性
 
-而我们使用description属性，和上面的使用方式是差不多的，但是这个路径将以字符串的形式来呈现，并使用的是相对路径，后面也没有class后缀。<span style="color:aqua">格式：</span>`@Resource(description = "相对路径")`，如我的是`@Resource(description = "Hi")`。
-
-不过从这里我们会发现，如果我们的参数配置出错，它是会默认以默认方式来配置的，比如我们这里，将参数类保持为Hi，但是改成@Resource(description = "HelloWorldBean1")或者@Resource(description = "HelloWorld")，它是不会报错的。这是比较智能的一点。
+而我们使用description属性，和上面的使用方式是差不多的，但是这个路径将以字符串的形式来呈现，并使用的是相对路径，后面也没有class后缀。<span style="color:aqua">格式：</span>`@Resource(description = "相对路径")`，如我的是`@Resource(description = "Hi")`，因为User类与Hi类同级。
 
 ### &emsp;4. name属性
 
-而上面几个都不能解决我们多个同类实例的问题，我们应该如何做呢？使用name属性，<span style="color:aqua">格式：</span>`@Resource(name = "实例名")`，我的是`@Resource(name = "HelloWorldBean1")`，这样就可以使用了。
+而上面几个都不能解决我们多个同类实例的问题，我们应该如何做呢？使用name属性，<span style="color:aqua">格式：</span>`@Resource(name = "实例名")`：
+
+```java
+// User.java
+package org.didnelpsun.entity;
+
+import org.springframework.stereotype.Component;
+import javax.annotation.Resource;
+
+@Component
+public class User {
+    private String name;
+    private Integer age;
+    private HelloWorld helloWorld;
+    public User(){
+        this.name = "";
+        this.age = 0;
+        this.helloWorld = null;
+        System.out.println("UserClass");
+    }
+    public User(int age){
+        this();
+        this.age = age;
+    }
+    public User(HelloWorld helloWorld){
+        this();
+        this.helloWorld = helloWorld;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Integer getAge() {
+        return age;
+    }
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+    public HelloWorld getHelloWorld() {
+        return helloWorld;
+    }
+    @Resource(name = "Hi")
+    public void setHelloWorld(HelloWorld helloWorld) {
+        this.helloWorld = helloWorld;
+    }
+}
+```
+
+[案例六@Resource标签自动装配：Spring/demo6_automatic_assembly_@Resource](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_@Resource)。
 
 &emsp;
 
