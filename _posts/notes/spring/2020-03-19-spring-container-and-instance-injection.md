@@ -232,7 +232,7 @@ public class App
 }
 ```
 
-我们在main/resources文件夹下新建一个Bean文件SpringBeans.xml：
+我们在main/resources文件夹下新建一个Bean文件SpringBeans.xml（使用IDEA可以点击新建->XML配置文件->Spring配置）：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -330,7 +330,7 @@ Spring内部实现中应该是在通过BeanFacotry的getBean(String beanName) �
 
 在内存较小的移动设备或者基于applet的应用当中，BeanFactory会被优先选择，因为它足够精简。否则，一般使用的是ApplicationContext。
 
-同时ApplicationContext容器创建对象会立即加载，也就是说一读取完配置文件就立刻创建配置文件中的对象，所以单例模式下使用ApplicationContext容器更合适。而BeanFactory会延迟加载，也就是说什么时候根据id获取对象什么时候创建对象，即使用getBean方法获取对象才会实例化，什么时候使用什么时候实例化，所以原型模式实例化使用最合适。
+ApplicationContext容器创建对象会立即加载，也就是说一读取完配置文件就立刻创建配置文件中的对象，所以单例模式下使用ApplicationContext容器更合适。而BeanFactory会延迟加载，也就是说什么时候根据id获取对象什么时候创建对象，即使用getBean方法获取对象才会实例化，什么时候使用什么时候实例化，所以原型模式实例化使用最合适。
 
 [案例二容器：Spring/demo2_container](https://github.com/Didnelpsun/Spring/tree/master/demo2_container)。
 

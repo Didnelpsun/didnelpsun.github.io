@@ -174,7 +174,7 @@ public class App
 
 #### &emsp;&emsp;作用域修改
 
-如果我们换成原型的模式呢？对于XML方式就是在bean标签上加上scope="prototype"。而对于注解方式，需要利用@Scope标签，在HelloWorld.java的@Component注解下添加@Scope("prototype")，这就变成了原型作用域。输出结果是一样的：
+如果我们换成原型的模式呢？对于XML方式就是在bean标签上加上scope="prototype"。而对于注解方式，需要利用@Scope标签，在HelloWorld.java的@Component注解下添加`@Scope("prototype")`，这就变成了原型作用域。输出结果是一样的：
 
 ![result2][result2]
 

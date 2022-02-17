@@ -58,6 +58,8 @@ public class 类名{
 
 加载时Spring容器会通过实现类的默认无参构造函数对于Bean进行实例化。也就是说如果你是使用XML文件进行配置而不需要额外配置属性，你只用使用`<bean id="实例id" class="反射类全限定类名"/>`就可以了，而不用加入`<property>`子标签。
 
+而如果有对应property标签则会根据有参构造函数进行构造，如果没有对应参数的构造函数则会报错。
+
 ### &emsp;2. 静态工厂方法
 
 ```java
@@ -104,7 +106,7 @@ public class 类名{
 
 ## 作用域
 
-作用域的属性是scope，当在Spring中定义一个Bean时，你必须声明该Bean的作用域的选项。例如，为了强制Spring在每次需要时都产生一个新的Bean实例，你应该声明Bean的作用域的属性为prototype。同理，如果你想让Spring在每次需要时都返回同一个Bean实例，你应该声明bean的作用域的属性为singleton。虽然我们之前都没有谈过这个作用域，但是这是必要的。
+作用域的属性是scope，当在Spring中定义一个Bean时，你必须声明该Bean的作用域的选项。例如，为了强制Spring在每次需要时都产生一个新的Bean实例，你应该声明Bean的作用域的属性为prototype。同理，如果你想让Spring在每次需要时都返回同一个Bean实例，你应该声明Bean的作用域的属性为singleton。虽然我们之前都没有谈过这个作用域，但是这是必要的。（作用域的注解为@Scope，下个文档会讲到）
 
 Spring框架支持以下五个作用域，分别为singleton、prototype、request、session和global session，5种作用域说明如下所示，
 
