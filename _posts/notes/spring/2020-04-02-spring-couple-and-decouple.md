@@ -634,6 +634,8 @@ public class App
 
 对于之前的用户的案例或者是注册的案例，你都可以使用Spring来替换配置。这些都是不会继续详细演示的，因为如果你学好了前面的部分，是十分简单的。
 
+同时也可以直接利用[生命周期]({% post_url notes/java/2020-03-20-spring-life-cycle %})的property注解方式的`@PropertySource(properties配置文件路径字符串)`和`@Value(SpEL表达式)`来替代读取properties配置文件。
+
 ### &emsp;获取实例
 
 根据上次的例子：首先你不会再使用Factory类了，而是使用Spring的XML配置文件或注解来实例化。

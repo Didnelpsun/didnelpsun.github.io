@@ -87,7 +87,7 @@ public class HelloWorld {
 
 #### &emsp;&emsp;添加注释
 
-通过注释来注入容器，对于需要被Spring创建管理的类需要在类上面加上@Component的注解，表明被Spring容器管理。
+通过注释来注入容器，对于需要被Spring创建管理的类需要在类上面加上@Component的注解，表明实例化该类对象并加入容器被Spring容器管理。
 
 ```java
 @Component
@@ -123,6 +123,8 @@ public class HelloWorld {
     }
 }
 ```
+
+其中可以指定组件名称：`@Component(value="组件ID")`，若不写则组件名默认为类名的驼峰式名称。
 
 而需要使用到这些实例的类，如主类，则需要使用@ComponentScan注释，表明它会扫描那些有组件注释@Component的文件并帮助实例化。格式如下。
 

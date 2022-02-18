@@ -21,7 +21,7 @@ Java从JDK5.0以后，提供了Annotation（注解）功能，Spring也提供了
 
 ## @Component、@ComponentScan和@ComponentScans
 
-### &emsp;@Component
+### &emsp;@Component、@Controller、@Service、@Repository
 
 我们之前在[容器与实例注入]({% post_url notes/spring/2020-03-19-spring-container-and-instance-injection %})已经用过了@Component和@ComponentScan来配置，这里我们并不会着重谈到。
 
@@ -373,9 +373,15 @@ public @interface ComponentScans {
 
 Spring帮助我们管理Bean分为两个部分，一个是注册Bean，一个装配Bean。完成这两个动作有三种方式，一种是使用自动配置的方式，一种就是使用XML配置的方式，一种是通过注释。
 
-而@Configuration和@Bean就是注解方式来注册装配Bean。
+而@Configuration和@Bean就是注解方式来注册装配Bean。当需要对外部依赖加注解调用时就可以使用这两个注解进行配置。可以配合@ComponentScan和@ComponentScans注解扫描所有包的实例进行整体配置。
 
-Spring的带有@Configuration的注解类表示这个类可以使用Spring IoC容器作为Bean定义的来源。@Bean注解用于告诉方法，产生一个Bean对象，然后这个Bean对象交给Spring管理。产生这个Bean对象的方法Spring只会调用一次，随后这个Spring将会将这个Bean对象放在自己的IOC容器中。这样的注释的配置方法，就将一些XML的类似\<property>配置标签直接用Java代码取代。
+Spring的带有@Configuration的注解类表示这个类可以使用Spring IoC容器作为Bean定义的来源，指明当前类是一个配置类。
+
+@Bean注解用于告诉方法，将当前方法返回对象产生一个Bean对象，然后这个Bean对象交给Spring管理。产生这个Bean对象的方法Spring只会调用一次，随后这个Spring将会将这个Bean对象放在自己的IOC容器中。这样的注释的配置方法，就将一些XML的类似\<property>配置标签直接用Java代码取代。
+
+@Bean的name属性用于指定生成Bean的id，默认为当前方法的名称。
+
+当使用@Bean来配置方法时，如果该方法有参数，Spring会去Spring容器中根据@Autowried的查找方式查找是否有可用的Bean。
 
 SpringIoC容器管理一个或者多个Bean，这些Bean都需要在@Configuration注解下进行创建，在一个方法上使用@Bean注解就表明这个方法需要交给Spring进行管理。
 
@@ -482,7 +488,7 @@ public void destroy(){
 
 ### &emsp;@Configuration的必要性
 
-对于配置类作为AnnotationConfigApplicationContext对象传入的参数时，@Configuration可以不写。因为创建容器时会必然按照传入的这个配置类参数来去查找依赖。如`welcomeContext = new AnnotationConfigApplicationContext(HelloWorldConfig.class);`，这时候上面的@Configuration注释就不用写了。
+对于配置类作为AnnotationConfigApplicationContext对象传入的参数时，@Configuration可以不写。因为创建容器时会必然按照传入的这个配置类参数来去查找依赖。如`welcomeContext = new AnnotationConfigApplicationContext(HelloWorldConfig.class);`，这时候HelloWorldConfig类上面的@Configuration注释就不用写了。
 
 但是如果你要扫描多个多个包，也就是说如果你传入容器的配置类中要扫描多个别的配置类，那么你就要将所有要扫描的配置类都加上@Configuration。否则它将不知道要扫描哪一个。或者你可以通过`AnnotationConfigApplicationContext(someConfig.class,someConfig.class,someConfig.class...);`，这样Spring就知道你具体要传入哪些配置类了。
 
@@ -490,7 +496,7 @@ public void destroy(){
 
 ## @Import
 
-针对上面的@Configuration必要性的问题，如果你既不想在配置容器时传入一大堆的配置类，也不想写一个总配置文件扫描其他子配置文件，那么可以使用@Import来导入配置。
+针对上面的@Configuration必要性的问题，如果你既不想在配置AnnotationConfigApplicationContext容器时传入一大堆的配置类，也不想写一个总配置文件扫描其他子配置文件每个子配置都加上@Configuration，那么可以使用@Import来导入配置。
 
 @Import注解允许从另一个配置类中加载@Bean定义。如别的类我们需要使用到一个实例HelloWorld，只用`@Import(HelloWorld.class)`就可以了。而且如果你在一个配置文件A的a类中引用了B的实例b类，那么你要在主函数文件中使用a类和b类，你就只用引入A文件，而不用引入B文件，因为B文件所需要的类已经通过@Import被导入了。
 
