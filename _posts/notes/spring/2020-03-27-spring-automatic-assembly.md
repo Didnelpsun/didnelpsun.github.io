@@ -615,7 +615,7 @@ public void setHelloWorld(@Qualifier("HelloWorld") HelloWorld helloWorld){
 }
 ```
 
-但是这个单独使用不是说就不用@Autowired了，而是指将他们两个注释分开，将@Qualifier放到方法参数前。
+单独使用时将@Qualifier放到方法参数前。
 
 [案例六@Qualifier标签自动装配：Spring/demo6_automatic_assembly_@Qualifier](https://github.com/Didnelpsun/Spring/tree/master/demo6_automatic_assembly_@Qualifier)。
 
