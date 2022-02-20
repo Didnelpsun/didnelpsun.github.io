@@ -345,9 +345,29 @@ UserService的transactionManager和transactionManager的connectionThread等都�
 
 由于其他CRUD操作也需要事务控制，所以其他的如更新用户方法也同样需要使用我们自定义的事务操作方法，从而造成了大量的代码冗余和方法之间的依赖。
 
-所以为了方法解耦，就需要动态代理。
+所以为了方法解耦，让我们不需要重新自定义事务控制造成大量冗余代码和方法耦合，就需要动态代理。（上面对事务管理Connection添加为ThreadConnection类就属于增强方法，是装饰者模式，即ThreadConnection对Connection进行装饰）
 
-### &emsp;概念
+### &emsp;特点
+
++ 字节码随用随创建，随用随加载。
++ 在不修改源码的基础上对方法增强。
+
+常用的方法增强（即扩充方法功能）的方式有三种。
+
+1. 类继承、方法覆盖：必须控制对象创建，才能使用该方式。
+2. 装饰者模式：必须和目标对象实现相同接口或继续相同父类，特殊构造器（传入被包装对象）。
+3. 动态代理。
+
+类别：
+
++ 基于接口的动态代理。
++ 基于子类的动态代理。
+
+使用`Proxy.newProxyInstance()`方法进行创建代理，对应三个参数：
+
++ ClassLoader：类加载器。用于加载代理对象字节码。和被代理对象使用相同的类加载器。是固定写法：`被代理对象类.getClass().getClassLoader()`。
++ Class[]：字节码数组。用于让代理对象和被代理对象具有相同的方法。也是固定写法：`被代理对象类.getClass().getInterfaces()`。
++ InvocationHandler：用于提供增强方法。让我们写如何代理，一般都是一个该接口的实现类，一般为匿名内部类，但是不是必须的。需要`new InvocationHandler(){@Override public Object invoke(Object proxy, Method method, Object[] args) throws Throwalbe {}}`。
 
 &emsp;
 
