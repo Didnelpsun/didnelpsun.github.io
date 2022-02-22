@@ -588,6 +588,7 @@ public class App
 
 但是基于接口的动态代理并不是都好用的，如上面的事务控制的TransactionManager就是对ConnectionThread的Connection对象方法的加强。Connection不是一个接口而是一个对象，所以就不能基于接口。
 
+
 &emsp;
 
 ## AOP
