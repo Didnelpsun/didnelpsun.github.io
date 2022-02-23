@@ -482,6 +482,8 @@ public class App
 
 #### &emsp;&emsp;基于接口的动态代理
 
+使用Proxy类，提供者是JDK。
+
 使用`Proxy.newProxyInstance()`方法进行创建代理并赋值给委托类接口，对应三个参数：
 
 + ClassLoader：类加载器。用于加载代理对象字节码。和被代理对象使用相同的类加载器。是固定写法：`被代理对象类.getClass().getClassLoader()`。
@@ -588,6 +590,53 @@ public class App
 
 但是基于接口的动态代理并不是都好用的，如上面的事务控制的TransactionManager就是对ConnectionThread的Connection对象方法的加强。Connection不是一个接口而是一个对象，所以就不能基于接口。
 
+#### &emsp;&emsp;基于子类的动态代理
+
+此时需要加一个依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/cglib/cglib -->
+<dependency>
+    <groupId>cglib</groupId>
+    <artifactId>cglib</artifactId>
+    <version>3.3.0</version>
+</dependency>
+```
+
+此时基于的类是Enhancer，提供者是第三方cglib。
+
+使用`Enhancer.create()`方法创建代理对象。要求被代理类不能是最终类，即必须有子类继承它，对应两个参数：
+
++ Class：指定被代理对象的字节码，即`被代理对象类.class`。
++ Callback：即提供方法增强的代码，一般都是一个该接口的实现类，一般都是匿名内部类，但是不是必须的。一般都是该接口的子接口实现类`new MethodInterceptor(){@Override public Object intercept(Object o, Method method, Object objects, MethodProxy methodProxy) throws Throwalbe{return null;}}`。intercept方法与invoke方法一样都会拦截代理方法。
+  + 前三个参数与invoke的三个参数是一样的。
+  + methodProxy：指当前执行方法的代理对象。
+
+首先新建一个与entity同级的cglib的软件包，不实现接口：
+
+```java
+// HelloWorld.java
+package org.didnelpsun.cglib;
+
+public class HelloWorld {
+    // 默认构造函数，一旦HelloWorld类被实例化就会被调用
+    public HelloWorld() {
+        System.out.println("HelloWorldClass");
+    }
+    // 私有变量words
+    private String words;
+    private String user = "Didnelpsun";
+    // 如果我们要对这个类的属性赋值，那么一定要是set开头，这是符合settergetter规范的
+    // 如果需要参数就要传入参数
+    public void setWords(String word){
+        this.words = word;
+    }
+    // 定义方法调用对应属性并输出
+    public void saySomeThing(){
+        System.out.println(this.user +" says "+ this.words);
+    }
+}
+```
 
 &emsp;
 
