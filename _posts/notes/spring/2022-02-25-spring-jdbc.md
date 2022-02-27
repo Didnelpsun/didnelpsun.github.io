@@ -3,7 +3,7 @@ layout: post
 title: "数据库操作"
 date: 2022-02-25 23:13:22 +0800
 categories: notes spring base
-tags: Spring 基础 JdbcTemplate 事务管理
+tags: Spring 基础 JdbcTemplate 事务管理 PlatformTransactionManager TransactionDefinition TransactionStatus DataSourceTransactionManager
 excerpt: "数据库操作"
 ---
 
@@ -856,14 +856,94 @@ XML配置中只用注册事务管理器就可以，事务操作由事务管理�
     <!--配置事务管理器-->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
+        <property name="transactionTemplate" ref="transactionTemplate" />
     </bean>
     <!--配置事务模板对象-->
-    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate" />
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager" />
+    </bean>
 </beans>
 ```
 
 使用方法就是在业务层中定义和一个TransactionTemplate成员，然后等待Spring注入，并在需要事务处理的地方调用`transactionTemplate.execute()`方法：
 
+```java
+// UserService.java
+package org.didnelpsun.service;
 
+import org.didnelpsun.dao.UserDAO;
+import org.didnelpsun.entity.User;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+import java.util.List;
+
+public class UserService implements UserServiceInterface {
+    // 私有的DAO
+    private UserDAO userDAO;
+    private TransactionTemplate transactionTemplate;
+    // Spring注入
+    public void setUserDAO(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+    public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
+        this.transactionTemplate = transactionTemplate;
+    }
+    @Override
+    public User selectUser(Integer id) {
+        return userDAO.selectUser(id);
+    }
+    @Override
+    public List<User> selectUsersByName(String name) {
+        return userDAO.selectUsersByName(name);
+    }
+    @Override
+    public List<User> selectAllUsers() {
+        return userDAO.selectAllUsers();
+    }
+    @Override
+    public int insertUser(User user) {
+        // 使用了闭包，所以必须给一个引用类型
+        final int[] returnValue = new int[1];
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                // 在这个方法里面放入DAO操作
+                returnValue[0] =  userDAO.insertUser(user);
+                return null;
+            }
+        });
+        return returnValue[0];
+    }
+    @Override
+    public int updateUser(User user) {
+        final int[] returnValue = new int[1];
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                // 在这个方法里面放入DAO操作
+                returnValue[0] =  userDAO.updateUser(user);
+                return null;
+            }
+        });
+        return returnValue[0];
+    }
+    @Override
+    public int deleteUser(Integer id) {
+        final int[] returnValue = new int[1];
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus transactionStatus) {
+                // 在这个方法里面放入DAO操作
+                returnValue[0] =  userDAO.deleteUser(id);
+                return null;
+            }
+        });
+        return returnValue[0];
+    }
+}
+```
+
+此时会发现因为每个方法都放在一个方法中，所以有大量代码冗余，所以基本上没什么效果，从而基本不用。
 
 [案例十编程方式事务控制：Spring/demo10_jdbc_program](https://github.com/Didnelpsun/Spring/tree/master/demo10_jdbc_program)。

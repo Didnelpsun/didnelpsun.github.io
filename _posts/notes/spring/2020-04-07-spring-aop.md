@@ -3,7 +3,7 @@ layout: post
 title: "面向切面AOP"
 date: 2020-04-07 15:41:25 +0800
 categories: notes spring base
-tags: Spring 基础 AOP
+tags: Spring 基础 AOP Proxy
 excerpt: "面向切面编程"
 ---
 
