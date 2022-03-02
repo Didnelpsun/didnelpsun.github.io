@@ -3,7 +3,7 @@ layout: post
 title: "环境搭建与入门"
 date: 2022-02-28 00:26:25 +0800
 categories: notes springmvc base
-tags: SpringMVC 基础 @RequestMapping
+tags: SpringMVC 基础 @RequestMapping @RequestParam
 excerpt: "环境搭建与入门"
 ---
 
@@ -305,7 +305,7 @@ SpringMVC视图解析器解析流程：
 
 ## @RequestMapping注解
 
-将请求和处理请求的控制器关联起来，建立映射关系。标识一个类时就是设置映射请求路径的初始信息，标识一个方法时就是设置映射请求路径的具体信息，对于每个方法的路由就是对应的类的路由拼接上方法的路由。
+将请求和处理请求的控制器关联起来，建立映射关系。标识一个类时就是设置映射请求路径的初始信息，标识一个方法时就是设置映射请求路径的具体信息，对于每个方法的路由就是对应的类的路由拼接上方法的路由。控制器方法如果要映射路由必须使用@RequestMapping注解，即使类上已经添加@RequestMapping。
 
 ### &emsp;匹配请求方式
 
@@ -319,10 +319,413 @@ value和path属性必须设置，可以省略value和path键名。只有value和
 
 #### &emsp;&emsp;method
 
-通过请求方式（get或post）匹配请求应色号。参数为RequestMethod类型数组，表示该请求能够匹配多种请求方式。如`@RequestMapping(value = "/",method = RequestMethod.GET)`。默认匹配GET请求。
+通过请求方式（get或post）匹配请求映射。参数为RequestMethod类型数组，表示该请求能够匹配多种请求方式。如`@RequestMapping(value = "/",method = RequestMethod.GET)`。默认匹配GET请求。
 
 请求地址value或path如果满足，但是请求方式method不满足，则浏览器会报错405：Request method GET not supported。
 
 对于处理指定请求方式的控制器方法，SpringMVC中提供了@RequestMapping的派生注解，可以不用设置method：处理get请求的映射：@GetMapping、处理post请求的映射：@PostMapping、处理put请求的映射：@PutMapping处理、delete请求的映射：@DeleteMapping。
 
 常用的请求方式有get、post、put、delete。但是目前浏览器只支持get和post，若在form表单提交时，为method设置了其他请求方式的字符串（put或delete），则按照默认的谲求方式get处理。若要发送put和delete请求，则需要通过Spring提供的过鲸器HiddenHttpMethodFilter，在restful部分会讲到。
+
+#### &emsp;&emsp;params
+
+通过请求的请求参数匹配进行映射。参数为String类型数组，可以通过四种表达式设置请求参数和请求应映射的匹配关系：
+
+1. "param"：要求请求映射所匹配的请求必须携带param参数。
+2. "!param"：要求请求映射所匹配的请求不能携带param参数。
+3. "param=value"：要求请求映射所匹配的请求必须携带param参数，且param=value。
+4. "param!=value"：要求请求映射所匹配的请求必须携带param参数，但是param!=value。
+
+修改控制器：
+
+```java
+// HelloController.java
+package org.didnelpsun.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping(value = "/")
+public class HelloController {
+    // 访问index
+    // RequestMapping表示请求映射，当访问path内的路径/时会调用index方法转发到index
+    @GetMapping
+    public String index(){
+        // 返回视图名称，从而被视图解析器解析
+        // 由于要访问的是/WEB-INF/pages/index.jsp，根据后面视图解析器的配置
+        // 前缀为/WEB-INF/pages/，后缀为.jsp，所以这里返回的就是index字符串
+        return "index";
+    }
+    // 必须携带value参数
+    @GetMapping(value = "/{value}", params = {"value"})
+    // 通过@PathVariable注解获取参数，括号内为参数名
+    public String hello(){
+        return "index";
+    }
+}
+```
+
+修改JSP文件：
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html>
+<head>
+</head>
+<body>
+<h2><a href="${pageContext.request.contextPath}/">Hello World!</a></h2>
+<h2><a href="${pageContext.request.contextPath}/?value=hello">携带value="hello"</a></h2>
+</body>
+</html>
+```
+
+点击之后没问题。
+
+如果参数不匹配则会报400错误。
+
+#### &emsp;&emsp;headers
+
+通过请求的请求头信息匹配映射。参数为String数组类型，可以通过四种表达式设置头部信息和匹配头部关系：
+
+1. "header"：要求请求映射所匹配的请求必须携带header头部信息。
+2. "!header"：要求请求映射所匹配的请求不能携带header头部信息。
+3. "header=value"：要求请求映射所匹配的请求必须携带header头部信息，且header=value。
+4. "header!=value"：要求请求映射所匹配的请求必须携带header头部信息，但是header!=value。
+
+如`@RequestMapping(value = "/{value}", params = {"value"}, headers = {"Host=localhost:8082"})`就是要求必须携带Host=localhost:8082。此时报错是404错误。
+
+&emsp;
+
+## SpringMVC路径
+
+### &emsp;ant风格路径
+
+SpringMVC支持ant风格的路径，即可以通过通配符匹配路径：
+
++ ?：表示任意的单个字符。
++ *：表示任意的0或多个字符。
++ \*\*：表示任意的一层或多层目录。
+
+在使用\*\*时，只能使用/\*\*/xxx的方式来表示。如果\*\*旁边添加了别的内容，则直接按两个\*来解析。
+
+如JSP添加：`<h2><a href="${pageContext.request.contextPath}/test/ant">ant风格路径</a></h2>`，控制器中增加一个方法：
+
+```java
+// 测试ant风格路径
+@RequestMapping("**/a*")
+public String testAnt(){
+    return "index";
+}
+```
+
+注意浏览器路径中/、?这种代表特殊含义的符号不能匹配控制器的路径中的?和\*。
+
+### &emsp;restful风格
+
+SpringMVC支持restful风格的占位符。
+
++ 原始方式：/select?id=1。
++ restful方式：/select/1。
+
+当通过路径方式传参时，可以在@RequestMapping的value属性中通过占位符{xxx}表示传输的数据，再通过@PathVariable获取请求的参数，设置在控制器方法的参数前，代表这个参数是获取请求的参数。同时要注意这个注解修饰的参数和URL有关系，是URL绑定的占位符，所以当使用这个注解修饰变量来获取路径参数时，必须在路径加上这个变量，在URL中加上/{xxx}占位符可以通过@PathVariable("xxx")绑定到操作方法的入参中。
+
+如之前的params属性给出的例子：
+
+```java
+// 必须携带value参数
+@RequestMapping(value = "/{value}", params = {"value"}, headers = {"Host=localhost:8082"})
+// 通过@PathVariable注解获取参数，括号内为参数名
+public String hello(@PathVariable("value")String value){
+    System.out.println(value);
+    return "index";
+}
+```
+
+params指定路径必须携带的参数名，value表示这个参数在路径的位置，@PathVariable获取对应名的参数并赋值给变量。
+
+<span style="color:orange">注意：</span>如果使用`<h2><a href="${pageContext.request.contextPath}/hello">携带value="hello"</a></h2>`会报错，因为restful路径第一个不能是变量。
+
+所以需要重新定义`<h2><a href="${pageContext.request.contextPath}/restful/hello">携带value="hello"</a></h2>`，然后定义控制器：
+
+```java
+@RequestMapping(value = "/restful/{value}")
+// 通过@PathVariable注解获取参数，括号内为参数名
+public String restful(@PathVariable("value")String value){
+    System.out.println(value);
+    return "index";
+}
+```
+
+这样就能直接获取/restful后面传入的参数了。
+
+&emsp;
+
+## 获取请求参数
+
+在WEB-INF/pages下新建一个页面param.jsp用来测试获取请求参数，然后修改index.jsp：
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html>
+<head>
+</head>
+<body>
+<h2><a href="${pageContext.request.contextPath}/">Hello World!</a></h2>
+<h2><a href="${pageContext.request.contextPath}/?value=hello">携带value="hello"</a></h2>
+<h2><a href="${pageContext.request.contextPath}/test/ant">ant风格路径</a></h2>
+<h2><a href="${pageContext.request.contextPath}/restful/hello">携带value="hello"</a></h2>
+<h2><a href="${pageContext.request.contextPath}/param">获取请求参数</a></h2>
+</body>
+</html>
+```
+
+然后在HelloController下添加跳转到该页面的控制器：
+
+```java
+@RequestMapping("/param")
+public String param(){
+    return "param";
+}
+```
+
+### &emsp;servletAPI
+
+即Servlet原生接口。将HttpServletRequest作为控制器方法的形参，此时HttpServletRequest类型的参数表示封装了当前请求的请求报文对象。
+
+```java
+@RequestMapping("/param")
+public String paramApi(HttpServletRequest request){
+    String value = request.getParameter("value");
+    System.out.println(value);
+    return "param";
+}
+```
+
+利用HttpServletRequest的getParameter就可以捕获传入的参数。如访问<http://localhost:8080/param?value=3>，这个控制器方法没有使用`@RequestMapping(value = "/param/{value}")`所以就不能使用restful格式获取参数了。
+
+为什么能获取到HttpServletRequest？这是谁传入的参数？因为前端控制器DispatcherServlet继承了HttpServlet，当到了该路由时调用对应控制器，DispatcherServlet调用父类方法直接将请求封装到HttpServletRequest中并传入控制器方法。
+
+### &emsp;控制器形参
+
+#### &emsp;&emsp;基本使用
+
+保证控制器的形参名和请求的参数名一致，SpringMVC会自动将请求参数赋值给形参。
+
+```java
+@RequestMapping("/param")
+public String paramController(String value){
+    System.out.println(value);
+    return "param";
+}
+```
+
+此时由于控制器说明只有一个参数value，所以其他参数会全部丢弃，即访问<http://localhost:8080/param?value=3&name=2>就只能获取到value值。
+
+当遇到输入多个参数时，SpringMVC会按照参数名称来一一赋值，所以输入参数的顺序不重要。当没有赋值到的就是null。
+
+如果输入的是一个复选框的内容，即同名数据，一个name有多个value值，SpringMVC则提供String数组类型的参数来包装提供给我们，也可以提供String类型的参数给我们，数据中间以逗号拼接。
+
+#### &emsp;&emsp;@RequestParam
+
+将路径参数和控制器方法的形参创建映射关系。
+
+如果形参名和参数名不一致，则无法自动赋值，这时候可以使用@RequestParam注解在形参名前，表示形参名和参数名的映射对应关系。
+
+```java
+@RequestMapping("/param")
+public String paramController(String value, @RequestParam("user") String name){
+    System.out.println("value:" + value + " name:" + name);
+    return "param";
+}
+```
+
+此时访问<http://localhost:8080/param?value=1&user=3>就可以获取对应数据。
+
+但是此时name这个参数名就不能获取到参数了，即<http://localhost:8080/param?value=1&name=3>会报错400，且user这个属性不再是非必须的而是必须的了，因为@RequestParam注释的required属性默认为true，如果改为非必须就设置`@RequestParam(value = "user", required = false)`。
+
+此外@RequestParam注释还有一个defaultValue属性，表示不传值或传空值的默认值。
+
+#### &emsp;&emsp;@RequestHeader
+
+将请求头信息和控制器方法的形参创建映射关系。由于请求头和控制器方法的形参没有默认映射关系，所以要获取请求头的信息必须使用@RequestHeader注解。
+
+一共三个属性：value、required、defaultValue。使用方法同RequestParam。
+
+#### &emsp;&emsp;@CookieValue
+
+将Cookie信息和控制器方法的形参创建映射关系。
+
+一共三个属性：value、required、defaultValue。使用方法同RequestParam。
+
+由于是使用JSP的页面，所以默认会给出Cookie值，如果是HTML页面则不会有Cookie值，则需要调用`HttpSession session = request.getSession()`创建会话来从服务器获取Session和Cookie。
+
+```java
+@RequestMapping("/param")
+public String paramController(String value,
+                              @RequestParam(value = "user", required = false) String name,
+                              @RequestHeader("Host") String host,
+                              @CookieValue("JSESSIONID") String cookie
+){
+    System.out.println("value:" + value + " name:" + name);
+    System.out.println("host:" + host);
+    System.out.println("cookie:" + cookie);
+    return "param";
+}
+```
+
+### &emsp;POJO
+
+#### &emsp;&emsp;获取POJO对象
+
+可以在控制器方法的形参位置设置一个实体类类型的形参，此时若浏览器传输的请求参数的参数名和实体类中的属性名一致，则请求参数会为此实体类属性赋值。
+
+与上面类型不同的是，之前参数是一个个参数，而这时候是将一些参数整合成POJO对象，如User类。
+
+在org.didnelpsun下创建一个entity实体类包，并创建一个User类：
+
+```java
+// User.java
+package org.didnelpsun.entity;
+
+import java.io.Serializable;
+
+public class User implements Serializable{
+    private Integer id;
+    private String name;
+    private String sex;
+    private String birthday;
+    private String address;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString(){
+        return "User{" + "id=" + this.id + ",name=" + this.name + ",birthday=" + this.birthday + ",sex=" + this.sex + ",address=" + this.address + "}";
+    }
+
+    public User() {
+        System.out.println("UserClass");
+    }
+
+    public User(Integer id, String name, String sex, String birthday, String address){
+        System.out.println("UserClass");
+        this.id = id;
+        this.name = name;
+        this.sex = sex;
+        this.birthday = birthday;
+        this.address = address;
+    }
+
+    public User(String name, String sex, String birthday, String address){
+        System.out.println("UserClass");
+        this.name = name;
+        this.sex = sex;
+        this.birthday = birthday;
+        this.address = address;
+    }
+}
+```
+
+编写param：
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>param</title>
+</head>
+<body>
+    <form action="${pageContext.request.contextPath}/param" method="post">
+        <label>
+            用户名
+            <input type="text" name="name">
+        </label><br>
+        <label>
+            性别
+            <input type="radio" name="sex" value="男">男
+        </label>
+        <label>
+            <input type="radio" name="sex" value="女">女
+        </label><br>
+        <label>
+            生日
+            <input type="date" name="birthday">
+        </label><br>
+        <label>
+            地址
+            <input type="text" name="address">
+        </label><br>
+        <input type="submit" value="提交" />
+    </form>
+</body>
+</html>
+```
+
+然后编写控制器，如果是直接获取参数，那么要写好几个参数，这很麻烦，所以使用POJO对象：
+
+```java
+@RequestMapping("/param")
+public String paramPojo(User user){
+    System.out.println(user);
+    return "param";
+}
+```
+
+如果控制器方法参数写为User user, String name, String sex这种，后面的name和sex属性也会被赋值，因为SpringMVC是按属性名赋值的，只要一样就赋值，不过这样显然没什么意义。
+
+#### &emsp;&emsp;中文乱码
+
+注意这样就直接传输过来了。但是这时候sex值会乱码，因为字符编码不一致。
+
+要改变编码方式必须在获取请求参数之前，否则就已经乱码了。
+
+请求乱码有两种，一种是post请求乱码，一种是get请求乱码。
+
+如果将表单的提交方式改为get，即method="get"就不会乱码，那么就代表get请求的乱码我们在此之前就已经解决过了。
+
+get请求的乱码是由Tomcat造成的，所以要解决get请求乱码就需要让Tomcat不乱码，在Tomcat安装目录的conf/server.xml中找到`<Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" />`，要解决乱码就要在其中加上URIEncoding="UTF-8"。
+
+post请求的乱码是DispatcherServlet造成的，所以即使在控制器方法中重新设置了编码格式也没有用，因为DispatcherServlet获取参数时就已经乱码了，所以为了解决乱码必须在DispatcherServlet请求参数之前完成。由于我们之前在web.xml中设置过前端控制器DispatcherServlet是在服务器启动时就加载的，所以就必须找到一种技术在DispatcherServlet执行之前就开始。
+
+Servlet中学过组件加载顺序，监听器Listener->过滤器Filter->服务器小程序Servelt。而监听器只监听事件，只会执行一次，而过滤器只要请求路径满足过滤路径都会被过滤器过滤，所以此时我们可以使用过滤器处理中文乱码问题。
