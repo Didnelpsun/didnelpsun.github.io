@@ -3,7 +3,7 @@ layout: post
 title: "环境搭建与入门"
 date: 2022-02-28 00:26:25 +0800
 categories: notes springmvc base
-tags: SpringMVC 基础 @RequestMapping @RequestParam
+tags: SpringMVC 基础 环境
 excerpt: "环境搭建与入门"
 ---
 
@@ -274,8 +274,11 @@ SpringMVC视图解析器解析流程：
 
 ```jsp
 <html>
+<head>
+    <link rel="icon" href="data:;base64,=">
+</head>
 <body>
-<h2><a href="${pageContext.request.contextPath}/">Hello World!</a></h2>
+    <h2><a href="${pageContext.request.contextPath}/">Hello World!</a></h2>
 </body>
 </html>
 ```
@@ -300,6 +303,16 @@ SpringMVC视图解析器解析流程：
 ### &emsp;基本流程总结
 
 浏览器发送请求，蒂请求地址符合前端控制器的url-pattern。该请求就会被前端控制器DispatcherServlet处理。前端控割韶会读取SpringMVC的核心配置文件。通过扫描组件找到控制器。将请求地址和控制器中@RequestMapping注解的value属性值进行匹配，若匹配成功，该注解所标识的控制器方法就是处理请求的方法。处理请求的方法需要返回一个字符申类型的视图名称，该视图名称会被视图解析器解析，加上前缀和后缀组成视图的路径，通过Thymeleaf对视图进行渲染，最空转发到视图所对应页面。
+
+### &emsp;访问favicon.ico
+
+我们新建好项目，但是运行时会发现控制台会报错：[http-nio-8080-exec-4] org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver.logException Resolved [org.springframework.web.bind.UnsatisfiedServletRequestParameterException: Parameter conditions "value" not met for actual request parameters: ]。
+
+实际上此时我们也没有请求参数，那这是什么意思？打开浏览器的开发者工具，点击网络network，会发现除了访问该页面外浏览器还请求了favicon.ico，但是我们这里没有这个资源，所以会报错400，但是不是重要的问题，所以浏览器的页面还是能显示出来。
+
+favicon.ico是浏览器标签和收藏夹标签对网站的精简图标。如果网站的目录中没有这个图标，在Network请求中，这个favicon.ico会报404的错误，当然这并不是问题，也不会引起程序出错，只会抛出异常。
+
+在JSP文件的\<head>标签中添加\<link rel="icon" href="data:;base64,=">就可以解决。
 
 &emsp;
 
@@ -374,6 +387,7 @@ public class HelloController {
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <html>
 <head>
+  <link rel="icon" href="data:;base64,=">
 </head>
 <body>
 <h2><a href="${pageContext.request.contextPath}/">Hello World!</a></h2>
@@ -448,7 +462,7 @@ params指定路径必须携带的参数名，value表示这个参数在路径的
 
 <span style="color:orange">注意：</span>如果使用`<h2><a href="${pageContext.request.contextPath}/hello">携带value="hello"</a></h2>`会报错，因为restful路径第一个不能是变量。
 
-所以需要重新定义`<h2><a href="${pageContext.request.contextPath}/restful/hello">携带value="hello"</a></h2>`，然后定义控制器：
+所以需要重新定义`<h2><a href="${pageContext.request.contextPath}/restful/hello">restful携带value="hello"</a></h2>`，然后定义控制器：
 
 ```java
 @RequestMapping(value = "/restful/{value}")
@@ -461,271 +475,4 @@ public String restful(@PathVariable("value")String value){
 
 这样就能直接获取/restful后面传入的参数了。
 
-&emsp;
-
-## 获取请求参数
-
-在WEB-INF/pages下新建一个页面param.jsp用来测试获取请求参数，然后修改index.jsp：
-
-```jsp
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<html>
-<head>
-</head>
-<body>
-<h2><a href="${pageContext.request.contextPath}/">Hello World!</a></h2>
-<h2><a href="${pageContext.request.contextPath}/?value=hello">携带value="hello"</a></h2>
-<h2><a href="${pageContext.request.contextPath}/test/ant">ant风格路径</a></h2>
-<h2><a href="${pageContext.request.contextPath}/restful/hello">携带value="hello"</a></h2>
-<h2><a href="${pageContext.request.contextPath}/param">获取请求参数</a></h2>
-</body>
-</html>
-```
-
-然后在HelloController下添加跳转到该页面的控制器：
-
-```java
-@RequestMapping("/param")
-public String param(){
-    return "param";
-}
-```
-
-### &emsp;servletAPI
-
-即Servlet原生接口。将HttpServletRequest作为控制器方法的形参，此时HttpServletRequest类型的参数表示封装了当前请求的请求报文对象。
-
-```java
-@RequestMapping("/param")
-public String paramApi(HttpServletRequest request){
-    String value = request.getParameter("value");
-    System.out.println(value);
-    return "param";
-}
-```
-
-利用HttpServletRequest的getParameter就可以捕获传入的参数。如访问<http://localhost:8080/param?value=3>，这个控制器方法没有使用`@RequestMapping(value = "/param/{value}")`所以就不能使用restful格式获取参数了。
-
-为什么能获取到HttpServletRequest？这是谁传入的参数？因为前端控制器DispatcherServlet继承了HttpServlet，当到了该路由时调用对应控制器，DispatcherServlet调用父类方法直接将请求封装到HttpServletRequest中并传入控制器方法。
-
-### &emsp;控制器形参
-
-#### &emsp;&emsp;基本使用
-
-保证控制器的形参名和请求的参数名一致，SpringMVC会自动将请求参数赋值给形参。
-
-```java
-@RequestMapping("/param")
-public String paramController(String value){
-    System.out.println(value);
-    return "param";
-}
-```
-
-此时由于控制器说明只有一个参数value，所以其他参数会全部丢弃，即访问<http://localhost:8080/param?value=3&name=2>就只能获取到value值。
-
-当遇到输入多个参数时，SpringMVC会按照参数名称来一一赋值，所以输入参数的顺序不重要。当没有赋值到的就是null。
-
-如果输入的是一个复选框的内容，即同名数据，一个name有多个value值，SpringMVC则提供String数组类型的参数来包装提供给我们，也可以提供String类型的参数给我们，数据中间以逗号拼接。
-
-#### &emsp;&emsp;@RequestParam
-
-将路径参数和控制器方法的形参创建映射关系。
-
-如果形参名和参数名不一致，则无法自动赋值，这时候可以使用@RequestParam注解在形参名前，表示形参名和参数名的映射对应关系。
-
-```java
-@RequestMapping("/param")
-public String paramController(String value, @RequestParam("user") String name){
-    System.out.println("value:" + value + " name:" + name);
-    return "param";
-}
-```
-
-此时访问<http://localhost:8080/param?value=1&user=3>就可以获取对应数据。
-
-但是此时name这个参数名就不能获取到参数了，即<http://localhost:8080/param?value=1&name=3>会报错400，且user这个属性不再是非必须的而是必须的了，因为@RequestParam注释的required属性默认为true，如果改为非必须就设置`@RequestParam(value = "user", required = false)`。
-
-此外@RequestParam注释还有一个defaultValue属性，表示不传值或传空值的默认值。
-
-#### &emsp;&emsp;@RequestHeader
-
-将请求头信息和控制器方法的形参创建映射关系。由于请求头和控制器方法的形参没有默认映射关系，所以要获取请求头的信息必须使用@RequestHeader注解。
-
-一共三个属性：value、required、defaultValue。使用方法同RequestParam。
-
-#### &emsp;&emsp;@CookieValue
-
-将Cookie信息和控制器方法的形参创建映射关系。
-
-一共三个属性：value、required、defaultValue。使用方法同RequestParam。
-
-由于是使用JSP的页面，所以默认会给出Cookie值，如果是HTML页面则不会有Cookie值，则需要调用`HttpSession session = request.getSession()`创建会话来从服务器获取Session和Cookie。
-
-```java
-@RequestMapping("/param")
-public String paramController(String value,
-                              @RequestParam(value = "user", required = false) String name,
-                              @RequestHeader("Host") String host,
-                              @CookieValue("JSESSIONID") String cookie
-){
-    System.out.println("value:" + value + " name:" + name);
-    System.out.println("host:" + host);
-    System.out.println("cookie:" + cookie);
-    return "param";
-}
-```
-
-### &emsp;POJO
-
-#### &emsp;&emsp;获取POJO对象
-
-可以在控制器方法的形参位置设置一个实体类类型的形参，此时若浏览器传输的请求参数的参数名和实体类中的属性名一致，则请求参数会为此实体类属性赋值。
-
-与上面类型不同的是，之前参数是一个个参数，而这时候是将一些参数整合成POJO对象，如User类。
-
-在org.didnelpsun下创建一个entity实体类包，并创建一个User类：
-
-```java
-// User.java
-package org.didnelpsun.entity;
-
-import java.io.Serializable;
-
-public class User implements Serializable{
-    private Integer id;
-    private String name;
-    private String sex;
-    private String birthday;
-    private String address;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public String getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(String birthday) {
-        this.birthday = birthday;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    @Override
-    public String toString(){
-        return "User{" + "id=" + this.id + ",name=" + this.name + ",birthday=" + this.birthday + ",sex=" + this.sex + ",address=" + this.address + "}";
-    }
-
-    public User() {
-        System.out.println("UserClass");
-    }
-
-    public User(Integer id, String name, String sex, String birthday, String address){
-        System.out.println("UserClass");
-        this.id = id;
-        this.name = name;
-        this.sex = sex;
-        this.birthday = birthday;
-        this.address = address;
-    }
-
-    public User(String name, String sex, String birthday, String address){
-        System.out.println("UserClass");
-        this.name = name;
-        this.sex = sex;
-        this.birthday = birthday;
-        this.address = address;
-    }
-}
-```
-
-编写param：
-
-```jsp
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>param</title>
-</head>
-<body>
-    <form action="${pageContext.request.contextPath}/param" method="post">
-        <label>
-            用户名
-            <input type="text" name="name">
-        </label><br>
-        <label>
-            性别
-            <input type="radio" name="sex" value="男">男
-        </label>
-        <label>
-            <input type="radio" name="sex" value="女">女
-        </label><br>
-        <label>
-            生日
-            <input type="date" name="birthday">
-        </label><br>
-        <label>
-            地址
-            <input type="text" name="address">
-        </label><br>
-        <input type="submit" value="提交" />
-    </form>
-</body>
-</html>
-```
-
-然后编写控制器，如果是直接获取参数，那么要写好几个参数，这很麻烦，所以使用POJO对象：
-
-```java
-@RequestMapping("/param")
-public String paramPojo(User user){
-    System.out.println(user);
-    return "param";
-}
-```
-
-如果控制器方法参数写为User user, String name, String sex这种，后面的name和sex属性也会被赋值，因为SpringMVC是按属性名赋值的，只要一样就赋值，不过这样显然没什么意义。
-
-#### &emsp;&emsp;中文乱码
-
-注意这样就直接传输过来了。但是这时候sex值会乱码，因为字符编码不一致。
-
-要改变编码方式必须在获取请求参数之前，否则就已经乱码了。
-
-请求乱码有两种，一种是post请求乱码，一种是get请求乱码。
-
-如果将表单的提交方式改为get，即method="get"就不会乱码，那么就代表get请求的乱码我们在此之前就已经解决过了。
-
-get请求的乱码是由Tomcat造成的，所以要解决get请求乱码就需要让Tomcat不乱码，在Tomcat安装目录的conf/server.xml中找到`<Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" />`，要解决乱码就要在其中加上URIEncoding="UTF-8"。
-
-post请求的乱码是DispatcherServlet造成的，所以即使在控制器方法中重新设置了编码格式也没有用，因为DispatcherServlet获取参数时就已经乱码了，所以为了解决乱码必须在DispatcherServlet请求参数之前完成。由于我们之前在web.xml中设置过前端控制器DispatcherServlet是在服务器启动时就加载的，所以就必须找到一种技术在DispatcherServlet执行之前就开始。
-
-Servlet中学过组件加载顺序，监听器Listener->过滤器Filter->服务器小程序Servelt。而监听器只监听事件，只会执行一次，而过滤器只要请求路径满足过滤路径都会被过滤器过滤，所以此时我们可以使用过滤器处理中文乱码问题。
+[案例一搭建环境代码：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)。
