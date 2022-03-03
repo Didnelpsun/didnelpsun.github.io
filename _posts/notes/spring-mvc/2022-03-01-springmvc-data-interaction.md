@@ -7,6 +7,8 @@ tags: SpringMVC 基础 数据
 excerpt: "数据交互"
 ---
 
+继续在[案例一搭建环境代码：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)上编写。
+
 ## 获取请求参数
 
 在WEB-INF/pages下新建一个页面param.jsp用来测试获取请求参数，然后修改index.jsp：
@@ -27,7 +29,7 @@ excerpt: "数据交互"
 </html>
 ```
 
-然后在HelloController下添加跳转到该页面的控制器：
+然后在将HelloController改为PageController，下添加跳转到该页面的控制器：
 
 ```java
 @RequestMapping("/param")
@@ -276,7 +278,7 @@ post请求的乱码是DispatcherServlet造成的，所以即使在控制器方�
 
 Servlet中学过组件加载顺序，监听器Listener->过滤器Filter->服务器小程序Servelt。而监听器只监听事件，只会执行一次，而过滤器只要请求路径满足过滤路径都会被过滤器过滤，所以此时我们可以使用过滤器处理中文乱码问题。
 
-在web.xml中定义一个过滤器，这是SpringMVC就提供的组件：
+在web.xml中定义一个过滤器，与servlet标签同级，这是SpringMVC就提供的组件：
 
 ```xml
 <!--定义字符编码过滤器-->
@@ -319,6 +321,309 @@ Servlet中学过组件加载顺序，监听器Listener->过滤器Filter->服务�
 Session钝化：服务器关闭但是浏览器未关闭，Session中的数据会序列化到磁盘上。
 Session活化：浏览器未关闭而服务器又开启，则将磁盘Session数据读取到Session中。
 
+在pages中新建一个share.jsp。index.jsp中添加`<h2><a href="${pageContext.request.contextPath}/share">域共享数据</a></h2>`。
+
+添加一个基本的返回share页面的控制器：
+
+```java
+@RequestMapping("/share")
+public String share(){
+    return "share";
+}
+```
+
 ### &emsp;servletAPI向request域
 
+根据上面的请求参数可以获得request，所以这里也可以获取request：
+
+```java
+// 使用servletAPI向Request域共享数据
+@RequestMapping("/share/shareServletAPI")
+public String shareServletAPI(HttpServletRequest request){
+    // 向域对象共享数据
+    request.setAttribute("shareType", "ServletAPI");
+    return "share";
+}
+```
+
+修改share.jsp，其中request是JSP的内置对象，表示客户端请求信息的封装，其他具体使用看JSP：
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>share</title>
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+<%
+    String shareType = (String) request.getAttribute("shareType");
+%>
+    <h3>${shareType}</h3>
+</body>
+</html>
+```
+
+访问<http://localhost:8080/share/shareServletAPI>就可以看到显示ServletAPI。
+
 ### &emsp;ModelAndView向request域
+
+ModelAndView用来存储处理完后的结果数据，以及显示该数据的视图。从名字上看ModelAndView中的Model代表模型，View代表视图，这个名字就很好地解释了该类的作用。业务处理器调用模型层处理完用户请求后，把结果数据存储在该类的model属性中，把要返回的视图信息存储在该类的view属性中，然后让该ModelAndView返回该Spring MVC框架。框架通过调用配置文件中定义的视图解析器，对该对象进行解析，最后把结果数据显示在指定的页面上。
+
+不论使用哪种方式进行request域共享，其信息都会被包装成ModelAndView对象。
+
+```java
+// 使用ModelAndView向Request域共享数据
+@RequestMapping("/share/shareModelAndView")
+public ModelAndView shareModelAndView(){
+    ModelAndView modelAndView = new ModelAndView();
+    // 处理模型数据，即向请求域request共享数据
+    // addObject将对象添加到模型中，即添加到request域中，这个方法相当于request.setAttribute
+    modelAndView.addObject("shareType", "ModelAndView");
+    // 设置视图名称，即应该跳转到的视图页面名称，这里是share
+    modelAndView.setViewName("share");
+    return modelAndView;
+}
+```
+
+访问<http://localhost:8080/share/shareModelAndView>会显示ModelAndView。
+
+### &emsp;Model向request域
+
+其实就是指ModelAndView中的Model，需要从参数传入Model对象。其View的功能由原来的控制器方法来实现：
+
+```java
+// 使用Model向Request域共享数据
+@RequestMapping("/share/shareModel")
+public String shareModel(Model model){
+    // 添加属性
+    model.addAttribute("shareType", "Model");
+    return "share";
+}
+```
+
+访问<http://localhost:8080/share/shareModel>会显示Model。
+
+### &emsp;Map向request域
+
+```java
+// 使用Map向Request域共享数据
+@RequestMapping("/share/shareMap")
+public String shareMap(Map<String, Object> map){
+    // 添加属性
+    map.put("shareType", "Map");
+    return "share";
+}
+```
+
+SpringMVC会自动将Map数据注入到页面的request域中。因为底层Model也是用Map注入属性的，所以这里Map和Model都是一样的效果。
+
+访问<http://localhost:8080/share/shareMap>会显示Map。
+
+### &emsp;ModelMap向request域
+
+```java
+// 使用ModelMap向Request域共享数据
+@RequestMapping("/share/shareModelMap")
+public String shareModelMap(ModelMap modelMap){
+    // 添加属性
+    modelMap.addAttribute("shareType", "ModelMap");
+    return "share";
+}
+```
+
+基本和Model使用方法一致。
+
+访问<http://localhost:8080/share/shareModelMap>会显示ModelMap。
+
+### &emsp;Modle、Map和ModelMap
+
+其三个的绑定属性的方法类型都是org.springframework.validation.support.BindingAwareModelMap。
+
+```java
+public interface Model {}
+public class ModelMap extends LinkedHashMap<String，object> {}
+public class ExtendedModelMap extends ModelMap implements Model {}
+public class BindingAwareModelMap extends ExtendedlModelMap {}
+```
+
+### &emsp;向Session域
+
+修改share.jsp来访问Session数据，直接从sessionScope中获取对应名的值：`<h3>${sessionScope.session}</h3>`。
+
+#### &emsp;&emsp;原生API
+
+使用原生API即HttpSession对象：
+
+```java
+// 向Session域共享数据
+@RequestMapping("/share/shareSession")
+public String shareSession(HttpSession session){
+    // 添加属性
+    session.setAttribute("session", "Session");
+    return "share";
+}
+```
+
+访问<http://localhost:8080/share/shareSession>会显示Session。
+
+#### &emsp;&emsp;@SessionAttribute和@SessionAttributes
+
+可以使用@SessionAttribute和@SessionAttributes注解，让参数在这个类下定义的多个请求间共享。@SessionAttributes只能作用在类上，@SessionAttribute只能作用于参数列表。类似于Session的Attribute，但不完全一样，一般来说@SessionAttributes设置的参数只用于暂时的传递，而不是长期的保存，长期保存的数据还是要放到Session中。
+
+@SessionAttributes有两个参数，用于指定要保存的数据的名称和类型：
+
++ String[] value：要保存到session中的参数名称。
++ Class[] typtes：要保存的参数的类型，和value中顺序要对应上。
+
+@SessionAttribute在参数之前，指定保存数据的名称和参数之间的映射，即从Session里面获取数据到参数。
+
+通过@SessionAttributes注解设置的参数有三类用法：
+
+1. 在视图中通过request.getAttribute或session.getAttribute获取。
+2. 在后面请求返回的视图中通过session.getAttribute或者从model中获取。
+3. 自动将参数设置到后面请求所对应处理器的Model类型参数或者有@ModelAttribute注释的参数里面。
+
+将一个参数设置到SessionAttributes中需要满足两个条件：
+
+1. 在@SessionAttributes注解中设置了参数的名字或者类型。
+2. 在处理器中将参数设置到了model中。
+
+@SessionAttributes用户后可以调用`SessionStatus.setComplete()`来清除，这个方法只是清除SessionAttribute里的参数，而不会应用Session中的参数。
+
+如控制器方法不变，在PageController上添加`@SessionAttributes(value = {"session"}, types = {String.class})`表示这个Session的session值将在PageController下的所有路径共享。index.jsp上添加`<h3>${sessionScope.session}</h3>`获取Session值。然后运行，首先访问<http://localhost:8080/>，发现Session值首先是空的，因为我们还没有赋值，然后访问<http://localhost:8080/share/shareSession>，此时Session就已经被赋值了，最后再返回<http://localhost:8080/>就可以看到最下面出现了Session。所以这时候share和index两个页面的Session是共享的。
+
+此时在index页面的某个方法的参数列表中添加@SessionAttribute("session") String session就可以在方法中访问这个Session了。
+
+### &emsp;向Application域
+
+通过Session获取Application即ServletContext：
+
+```java
+// 向Application域共享数据
+@RequestMapping("/share/shareApplication")
+public String shareApplication(HttpSession session){
+    ServletContext application = session.getServletContext();
+    // 添加属性
+    application.setAttribute("application", "Application");
+    return "share";
+}
+```
+
+ServletContext有application对象，所以直接使用：
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>share</title>
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+    <!--可以直接在对应的scope中调用值-->
+    <h3>${requestScope.shareType}</h3>
+    <h3>${sessionScope.session}</h3>
+    <h3>${applicationScope.application}</h3>
+</body>
+</html>
+```
+
+访问<http://localhost:8080/share/shareApplication>会显示Application。
+
+&emsp;
+
+## 视图
+
+即View接口，作用是渲染数据，将模型Model中的数据展示给用户。视图种类有很多，默认有转发视图和重定向视图。
+
+### &emsp;InternalResourceView
+
+SpringMVC默认的转发视图，我们当前在SpringMVC.xml配置的视图解析器使用的就是转发视图。如果没有配置视图解析器默认也是使用这个。
+
+SpringMVC创建转发视图的过程：当控制器方法中所设置的视图名称以"forward:"为前缀时，创建InternalResourceView视图，此时的视图名称不会被SpringMVC配置文件中所配置的视图解析器解析。而是会将前缀"forward:"去掉，剩余部分作为最终路径通过转发的方式实现跳转。（而不会路径拼接）
+
+### &emsp;RedirectView
+
+SpringMVC默认的重定向视图。业务逻辑操作成功后一般都需要重定向视图。
+
+转发是浏览器发送一次请求，然后服务器内部转发这次请求，重定向是浏览器发送一次请求访问Servlet，然后服务器给浏览器重定向地址，浏览器第二次请求重定向地址。
+
+重定向就无法获取请求域的参数，无法请求WEB-INF资源，但是可以跨域，转发相反。
+
+SpringMVC创建重定向视图的过程：当控制器方法中所设置的视图名称以"recirect:"为前缀时，创建RedirectView视图，此时的视图名称不会披SpringMVC配置文件中所配置的视图解析器解析，而是会将前缀"redirect:"去掉，剩杂部分作为最终路径通过重定向的方式实现跳转。
+
+添加控制器：
+
+```java
+// 重定向
+@RequestMapping("/redirect")
+public String redirect(){
+    return "index";
+}
+```
+
+访问<http://localhost:8080/redirect>会直接跳转到首页<http://localhost:8080>，即index页面。
+
+```java
+// 重定向
+@RequestMapping("/redirect")
+public String redirect(){
+    return "redirect:/index";
+}
+```
+
+这时会报错，因为此时重定向路径为<http://localhost:8080/index>，所以匹配的是将index作为value来识别，从而报错，所以重定向的应该是请求路径而不是页面。如果改为`return "redirect:/";`，再访问，则会发生两次请求，一次是redirect页面，状态码为302，第二次才是localhost的首页。
+
+### &emsp;JstlView
+
+当工程引入JSTL（JSP标准标签库）的时候转发视图会自动转换为JstlView。使用Java代码控制HTML页面。
+
+### &emsp;ThymeleafView
+
+若使用的视图技术为Thymeleaf，在SpringMVC的SpringMVC.xml中配置了Thymeleaf的视图解析器，那么视图解析器解析之后得到的就是ThymeleafView。即路径没有任何前缀才能被Thymeleaf解析器解析为ThymeleafView。
+
+当控制器方法中所设置的视图名称没有任何前缀时。此时的视图名称会被SpringMVC配置文件中所配置的视图解析器来解析，视图名称拼接视图前缀和视图后缀所得到的最终路径，会通过转发的方式实现跳转。
+
+### &emsp;view-controller
+
+当控制器方法中，仅仅用来实现页面跳转，即只需要设置视图名称时，可以将处理器方法在SpringMVC配置文件SpringMVC.xml中使用view-controller标签来表示。
+
+使用时还需要在SpringMVC.xml中开启mvc注解驱动标签`<mvc:annotation-driven />`，否则会造成所有的@Controller注解无法解析，导致404错误：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--开启扫描组件-->
+    <context:component-scan base-package="org.didnelpsun.controller"/>
+    <!--配置视图解析器-->
+    <!--对转向页面的路径解析。prefix：前缀，suffix：后缀 -->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--所有的视图页面全部在WEB-INF的pages下-->
+        <!--WEB-INF不能直接URL访问也不能重定向访问，只能转发访问-->
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <!--后缀为jsp-->
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!--开启MVC注解驱动-->
+    <mvc:annotation-driven />
+    <!--配置view-controller-->
+    <!--path即GetMapping内容，view-name即return内容-->
+    <mvc:view-controller path="/" view-name="index"/>
+    <mvc:view-controller path="/share" view-name="share"/>
+</beans>
+```
+
+注解掉hello方法和share方法。这样定义后index访问是没有问题的，但是此时share访问是有问题的，因为SpringMVC会默认将其调用hello方法，把share看作value参数。而我们这时候把share方法撤销注释，此时share页面又能正常访问了，所以证明控制器方法能覆盖SpringMVC.xml的view-controller配置。因为请求是先去找处理器处理，如果找不到才会去找这个标签配置。
+
+所以为了避免路径处理混乱一般还是使用控制器方法处理。
+
+[案例二数据交互：SpringMVC/demo2_data_interaction](https://github.com/Didnelpsun/SpringMVC/tree/master/demo2_data_interaction)。

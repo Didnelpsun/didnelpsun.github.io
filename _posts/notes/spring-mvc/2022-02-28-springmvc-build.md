@@ -475,4 +475,16 @@ public String restful(@PathVariable("value")String value){
 
 这样就能直接获取/restful后面传入的参数了。
 
+&emsp;
+
+## 页面更改页面无效问题
+
+比如我们将页面从一个位置更改到另一个位置，但是Tomcat还是渲染原来的页面，可能是有缓存的问题，静态资源在编译时不会发生变化，可以删除target目标文件夹重新编译或重新部署。
+
+&emsp;
+
+## 启动404问题
+
+可能Tomcat部署有问题，查看Tomcat配置的部署的应用程序上下文，应该是空的表示从根目录开始范围。
+
 [案例一搭建环境代码：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)。
