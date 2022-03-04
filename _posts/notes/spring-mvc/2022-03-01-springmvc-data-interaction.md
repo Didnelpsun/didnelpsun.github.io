@@ -7,7 +7,7 @@ tags: SpringMVC 基础 数据
 excerpt: "数据交互"
 ---
 
-继续在[案例一搭建环境代码：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)上编写。
+继续在[案例一搭建环境：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)上编写。
 
 ## 获取请求参数
 
@@ -74,6 +74,10 @@ public String paramController(String value){
 当遇到输入多个参数时，SpringMVC会按照参数名称来一一赋值，所以输入参数的顺序不重要。当没有赋值到的就是null。
 
 如果输入的是一个复选框的内容，即同名数据，一个name有多个value值，SpringMVC则提供String数组类型的参数来包装提供给我们，也可以提供String类型的参数给我们，数据中间以逗号拼接。
+
+#### &emsp;&emsp;@PathVariable
+
+上一个文档已经描述了@PathVariable的用法，与下面不用的地方就在于需要使用Restful风格路径。
 
 #### &emsp;&emsp;@RequestParam
 

@@ -487,4 +487,4 @@ public String restful(@PathVariable("value")String value){
 
 可能Tomcat部署有问题，查看Tomcat配置的部署的应用程序上下文，应该是空的表示从根目录开始范围。
 
-[案例一搭建环境代码：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)。
+[案例一搭建环境：SpringMVC/demo1_build](https://github.com/Didnelpsun/SpringMVC/tree/master/demo1_build)。
