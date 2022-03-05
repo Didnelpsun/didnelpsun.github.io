@@ -346,7 +346,7 @@ public class UserController {
 
 ### &emsp;使用JSTL
 
-然后需要编写user.jsp文件，需要循环这个List，必须使用JSTL。
+然后需要编写user.jsp文件，需要循环这个List来展示所有User，必须使用JSTL。
 
 首先导包：
 
@@ -417,7 +417,7 @@ public class UserController {
 
 为删除的a标签添加href属性：`<a href="${pageContext.request.contextPath}/user/${user.getId()}">删除</a>`。此时还是GET请求方式，所以需要新建一个form表单并设置请求方式和_method参数。那么如何让连接控制这个表单？可以使用原生JS也可以使用Vue。这里我们使用JS。
 
-首先重新修改a标签，绑定对应的onclick事件处理函数：`<a onclick="deleteUser('${pageContext.request.contextPath}/${user.getId()}')">删除</a>`。
+首先重新修改a标签，因为这个标签的跳转功能是没用的，所以把更新和删除的a标签都换成div标签，绑定对应的onclick事件处理函数：`<div onclick="deleteUser('${pageContext.request.contextPath}/${user.getId()}')">删除</div>`。
 
 在user.jsp中添加JS代码：
 
@@ -457,5 +457,201 @@ public String deleteUser(@PathVariable("id") Integer id){
 ```
 
 此时就可以了。
+
+### &emsp;编写添加和修改
+
+添加和修改都需要用saveUser方法，且都需要一个展示和修改单个用户信息的页面。所以新建一个userSave页面。
+
+首先分析添加和修改的逻辑。
+
+添加：
+
+1. 点击插入的标签。
+2. 跳转到userSave页面。
+3. 填写表单。
+4. 使用post方法进行提交，调用控制器insertUser方法。
+
+更新：
+
+1. 点击更新的标签。
+2. 跳转到userSave页面，并调用控制器selectUserByID方法查询该ID的相关信息并放入userSave页面的表单中。所以这里会使用转发到userSave页面（控制器方法return userSave）。
+3. 因为userid不能更改，所以在表单中的userid是设置不可修改的。填写表单。
+4. 使用put方式进行提交，调用控制器updateUser方法。
+
+由于需要使用PUT模式，需要设置_method，且使用提交时提交按钮需要根据是更新还是提交选择不同的上传模式。所以使用`<input type="hidden" name="_method" value="${requestScope.type}">`来从request中获取提交类型，并在控制器方法中使用model.addAttribute添加属性type表明提交类型。
+
+#### &emsp;&emsp;添加
+
+user.jsp中修改插入新用户的a标签：`<td><a href="/userSave">插入新用户</a></td>`。点击这个标签会直接跳转到/userSave页面。
+
+修改userSave页面，由于后面的修改是PUT请求，所以需要增加一个_method的input标签：
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" isELIgnored="false" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<html>
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <title>UserSave</title>
+</head>
+<body>
+    <!--添加POST和修改PUT的目标uri都是/user，所以表单的提交目标是/user-->
+    <form action="${pageContext.request.contextPath}/user" method="post">
+        <!--如果是修改，那么就是PUT请求，那么就需要设置_method标签，value值设为request的参数type，需要在控制器方法中设置为put-->
+        <!--如果是添加，那么就是POST请求，_method的value只能是delete、put和patch而不能是post，所以此时应该把这个标签设为disabled-->
+        <input type="hidden" name="_method" value="${requestScope.type}" disabled="${requestScope.type}=='post'">
+        <!--用户id是不变的，只起到展示的作用-->
+        <label>
+            用户ID
+            <input type="text" name="id" readonly>
+        </label><br>
+        <label>
+            用户名
+            <input type="text" name="name">
+        </label><br>
+        <label>
+            性别
+            <input type="radio" name="sex" value="男">男
+        </label>
+        <label>
+            <input type="radio" name="sex" value="女">女
+        </label><br>
+        <label>
+            生日
+            <input type="date" name="birthday">
+        </label><br>
+        <label>
+            地址
+            <input type="text" name="address">
+        </label><br>
+        <input type="submit" value="保存用户信息" />
+    </form>
+</body>
+</html>
+```
+
+然后添加对应的两个控制器：
+
+```java
+// 跳转到添加模式的用户信息页面
+@GetMapping(value = "/userSave")
+public String forwardInsert(Model model){
+    // 设置添加模式为POST
+    model.addAttribute("type","post");
+    return "userSave";
+}
+// 添加用户信息
+@PostMapping(value = "/user")
+// 直接通过实体类获取数据
+public String insertUser(User user){
+    // 添加数据
+    userDAO.saveUser(user);
+    // 返回主页面
+    return "redirect:/user";
+}
+```
+
+#### &emsp;&emsp;修改
+
+修改按钮在JSP的循环中，跳转的路径为/userSave/{id}：
+
+```jsp
+<div onclick="updateUser('${pageContext.request.contextPath}/userSave/${user.getId()}')">更新</div>
+```
+
+```javascript
+function updateUser(url){
+    // 跳转
+    window.location.href = url;
+}
+```
+
+此时更新删除按钮的布局发生改变，所以给其父组件添加样式：`style="display: flex; flex-direction: row; justify-content: space-around"`。
+
+添加跳转的控制器，进行的操作有设置请求方式，并获取这个用户的数据并传入request给前端：
+
+```java
+// 跳转到更新模式的用户信息页面
+@GetMapping(value = "/userSave/{id}")
+public String forwardUpdate(Model model, @PathVariable Integer id){
+    model.addAttribute("type","put");
+    model.addAttribute("user",userDAO.selectUser(id));
+    // 由于需要保存查询的request值，所以使用转发而不是重定向
+    return "userSave";
+}
+```
+
+然后修改userSave.jsp，把user的信息填入。注意单选框的选择，由于radio的选择是靠checked，而checked属性没有true或者false，只要填上去就当作真，所以处理起来比较麻烦，不能直接在标签中使用Java变量，所以使用JS处理。JS是无法获取POST的request域数据的，所以跟_method一样使用隐藏域来保存这个数据：
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true" isELIgnored="false" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<html>
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <title>UserSave</title>
+</head>
+<body>
+    <!--添加POST和修改PUT的目标uri都是/user，所以表单的提交目标是/user-->
+    <form action="${pageContext.request.contextPath}/user" method="post">
+        <!--如果是修改，那么就是PUT请求，那么就需要设置_method标签，value值设为request的参数type，需要在控制器方法中设置为put-->
+        <!--如果是添加，那么就是POST请求，_method的value只能是delete、put和patch而不能是post，所以此时应该把这个标签设为disabled-->
+        <input type="hidden" name="_method" value="${requestScope.type}" disabled="${requestScope.type}=='post'">
+        <!--使用隐藏域获取post的request域数据，并用disabled表示不提交sexValue到表单-->
+        <input type="hidden" name="sexValue" value="${requestScope.user.getSex()}" id="sex" disabled>
+        <!--用户id是不变的，只起到展示的作用-->
+        <label>
+            用户ID
+            <input type="text" name="id" readonly value="${requestScope.user.getId()}">
+        </label><br>
+        <label>
+            用户名
+            <input type="text" name="name" value="${requestScope.user.getName()}">
+        </label><br>
+        <label>
+            性别
+            <input type="radio" name="sex" value="男" id="male">男
+        </label>
+        <label>
+            <input type="radio" name="sex" value="女" id="female">女
+        </label><br>
+        <label>
+            生日
+            <input type="date" name="birthday" value="${requestScope.user.getBirthday()}">
+        </label><br>
+        <label>
+            地址
+            <input type="text" name="address" value="${requestScope.user.getAddress()}">
+        </label><br>
+        <input type="submit" value="保存用户信息" />
+    </form>
+</body>
+<script>
+    // 获取隐藏域标签所得的值
+    if(document.getElementById("sex").value === "男"){
+        document.getElementById("male").checked=true;
+        document.getElementById("female").removeAttribute("checked");
+    }
+    else if(document.getElementById("sex").value === "女"){
+        document.getElementById("female").checked=true;
+        document.getElementById("male").removeAttribute("checked");
+    }
+</script>
+</html>
+```
+
+设置提交控制器：
+
+```java
+// 更新用户信息
+@PutMapping(value = "/user")
+// 直接通过实体类获取数据
+public String updateUser(User user){
+    // 添加数据
+    userDAO.saveUser(user);
+    // 返回主页面
+    return "redirect:/user";
+}
+```
 
 [案例三Restful案例：SpringMVC/demo3_restful_demo](https://github.com/Didnelpsun/SpringMVC/tree/master/demo3_restful_demo)。
