@@ -75,9 +75,9 @@ Spring会先执行order值比较小的。当访问一个image.jpg图片文件时
 
 &emsp;
 
-## HttpMessageConverter
+## 报文消息处理
 
-即报文信息转换器，将请求报文转换为Java对象，或将Java对象转换为响应报文。
+HttpMessageConverter即报文信息转换器，将请求报文转换为Java对象，或将Java对象转换为响应报文。SpringMVC在我们不配置的情况下会自动注册相应组件。
 
 提供两个注解：@RequestBody（请求体转换为Java对象）、@ResponseBody（Java对象转换为响应体）和两个类型：RequestEntity（请求类型）、ResponseEntity（响应类型）。
 
@@ -227,12 +227,353 @@ public void response(HttpServletResponse response, @PathVariable("type") Boolean
 
 此时跳转的路径的响应就只是字符流和字节流，而不是一个完整的页面。
 
-### &emsp;@ResponseBody
+### &emsp;@ResponseBody处理字符串
+
+在index.jsp中添加`<a href="${pageContext.request.contextPath}/responseBody">通过ResponseBody响应</a>`。
+
+添加控制器方法：
+
+```java
+@RequestMapping("/responseBody")
+// 加上这个注解后返回值不再是视图名称，而是响应的响应体
+@ResponseBody
+public String responseBody() {
+    return "ResponseBody响应";
+}
+```
+
+此时会中文乱码。那么如何解决？
+
+#### &emsp;&emsp;配置\<mvc:message-converters\>
+
+已知web.xml中的\<mvc:annotation-driven/\>这个注解是用来控制SpringMVC的注解开启的，但是我们之前没有配置具体的内容，此时SpringMVC会默认配置一些组件，如消息转换器StringHttpMessageConverter、映射器RequestMappingHandlerMapping、适配器RequestMappingHandlerAdapter、异常解析器ExceptionHandlerExcetionResolver。
+
+可以通过\<mvc:message-converters\>来配置从服务器到前端的字符编码。\<mvc:message-converters\>不写的话，系统会默认帮你注册一堆默认的消息转换器。你自己配置了，那么系统就不会帮你注册了默认的了而只会注册你配置的。
+
+mvc:message-converters的register-defaults="false"属性可以控制SpringMVC不要帮你注册默认的。
+
+```xml
+<mvc:annotation-driven>
+    <mvc:message-converters register-defaults="false">
+        <!--处理响应体为文本模式的情况下对字符编码改为UTF-8-->
+        <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+            <!--默认字符编码-->
+            <property name="defaultCharset" value="UTF-8"/>
+            <!--是否给响应头添加自动字符编码类型-->
+            <property name="writeAcceptCharset" value="false"/>
+        </bean>
+    </mvc:message-converters>
+</mvc:annotation-driven>
+```
+
+#### &emsp;&emsp;配置@RequestMapping
+
+给@RequestMapping注解添加produces。它的作用是指定返回值类型还可以设定返回值的字符编码。
+
+即`@RequestMapping(value = "/responseBody", produces = {"text/plain;charset=utf-8","text/html;charset=utf-8"})`。指定响应的字符集为utf-8，就不会再用@ResponseBody的StringHttpMessageConverter的字符集了。前面的text/plain就是返回的响应体类型。
+
+<span style="color:yellow">提示：</span>还有一个属性与其对应，就是consumes：指定处理请求的提交内容类型（Content-Type），例如application/json、text/html。是在Reques请求处使用。
 
 ### &emsp;@ResponseBody处理JSON
 
+由于@ResponseBody只能处理文本信息，而如果我们在控制器中返回一个类，如我们把上个案例的User类复制到entity包中：
+
+```java
+// User.java
+package org.didnelpsun.entity;
+
+import java.io.Serializable;
+
+public class User implements Serializable{
+    private Integer id;
+    private String name;
+    private String sex;
+    private String birthday;
+    private String address;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString(){
+        return "User{" + "id=" + this.id + ",name=" + this.name + ",birthday=" + this.birthday + ",sex=" + this.sex + ",address=" + this.address + "}";
+    }
+
+    public User() {
+        System.out.println("UserClass");
+    }
+
+    public User(Integer id, String name, String sex, String birthday, String address){
+        System.out.println("UserClass");
+        this.id = id;
+        this.name = name;
+        this.sex = sex;
+        this.birthday = birthday;
+        this.address = address;
+    }
+
+    public User(String name, String sex, String birthday, String address){
+        System.out.println("UserClass");
+        this.name = name;
+        this.sex = sex;
+        this.birthday = birthday;
+        this.address = address;
+    }
+}
+```
+
+如果我们控制器直接返回User类给前端，那么前端会报错500标识无法转换这个类型。因为前端是JS，而后端我们使用的是Java，JS是不能直接处理Java对象的。
+
+那么如何进行转换？使用JSON格式。
+
+首先导入jackson依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.1</version>
+</dependency>
+```
+
+添加index.jsp的标签：`<a href="${pageContext.request.contextPath}/responseBodyUser">通过ResponseBody响应User</a>`。
+
+添加控制器：
+
+```java
+@RequestMapping(value = "/responseBodyUser", produces = {"text/plain;charset=utf-8","text/html;charset=utf-8"})
+@ResponseBody
+public User responseBodyUser() {
+    return new User("金","男","2000-04-12","湖北省武汉市");
+}
+```
+
+此时会报错No converter for [class org.didnelpsun.entity.User] with preset Content-Type 'null'。因为我们要在produces设置返回值类型：`@RequestMapping(value = "/responseBodyUser", produces = {"application/json;charset=utf-8"})`。这样就可以了，返回`{"id":null,"name":"金","sex":"男","birthday":"2000-04-12","address":"湖北省武汉市"}`JSON字符串对象，表示Java会把User对象调用toString字符串化再转换为JSON格式给前端。
+
+所以处理JSON的步骤：
+
+1. 导入jackson的依赖。
+2. 在SpringMVC的核心配置文件SpringMVC.xml中开启mvc的注解驱动\<mvc:annotation-driven\>，此时适配器HandlerAdaptor会自动装配一个消息转换器MappingJackson2HttpMessageConverter，可以将响应到浏览器的Java对象转换为JSON格式的字符串。
+3. 在处理器方法上使用@ResponseBody注解进行标识。
+4. 将Java对象直接作为控制器方法的返回值返回，就会自动转为JSON格式的字符串。
+
 ### &emsp;处理AJAX
+
+使用原生JS的AJAX：
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html>
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <title>主页</title>
+</head>
+<body>
+<%--<form method="post" action="${pageContext.request.contextPath}/requestBody">--%>
+<%--<form method="post" action="${pageContext.request.contextPath}/requestEntity">--%>
+<form method="post" id="form">
+    <label>
+        用户：
+        <input type="text" name="name" id="name">
+    </label><br>
+    <label>
+        密码：
+        <input type="text" name="password" id="password">
+    </label><br>
+    <input type="submit" value="提交" onclick="ajaxSubmit('${pageContext.request.contextPath}/ajaxResponse')">
+</form>
+<a href="${pageContext.request.contextPath}/response/true">通过ServletAPI进行字符流响应</a>
+<a href="${pageContext.request.contextPath}/response/false">通过ServletAPI进行字节流响应</a>
+<a href="${pageContext.request.contextPath}/responseBody">通过ResponseBody响应</a>
+<a href="${pageContext.request.contextPath}/responseBodyUser">通过ResponseBody响应User</a>
+</body>
+<script>
+    function ajaxSubmit(url){
+        // 创建异步对象
+        let ajax = new XMLHttpRequest();
+        // get模式
+        if(document.getElementById("form").method==="get"){
+            // 设置方法和url
+            ajax.open("get",url + "?name=" + document.getElementById("name").value + "&password=" + document.getElementById("password").value);
+            // 发送请求
+            ajax.send();
+        }
+        else{
+            // post请求url不变
+            ajax.open("post",url);
+            // 设置请求报文头部类型为application/x-www-form-urlencoded标识使用AJAX
+            ajax.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            // 设置JSON数据
+            let data = {
+                    'name':document.getElementById("name").value,
+                    'password':document.getElementById("password").value
+                }
+            // 发送数据
+            ajax.send(data.toString());
+        }
+        // 注册事件，表明AJAX传输成功的处理
+        ajax.onreadystatechange = ()=>{
+            if(ajax.readyState == 4 && ajax.status == 200){
+                console.log(ajax.responseText);
+                alert("提交成功！");
+            }
+        }
+    }
+</script>
+</html>
+```
+
+提交用户名和密码后如果提交成功会打印后台响应数据并提示提交成功。
+
+编写控制器，因为返回的是字符串而不是对象，所以不用设置produces：
+
+```java
+@PostMapping(value = "/ajaxResponse")
+@ResponseBody
+public String ajaxResponse(String name, String password){
+    return "name:" + name + " password:" + password;
+}
+```
+
+控制器获取提交数据并再返回给前端这个字符串数据。
+
+运行后会发405错误：Request method 'POST' not supported，表示<http://localhost:8080/>不支持POST方式。表示使用AJAX后页面没有跳转到/ajaxResponse而是重新返回到主页，这是因为AJAX请求不发生跳转。
+
+由于使用view-controller所以默认访问方式是GET方式而不支持POST方式，所以我们把view-controller注解掉，然后添加控制器访问方法为GET和POST都支持：
+
+```java
+@RequestMapping("/")
+public String index(){
+    return "index";
+}
+```
+
+<span style="color:orange">注意：</span>在点击第一次时可能alert没有弹出来，这是因为网页组件元素还没有完全生成部署，需要等一会等Tomcat把所有信息都输出了就代表已经编译完成了。
 
 ### &emsp;@RestController
 
+由于数据交互需要大量的HTTP和JSON，所以@ResponseBody注解会经常使用。@RestController就是@ResponseBody的派生注解，是SpringMVC提供的一个复合注解（@Controller+@ResponseBody），标识在控制器的类上，就相当于给类添加了@Controller注解，并且为其中的每个方法都添加了@ResponseBody注解。
+
 ### &emsp;ResponseEntity
+
+用于控制器方法的返回值类型，该控制器方法的返回值就是响应到浏览器的响应报文。所以我们可以自己定义路径的响应报文。
+
+&emsp;
+
+## 文件处理
+
+不论是上传还是下载本质就是文件复制。
+
+### &emsp;文件下载
+
+使用ResponseEntity可以实现文件下载的功能。
+
+首先在SpringMVC.xml中加上\<mvc:default-servlet-handler/\>开启静态资源处理。然后在webapp下新建static/img文件夹，并随便放入一张图片test.jpg。
+
+在index.jsp中添加路径标签：`<br><label for="filename">文件名：</label><input type="text" id="filename"><div onclick="(()=>{window.location.href += 'download/'+document.getElementById('filename').value;})()">下载文件</div>`。
+
+添加控制器：
+
+```java
+@RequestMapping("/download/{filename}")
+// ResponseEntity类型为响应报文，其中响应报文内的数据类型为字节流类型，参数为Session会话对象
+public ResponseEntity<byte[]> download(HttpSession session, @PathVariable("filename") String filename) throws IOException{
+    // 获取ServletContext对象
+    ServletContext servletContext = session.getServletContext();
+    // 获取服务器中文件的真实路径
+    // 使用File.separator取代单纯的/分隔符就能解决不同操作问题的兼容问题
+    String path = servletContext.getRealPath(File.separator + "static" + File.separator + "img" + File.separator  + filename);
+//       System.out.println(path);
+    // 判断文件是否存在
+    if(!new File(path).exists()){
+        System.out.println("文件不存在！");
+        // 返回状态码
+        return new ResponseEntity<>(null,null,HttpStatus.NO_CONTENT);
+    }
+    // 创建输入流
+    InputStream inputStream = new FileInputStream(path);
+    // 创建字节数组
+    // available()方法可以在读写操作前先得知数据流里有多少个字节可以读取
+    // 在进行网络操作时往往出错，因为你调用available()方法时，对发发送的数据可能还没有到达，你得到的count是0，所以在数据到达前应该不断等待
+    int count = 0;
+    while (count == 0) {
+        count = inputStream.available();
+    }
+    byte[] bytes = new byte[inputStream.available()];
+    // 将流读到字节数组中
+    inputStream.read(bytes);
+    // 创建HttpHeaders对象设置响应头信息
+    MultiValueMap<String, String> headers = new HttpHeaders();
+    // 设置下载方式和下载文件名字
+    // Content-disposition是MIME协议的扩展，指示MIME用户代理如何显示附加的文件。
+    // 是以内联的形式（即网页或者页面的一部分），还是以附件的形式下载并保存到本地。
+    // attachment附件方式下载文件
+    // java.net.URLEncoder.encode(filename, StandardCharsets.UTF_8)对文件名进行编码，避免下载文件中文名乱码
+    headers.add("Content-Disposition","attachment;filename="+java.net.URLEncoder.encode(filename, StandardCharsets.UTF_8));
+    // 创建ResponseEntity对象
+    // 响应体就是图片的流
+    ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(bytes,headers,HttpStatus.OK);
+    // 关闭输入流
+    inputStream.close();
+    return responseEntity;
+}
+```
+
+### &emsp;文件上传
+
+文件上传一定是POST功能。
+
+必须添加一个上传所需要的依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
+<dependency>
+    <groupId>commons-fileupload</groupId>
+    <artifactId>commons-fileupload</artifactId>
+    <version>1.4</version>
+</dependency>
+```
+
+SpringMVC会将上传的文件转换为MultipartFile类型的数据，此外我们还需要在SpringMVC.xml中配置文件上传解析器，让SpringMVC自动将上传文件封装成这个类型：`<!--文件上传解析器，且id名字必须为multipartResolver，否则SpringMVC找不到--><bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>`。为什么要配置这个id？因为MultipartResolver是一个接口，CommonsMultipartResolver是MultipartResolver的实现类，且实现类不止一个，所以如果通过MultipartResolver的类型去找Bean会找到多个实现类，从而只能根据id设置来获取。
+
+
+
+
