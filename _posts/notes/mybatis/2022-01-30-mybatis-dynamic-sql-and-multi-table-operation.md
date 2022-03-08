@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "动态SQL与多表操作"
+title:  "动态SQL与多表"
 date:   2022-01-30 22:44:20 +0800
 categories: notes mybatis base
 tags: MyBatis 基础 动态 多表

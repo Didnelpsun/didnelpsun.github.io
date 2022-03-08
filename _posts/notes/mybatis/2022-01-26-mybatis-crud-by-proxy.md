@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "代理DAO的CRUD操作"
+title:  "代理CRUD操作"
 date:   2022-01-26 16:08:33 +0800
 categories: notes mybatis base
 tags: MyBatis 基础 代理 CRUD

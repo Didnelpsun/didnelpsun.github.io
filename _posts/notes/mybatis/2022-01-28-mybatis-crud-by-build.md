@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "自定义DAO的CRUD操作"
+title:  "自定义CRUD操作"
 date:   2022-01-28 14:42:27 +0800
 categories: notes mybatis base
 tags: MyBatis 基础 编写 CRUD

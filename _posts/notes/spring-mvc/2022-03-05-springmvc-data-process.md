@@ -75,7 +75,7 @@ Spring会先执行order值比较小的。当访问一个image.jpg图片文件时
 
 &emsp;
 
-## 报文消息处理
+## 消息转换处理
 
 HttpMessageConverter即报文信息转换器，将请求报文转换为Java对象，或将Java对象转换为响应报文。SpringMVC在我们不配置的情况下会自动注册相应组件。
 
@@ -559,6 +559,8 @@ public ResponseEntity<byte[]> download(HttpSession session, @PathVariable("filen
 
 ### &emsp;文件上传
 
+#### &emsp;&emsp;基本上传编写
+
 文件上传一定是POST功能。
 
 必须添加一个上传所需要的依赖：
@@ -572,8 +574,368 @@ public ResponseEntity<byte[]> download(HttpSession session, @PathVariable("filen
 </dependency>
 ```
 
-SpringMVC会将上传的文件转换为MultipartFile类型的数据，此外我们还需要在SpringMVC.xml中配置文件上传解析器，让SpringMVC自动将上传文件封装成这个类型：`<!--文件上传解析器，且id名字必须为multipartResolver，否则SpringMVC找不到--><bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>`。为什么要配置这个id？因为MultipartResolver是一个接口，CommonsMultipartResolver是MultipartResolver的实现类，且实现类不止一个，所以如果通过MultipartResolver的类型去找Bean会找到多个实现类，从而只能根据id设置来获取。
+SpringMVC会将上传的文件转换为MultipartFile类型的数据，此外我们还需要在SpringMVC.xml中配置文件上传解析器，让SpringMVC自动将上传文件封装成这个类型：
 
+```xml
+<!--文件上传解析器，且id名字必须为multipartResolver，否则SpringMVC找不到-->
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <!--默认字符编码-->
+    <property name="defaultEncoding" value="utf-8"/>
+    <!--默认上传文件最大值，上传的不能超过10M。不然直接报500这个错-->
+<!--       <property name="maxUploadSize" value="10000000"/>-->
+</bean>
+```
 
+为什么要配置这个id？因为MultipartResolver是一个接口，CommonsMultipartResolver是MultipartResolver的实现类，且实现类不止一个，所以如果通过MultipartResolver的类型去找Bean会找到多个实现类，从而只能根据id设置来获取。
 
+添加JSP：
 
+```jsp
+<form action="${pageContext.request.contextPath}/upload" method="post" enctype="multipart/form-data">
+    头像：<input type="file" name="file"><br>
+    <input type="submit" value="上传头像">
+</form>
+```
+
+添加控制器：
+
+```java
+@PostMapping("/upload")
+// SpringMVC把这个文件封装到MultipartFile类中
+public String upload(MultipartFile file, HttpSession session) throws IOException {
+    // 判断file是否传入为空
+    if(file.getSize()==0){
+        return "redirect:/";
+    }
+    // getName获取传输文件的参数名，即前端表单以什么参数名传输到后端的，这里是photo
+    // getOriginalFileName获取传输文件的实际名字，即用户传输的这个文件的名字，用户传什么文件名这里就获取到什么
+    String fileName = file.getOriginalFilename();
+    // 获取文件路径
+    String path = session.getServletContext().getRealPath(File.separator + "static" + File.separator + "img" + File.separator);
+    // 判断路径是否存在
+    if(!new File(path).exists()){
+        // 不存在则创建目录
+        if(!new File(path).mkdir()){
+            // 创建文件目录失败
+            return "redirect:/";
+        }
+    }
+    // 设置上传地址
+    file.transferTo(new File(path + File.separator + fileName));
+    return "redirect:/";
+}
+```
+
+#### &emsp;&emsp;表单数据名与控制器参数名对应
+
+如果报错500：Request processing failed; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.multipart.MultipartFile.getOriginalFilename()" because "file" is null，是因为前端提交表单的数据名\<input type="file" name="file"\>\<br\>name值和控制器方法的参数名MultipartFile参数名不匹配。要求form提交文件的数据名与控制器方法的MultipartFile参数名一样，否则无法自动赋值从而无法初始化，也可以用注解配置映射关系，但是没必要。
+
+#### &emsp;&emsp;上传文件位置
+
+这里上传的文件所在目录不在项目的静态目录下，而是在服务器部署的静态目录下，可以使用`HttpSession.getServletContext().getRealPath`获取地址，我的在D:\Tomcat\Tomcat 8.5\webapps\ROOT\static\img下。
+
+#### &emsp;&emsp;重名文件覆盖
+
+当我们给服务器传入相同文件名的文件时，新的图片会覆盖之前在服务器静态目录的文件，这是我们不想得到的效果，因为我们客户端不知道服务器的内容，所以也不可以避免重名问题。这里不是文件覆盖，而是文件内容覆盖。
+
+那么应该如何解决呢？
+
+可以使用UUID（是一个128比特的数值，这个数值可以通过一定的算法计算出来）来替换原来的名字；也可以在原来名字后面加上上传时间，在下载时只用匹配文件名而不用匹配上传时间。
+
+如使用UUID，将上传文件名从源文件名换成UUID名：`String fileName = UUID.randomUUID().toString().replaceAll("-","") + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));`。用随机UUID并去掉横线拼接上文件类型的后缀。
+
+#### &emsp;&emsp;跨域上传
+
+此时文件只能往本项目里面传，那么怎么跨服务器传文件呢？
+
+首先导入依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-core -->
+<dependency>
+    <groupId>com.sun.jersey</groupId>
+    <artifactId>jersey-core</artifactId>
+    <version>1.19.4</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-client -->
+<dependency>
+    <groupId>com.sun.jersey</groupId>
+    <artifactId>jersey-client</artifactId>
+    <version>1.19.4</version>
+</dependency>
+```
+
+```java
+@RequestMapping("/domainUpload")
+// SpringMVC把这个文件封装到MultipartFile类中
+public String domainUpload(MultipartFile file) throws IOException {
+    // 判断file是否传入为空
+    if(file.getSize()==0){
+        return "redirect:/";
+    }
+    // 获取文件名
+    String fileName = file.getOriginalFilename();
+    // 定义上传服务器路径
+    String serverPath = "D:\\Tomcat\\Tomcat 8.5\\webapps\\ROOT\\static\\img";
+    // 创建客户端对象
+    Client client = Client.create();
+    // 和图片服务器进行连接
+    WebResource webResource = client.resource(serverPath + fileName);
+    // 上传资源
+    webResource.put(file.getBytes());
+    return "redirect:/";
+}
+```
+
+修改index.jsp：`<form action="${pageContext.request.contextPath}/domainUpload" method="post" enctype="multipart/form-data">`。
+
+如果上传路径不存在会报错409。
+
+&emsp;
+
+## 信息拦截处理
+
+最早就谈到了过滤器，之前信息转换处理时就提到了报文信息转换器，接下来会讲到拦截器和异常处理器。
+
+拦截器用于拦截控制器方法的执行。执行过程：请求Request->过滤器Filter->前端控制器DispatcherServlet->前置拦截器PreHandler->控制器Controller->后置拦截器PostHandler->视图渲染完成拦截器AfterCompletion。
+
+拦截器需要实现HandlerInterceptor。
+
+### &emsp;拦截器设置
+
+新建一个interceptor包保存拦截器，新建一个PageInterceptor类来实现HandlerInterceptor接口：
+
+```java
+// PageInterceptor.java
+package org.didnelpsun.interceptor;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class PageInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("前置拦截器");
+        return false;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        System.out.println("后置拦截器");
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        System.out.println("完成拦截器");
+    }
+}
+```
+
+然后SpringMVC.xml中添加拦截器配置：
+
+```xml
+<!--拦截器-->
+<mvc:interceptors>
+    <bean class="org.didnelpsun.interceptor.PageInterceptor"/>
+</mvc:interceptors>
+```
+
+然后运行，发现<http://localhost:8080/>不显示页面，打印了四个前置拦截器。
+
+这是因为此时前置拦截器将控制器方法的执行拦截了，所以控制器方法无法执行。preHandler拦截器返回类型为布尔类型，放行为true，拦截为false，此时拦截了所以不显示页面。
+
+设置调用父类的拦截器，默认都不拦截处理：
+
+```java
+// PageInterceptor.java
+package org.didnelpsun.interceptor;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class PageInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("前置拦截器");
+//        return false;
+        return HandlerInterceptor.super.preHandle(request, response, handler);
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        System.out.println("后置拦截器");
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        System.out.println("完成拦截器");
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
+}
+```
+
+此时会正常显示并打印所有三个拦截器字符串。并且点击一个路径都会出现三个，这是因为所有路径都会经过拦截器。并且如果出现一个父路径点击后会跳转子路径的情况，如果没有渲染完成的执行顺序：父前置拦截器->子前置拦截器->子后置拦截器->子完成拦截器->父后置拦截器->父完成拦截器，渲染完成的执行顺序：父前置拦截器->父后置拦截器->父完成拦截器->子前置拦截器->子后置拦截器->子完成拦截器。
+
+### &emsp;拦截器规则
+
+如果要对拦截器进行拦截规则配置就不能使用bean标签，因为bean标签和ref标签都是一类只设置拦截器类，无法设置拦截规则。
+
+设置拦截器规则必须使用mvc:interceptor标签。mvc:interceptors的属性path-matcher则表示配置一个自定义的PathMatcher，它主要用来处理路径的匹配规则，默认采用的PathMatcher为AntPathMatcher，具有ant风格的路径规则，如?表示任何单字符，*表示0个或多个字符，**表示0个或多个目录。
+
+```xml
+<!--拦截器-->
+<mvc:interceptors>
+    <mvc:interceptor>
+        <!--拦截路径配置-->
+        <mvc:mapping path="/**"/>
+        <!--排除路径配置-->
+        <mvc:exclude-mapping path="/"/>
+        <bean class="org.didnelpsun.interceptor.PageInterceptor"/>
+    </mvc:interceptor>
+</mvc:interceptors>
+```
+
+此时就是拦截所有，但是排除主页面。此时运行就发现一开始不会有拦截器字符串打印，而点击一个链接则会打印且在跳转回主页面时也不会打印。
+
+### &emsp;拦截器执行顺序
+
+当多个拦截器设置时的执行顺序如下：
+
+1. 若每个拦截器的preHandler都返回true：此时多个拦截器的执行顺序和拦截器在SpringMVC的配置文件的配置顺序相关。preHandler回按配置顺序执行，postHandler和afterComplation回按照配置反序执行。
+2. 若某个拦截器的preHandler返回false：preHandler返回false的和它之前的拦截器的preHandler都会执行，所有的postHandler都不执行，只有返回false的拦截器之前的拦截器的afterComplation会执行。
+
+总结而言拦截器的设置的执行顺序是一层包一层的。
+
+复制PageInterceptor三次，并重命名为PageInterceptor1、PageInterceptor2、PageInterceptor3，并在打印字符串中加上拦截器的编号。
+
+定义四个拦截器：
+
+```xml
+<mvc:interceptors>
+    <bean class="org.didnelpsun.interceptor.PageInterceptor"/>
+    <bean class="org.didnelpsun.interceptor.PageInterceptor1"/>
+    <bean class="org.didnelpsun.interceptor.PageInterceptor2"/>
+    <bean class="org.didnelpsun.interceptor.PageInterceptor3"/>
+</mvc:interceptors>
+```
+
+打印：
+
+前置拦截器
+前置拦截器1
+前置拦截器2
+前置拦截器3
+后置拦截器3
+后置拦截器2
+后置拦截器1
+后置拦截器
+完成拦截器3
+完成拦截器2
+完成拦截器1
+完成拦截器
+
+假如对拦截器2的preHandler返回false会怎么样？
+
+前置拦截器
+前置拦截器1
+前置拦截器2
+完成拦截器1
+完成拦截器
+
+&emsp;
+
+## 异常处理
+
+SpringMVC.xml中注解掉所有拦截器。
+
+### &emsp;配置方式
+
+SpringMVC提供了一个处理控制器方法执行过程中所出现异常的接口HandlerExceptionResolver。
+
+HandlerExceptionResovler接口的实现类有默认异常处理器DefaultHandlerExceptionResolver和自定义异常处理器SimpleMappingExceptionResolver。
+
+和自定义异常处理器需要在SpringMVC中配置：
+
+```xml
+<!--配置异常处理器-->
+<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+    <!--异常映射，当出现异常应该如何处理-->
+    <property name="exceptionMappings">
+        <props>
+            <!--key为异常的全限定类名，包含的prop为跳转视图名-->
+            <prop key="java.lang.ArithmeticException">error</prop>
+        </props>
+    </property>
+</bean>
+```
+
+新建一个error.jsp：
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <link rel="icon" href="data:;base64,=">
+    <title>错误</title>
+</head>
+<body>
+    <h3>出现错误</h3>
+</body>
+</html>
+```
+
+然后新建一个控制器方法映射路径，并创造一个数字计算异常：
+
+```java
+// 数字计算异常
+@RequestMapping("/mathError")
+public String mathError(){
+    System.out.println(1/0);
+    return "index";
+}
+```
+
+此时访问<http://localhost:8080/mathError>就会跳转到error页面，注意此时路径仍然是mathError而不是error，因为前端路径没有变，error页面是后端对于前端的响应数据。
+
+此时如果我们想知道出现什么错误，把后端数据传输到前端，则可以继续配置exceptionAttribute将异常信息存储到request请求域，value指定请求域的键名：`<property name="exceptionAttribute" value="exception" />`。
+
+然后在error.jsp中使用这个信息：`<h4>${requestScope.exception}</h4>`。
+
+### &emsp;注解方式
+
+将SpringMVC.xml中的异常处理器配置注释掉。
+
+使用@ContorllerAdvice注解标注到类上，标识当前类为异常处理的组件。使用@ExceptionHandler用于设置所标识方法处理的异常种类。
+
+新建一个ExceptionController.java：
+
+```java
+// ExceptionController.java
+package org.didnelpsun.controller;
+
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+// 当前类为异常处理类
+@ControllerAdvice
+public class ExceptionController {
+    // 标识处理数字计算异常
+    @ExceptionHandler(ArithmeticException.class)
+    // exception为当前异常对象
+    public String arithmeticException(Exception exception, Model model){
+        // 向request域添加参数
+        model.addAttribute("exception",exception);
+        return "error";
+    }
+}
+```
+
+@ExceptionHandler注解的value属性是一个数组，可以对多种异常进行统一的处理。
+
+[案例四数据处理：SpringMVC/demo4_data_process](https://github.com/Didnelpsun/SpringMVC/tree/master/demo4_data_process)。

@@ -180,7 +180,7 @@ public interface UserDAO {
                 <!--jdbc驱动程序-->
                 <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
                 <!--数据库连接字符串-->
-                <property name="url" value="jdbc:mysql://localhost:3306/default"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/data"/>
                 <property name="username" value="root"/>
                 <property name="password" value="root"/>
             </dataSource>

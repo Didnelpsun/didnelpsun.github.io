@@ -4,7 +4,7 @@ title:  "连接池与事务控制"
 date:   2022-01-30 00:13:52 +0800
 categories: notes mybatis base
 tags: MyBatis 基础 连接池 事务控制
-excerpt: "连接池使用与事务控制分析"
+excerpt: "连接池使用与事务控制"
 ---
 
 ## 连接池

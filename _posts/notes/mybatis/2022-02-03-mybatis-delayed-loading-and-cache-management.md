@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "延迟加载与缓存管理"
+title:  "延迟加载与缓存"
 date:   2022-02-03 11:26:53 +0800
 categories: notes mybatis base
 tags: MyBatis 基础 加载 缓存
