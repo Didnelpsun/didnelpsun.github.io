@@ -85,6 +85,8 @@ public String paramController(String value){
 
 如果形参名和参数名不一致，则无法自动赋值，这时候可以使用@RequestParam注解在形参名前，表示形参名和参数名的映射对应关系。
 
+@RequestParam可以获取从前端URL获取到的数据，用来解析请求路径里的参数（GET请求）或者POST请求中表单格式的请求参数。
+
 ```java
 @RequestMapping("/param")
 public String paramController(String value, @RequestParam("user") String name){
@@ -98,6 +100,12 @@ public String paramController(String value, @RequestParam("user") String name){
 但是此时name这个参数名就不能获取到参数了，即<http://localhost:8080/param?value=1&name=3>会报错400，且user这个属性不再是非必须的而是必须的了，因为@RequestParam注释的required属性默认为true，如果改为非必须就设置`@RequestParam(value = "user", required = false)`。
 
 此外@RequestParam注释还有一个defaultValue属性，表示不传值或传空值的默认值。
+
+#### &emsp;&emsp;@RequestAttribute
+
+在前端页面通过向request添加属性值，然后在后端参数列表中使用@RequestAttribute就可以将request域参数绑定到列表参数中。使用方式与@RequestParam类似。
+
+与@RequestParam不同的是@RequestAttribute的值的获取不是从前端，而是从request域中获取，前端需要用setAttribute设置，否则获取不到。
 
 #### &emsp;&emsp;@RequestHeader
 
@@ -126,6 +134,107 @@ public String paramController(String value,
     return "param";
 }
 ```
+
+#### &emsp;&emsp;@MatrixVariable
+
+即传输矩阵变量。我们一般查询的路径为/param?id=1,name=2，这是查询字符串query string的方式。二如果使用/param;id=1;name=2，这是矩阵变量的方式。
+
+我们在开发时会遇到这样一个问题，如果Cookie禁用了如何使用Session数据？根据Session-Cookie模式：如果我们在Session中保存了数据，Session.set(key,value)；每一个用户都会访问服务器，新用户不携带Cookie，服务器默认会给每一个用户新建一个Session会话，并赋予一个ID标识jsessionid，传输给客户端；客户端保存服务器发送来的jsessionid到本地Cookie中；客户端每次请求服务器服务都会携带这个jsessionid来获取对应的Session。如果Cookie禁用了那么服务器就不能通过jsessionid获取session中的数据。
+
+如果Cookie用不了了可以使用矩阵变量携带jsessionid：/user;jsessionid=xxx，称为路径重写，即在Cookie禁用的情况下通过矩阵变量的形式传到服务器，但是这显然跟GET请求一样是不安全的。
+
+那为什么不使用request来存放jsessionid呢？这是因为我们如果使用请求参数的方式进行传递，我们就没办法跟我们普通的请求参数进行区分了，那么服务器就会认为这个是一个请求参数而不会将其视为jsessionid进行特殊处理。
+
+如果是一个变量的多个值那么可以使用逗号分隔：color=red,green,blue；或者可以使用重复的变量名：color=red;color=green;color=blue。
+
+矩阵变量下每两个斜线就隔离出一个整体。斜线后的第一个参数就是真正的访问路径，第一个参数的分号后面的所有参数都是请求参数。
+
+```java
+@RequestMapping("/param")
+public Map<String, Object> paramMatrix(@MatrixVariable("id") Integer id,
+                          @MatrixVariable("name") String name){
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("name", name);
+    return map;
+}
+```
+
+直接访问<http://localhost:8080/param;id=1;name=2>。此时会报错400：Required matrix variable 'id' for method parameter type Integer is not present。因为SpringMVC自动关闭了矩阵变量，我们要使用必须手动开启矩阵变量。
+
+对于路径的处理，SpringMVC会使用UrlPathHelper进行解析，里面有一个removeSemicolonContent方法用来移除分号内容，默认是打开的。
+
+打开的方法一个是后面的[注解配置SpringMVC]({% post_url /notes/springmvc/2022-03-07-springmvc-annotation %})的内容，使用实现WebMvcConfigurer接口的类作为配置类重写这个内容，重写configurePathMatch方法，调用`configurer.setUrlPathHelper(new UrlPathHelper.setRemoveSemicolonContent(false))`不移除分号之后的内容。
+
+第二个办法就是直接在SpringMVC.xml中配置：`xml<mvc:annotation-driven enable-matrix-variables="true" />`。
+
+此时发现还有错误，这是为什么呢？因为矩阵变量的第一个路径必须以变量的形式获取，不能是根路径下的第一层，即控制器方法写为：
+
+```java
+@RequestMapping("/{path}")
+public Map<String, Object> paramMatrix(@MatrixVariable("id") Integer id,
+                                       @MatrixVariable("name") String name,
+                                       @PathVariable String path){
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("name", name);
+    map.put("path", path);
+    return map;
+}
+```
+
+访问<http://localhost:8080/param;id=1;name=2>，此时发现报错404，是因为需要在控制器方法上加一个@ResponseBody，这在后面的[数据处理]({% post_url /notes/springmvc/2022-03-05-springmvc-data-process %})会提到。此时又会报错406不可接受。这是因为SpringMVC无法将Map<String, Object>类型转换为JSON传输到前端。所以也需要[数据处理]({% post_url /notes/springmvc/2022-03-05-springmvc-data-process %})的@ResponseBody处理JSON部分知识，添加jackson依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.1</version>
+</dependency>
+```
+
+然后设置返回值类型为JSON：`@RequestMapping(value = "/{path}", produces = {"application/json;charset=utf-8"})`，此时再次访问：
+
++ <http://localhost:8080/param;id=1;name=2>：`{"path":"param","name":"2","id":1}`。
++ <http://localhost:8080/param;id=1;name=2;name=4;name=6>：`{"path":"param","name":"2,4,6","id":1}`。
++ <http://localhost:8080/param;id=1;name=2;id=5;name=6>：`{"path":"param","name":"2,6","id":1}`。
+
+为什么id只有第一个生效？因为id为整形类型。
+
+如果将参数改为数组类型：
+
+```java
+@RequestMapping("/{path}")
+public Map<String, Object> paramMatrix(@MatrixVariable("id") Integer[] id,
+                                       @MatrixVariable("name") String[] name,
+                                       @PathVariable String path){
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("name", name);
+    map.put("path", path);
+    return map;
+}
+```
+
+访问<http://localhost:8080/param;id=1;name=2;id=5;name=6>则能全部收到：`{"path":"param","name":["2","6"],"id":[1,5]}`。
+
+如果将path也改为数组：
+
+```java
+@RequestMapping("/{path}")
+public Map<String, Object> paramMatrix(@MatrixVariable("id") Integer[] id,
+                                       @MatrixVariable("name") String[] name,
+                                       @PathVariable String[] path){
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("name", name);
+    map.put("path", path);
+    return map;
+}
+```
+
+访问<http://localhost:8080/param;id=1;name=2;pdf;id=5;name=6>只能收到一个path：`{"path":["param"],"name":["2","6"],"id":[1,5]}`。访问<http://localhost:8080/id=1;name=2;pdf;id=5;name=6>，则是`{"path":["id=1"],"name":["2","6"],"id":[1,5]}`，表明path就固定是匹配路径的，改成其他的位置不行。
 
 ### &emsp;POJO
 
@@ -266,9 +375,19 @@ public String paramPojo(User user){
 
 如果控制器方法参数写为User user, String name, String sex这种，后面的name和sex属性也会被赋值，因为SpringMVC是按属性名赋值的，只要一样就赋值，不过这样显然没什么意义。
 
+#### &emsp;&emsp;@ModelAttribute
+
+可以在User参数前添加@ModelAttribute，将参数绑定到Model对象。
+
+其位置包括下面三种：
+
++ 应用在方法上：被@ModelAttribute注解的方法会在Controller每个方法执行之前都执行，因此对于一个Controller中包含多个URL的时候，要谨慎使用。
++ 应用在方法的参数上：配合required属性表示这个参数是否必要。返回值对象会被默认放到隐含的Model中，在Model中的key为返回值首字母小写，value为返回的值。等同于`model.addAttirbute("user", user)`。
++ 应用在方法上，并且方法也使用了@RequestMapping：这种情况下，返回值String（或者其他对象）就不再是视图了，而是放入到Model中的值，此时对应的页面就是@RequestMapping的值。如果类上有@RequestMapping，则视图路径还要加上类的@RequestMapping的值。
+
 #### &emsp;&emsp;编码过滤器
 
-注意这样就直接传输过来了。但是这时候sex值会乱码，因为字符编码不一致。
+注意这样就直接传输过来了。但是这时候sex值会乱码，因为中文字符编码不一致。
 
 要改变编码方式必须在获取请求参数之前，否则就已经乱码了。
 

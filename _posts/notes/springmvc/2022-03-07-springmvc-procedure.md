@@ -4,7 +4,7 @@ title: "SpringMVC执行过程"
 date: 2022-03-07 19:05:39 +0800
 categories: notes springmvc base
 tags: SpringMVC 高级
-excerpt: "SpringMVC执行过程"
+excerpt: "SpringMVC执行源码"
 ---
 
 ## 常用组件
@@ -18,7 +18,9 @@ excerpt: "SpringMVC执行过程"
 
 &emsp;
 
-## DispatcherServlet初始化过程
+## DispatcherServlet执行流程
+
+### &emsp;初始化过程
 
 本质是Servlet生命周期来进行调度。从ServletConfig->Servlet->GenericServlet->HttpServletBean->FrameworkServlet。
 
@@ -28,15 +30,11 @@ excerpt: "SpringMVC执行过程"
 
 DispatcherServlet初始化策略：FrameworkServlet创建WebApplicationContext后刷新容器，调用onRefresh(wac)，此方法在DispatcherServlet中进行了重写，调用了initStrategies方法，初始化策略，即初始化DispatcherServlet各个组件。组件初始化放在服务器加载的时候，避免第一次初始化内容过多。
 
-&emsp;
-
-## DispatcherServlet调用过程
+### &emsp;DispatcherServlet调用过程
 
 首先processRequest()，FrameworkServlet重写HttpServlet中的service方法和doXXX方法，这些方法中调用了processRequest(request,response)方法。然后是doService方法进行服务。接着是doDispatch方法
 
-&emsp;
-
-## SpringMVC运行流程
+### &emsp;SpringMVC运行流程总结
 
 1. 用户向服务器发送请求，请求被SpringMVC前端控制器DispatcherServlet捕获。
 2. DispatcherServlet对请求URL进行解析，获得URI，判断请求URI对应的映射。如果不存在，则判断是否配置了mvc:default-servlet-handler，如果没有配置则控制台报错映射查不到，客户端报错404。如果配置了则访问模板资源，找不到该路径也会报错404。若存在则继续执行。
