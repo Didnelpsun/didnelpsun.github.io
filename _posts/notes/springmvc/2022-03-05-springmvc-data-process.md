@@ -628,7 +628,7 @@ public String upload(MultipartFile file, HttpSession session) throws IOException
 
 #### &emsp;&emsp;表单数据名与控制器参数名对应
 
-如果报错500：Request processing failed; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.multipart.MultipartFile.getOriginalFilename()" because "file" is null，是因为前端提交表单的数据名\<input type="file" name="file"\>\<br\>name值和控制器方法的参数名MultipartFile参数名不匹配。要求form提交文件的数据名与控制器方法的MultipartFile参数名一样，否则无法自动赋值从而无法初始化，也可以用注解配置映射关系，但是没必要。
+如果报错500：Request processing failed; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.multipart.MultipartFile.getOriginalFilename()" because "file" is null，是因为前端提交表单的数据名\<input type="file" name="file"\>\<br\>name值和控制器方法的参数名MultipartFile参数名不匹配。要求form提交文件的数据名与控制器方法的MultipartFile参数名一样，否则无法自动赋值从而无法初始化，也可以用注解`@RequestPart("file")`配置映射关系，特别是有多个上传文件。
 
 #### &emsp;&emsp;上传文件位置
 

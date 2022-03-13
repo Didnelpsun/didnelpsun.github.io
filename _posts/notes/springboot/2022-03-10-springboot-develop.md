@@ -343,13 +343,424 @@ Thymeleaf允许使用模板作为原型，这意味着可以将它们视为静�
 
 ### &emsp;拦截器
 
-#### &emsp;&emsp;HandlerInterceptor
+在进行网页请求时往往需要请求验证，需要前端验证和后端验证，如进行登录就需要拦截请求查看用户名和密码是否一致。
 
+SpringBoot中处理器、拦截器、过滤器都是责任链模式。
 
+SpringMVC已经讲到过HandlerInterceptor，具有preHandle、postHandle、AfterCompletion三个方法。
+
+如登录页面时preHandle用于用户验证、postHandle用于获取用户信息、AfterCompletion用于清理登录缓存。
+
+boot下新建一个interceptor包，然后新建一个LoginInterceptor：
+
+```java
+// LoginInterceptor.java
+package org.didnelpsun.boot.interceptor;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+// 登录检查
+public class LoginInterceptor implements HandlerInterceptor {
+    @Override
+    // 如果session中存在name就代表已经登录，需要对新用户进行拦截
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if(request.getSession().getAttribute("name") == null){
+            System.out.println("登录成功");
+            return true;
+        }
+        System.out.println("登录失败");
+        return false;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
+}
+```
+
+此时已经配置好拦截器的具体操作，然后需要配置需要拦截哪些请求，并把配置放在容器中。SpringBoot的配置可以使用XML配置但是一般不用，基本上是使用Java配置类和代码，SpringMVC中提到需要继承WebMvcConfigurer接口，如果没有则新建一个config包，新建一个InterceptorConfig：
+
+```java
+// InterceptorConfig.java
+package org.didnelpsun.boot.config;
+
+import org.didnelpsun.boot.interceptor.LoginInterceptor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration(proxyBeanMethods = false)
+// 添加拦截器配置
+public class InterceptorConfig implements WebMvcConfigurer {
+    // 登录拦截器
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/login");
+    }
+}
+```
+
+此时如果我们访问/login请求时就会启动这个拦截器。那么此时GET请求和POST请求都会成功吗？TestController中添加控制器进行测试：
+
+```java
+@RequestMapping("/login")
+public String login(String name, String password, HttpServletRequest request){
+    HttpSession session = request.getSession();
+    session.setAttribute("name", name);
+    session.setAttribute("password", password);
+    System.out.println(name + password);
+}
+```
+
+进行测试发现GET和POST都没问题。如果要清除Session需要点击开发者工具的Application的Storage的Clear site data。（postman测试时也需要删除，但是用浏览器删除session无效，需要重启postman）
+
+并且注意如果使用重定向则request会过时。
+
+### &emsp;文件上传
+
+SpringMVC中已经使用过相关内容。SpringBoot与SpringMVC的文件上传类似。
+
+首先准备一个页面，修改index.html中：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+</head>
+<body>
+  <h3>主页面</h3>
+  <form method="post" enctype="multipart/form-data">
+      头像：<input type="file" name="file"><br>
+      <input type="submit" value="上传头像">
+  </form>
+</body>
+<script>
+    document.getElementsByTagName("form")[0].action=window.document.location.href+"upload"
+</script>
+</html>
+```
+
+添加一个控制器来处理这个请求：
+
+```java
+@PostMapping("/upload")
+public String upload(@RequestPart("file") MultipartFile file, HttpSession session) throws IOException {
+    // 类标注@Slf4j来获取日志打印信息对象log进行信息打印
+    log.info("文件信息：原始名称：{}，大小：{}，路径：{}",file.getOriginalFilename(), file.getSize(), file.getResource());
+    if(!file.isEmpty()){
+        // 利用transferTo进行文件传输到项目静态资源的img文件夹下
+        file.transferTo(new File(session.getServletContext().getRealPath("")+ File.separator +file.getOriginalFilename()));
+        return "上传成功！";
+    }
+    else
+        return "文件为空！";
+}
+```
+
+如果以后一个input要上传多文件，则使用MultipartFile[]来接收。如果找不到文件夹路径可以加一个判断，这在SpringMVC中已经使用过。
+
+此时可能报错：org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException: The field file exceeds its maximum permitted size of 1048576 bytes，表示传输图片超过最大值。
+
+第一种方式是创建Config类，使用@Bean定义一个返回MultipartConfigElement类型对象的函数，使用MultipartConfigFactory.setMaxFileSize设置单个文件最大值，并将这个MultipartConfigFactory对象返回。
+
+第二种方式是直接设置properites或yaml配置文件：
+
+```properties
+// 设置单个文件大小
+spring.servlet.multipart.max-file-size= 5MB
+// 设置单次请求文件的总大小
+spring.servlet.multipart.max-request-size= 50MB
+```
+
+```yaml
+spring:
+  servlet:
+    multipart:
+      # 设置单个文件大小
+      max-file-size:
+        5MB
+      # 设置单次请求文件的总大小
+      max-request-size:
+        50MB
+```
+
+我使用了yaml方式，并重新上传发现没问题了。
+
+SpringBoot与SpringMVC的文件上传使用基本一致，不同的是文件上传依赖不用我们自己编写了。
+
+可以根据session.getServletContext().getRealPath看到这个项目的部署地址：C:\Users\Didnelpsun\AppData\Local\Temp\tomcat-docbase.8080.1730221008709940455\。如果是SpringMVC则应该是Tomcat安装目录下而不是在用户应用数据目录下。
+
+### &emsp;异常处理器
+
+#### &emsp;&emsp;默认规则
+
++ 默认情况下，Spring Boot提供/error处理所有错误的映射。
++ 对于机器客户端，它将生成JSON响应，其中包含错误，HTTP状态和异常消息的详细信息。
++ 对于浏览器客户端，响应一个whitelabel错误视图，以HTML格式呈现相同的异常数据。
+
+默认返回信息有：
+
++ timestamp：当前错误时间戳信息。
++ status：状态码。
++ error：错误类型。
++ message：错误信息。
++ path：请求路径。
+
++ 要对错误页面进行自定义，添加View解析为error。
++ 要完全替换默认行为，可以实现ErrorController并注册该类型的Bean定义，或添加ErrorAttributes类型的组件以使用现有机制但替换其内容。
+
+#### &emsp;&emsp;定制错误处理逻辑
+
++ 自定义错误页。静态资源目录下新建error文件夹或template文件夹并新建处理文件：
+  + 4xx.html用来处理所有4开头状态码错误。
+  + 5xx.html用来处理所有5开头状态码错误。
+  + 指定具体的错误状态码如404.html用来处理指定的状态码错误。
++ @ControllerAdvice+@ExceptionHandler处理异常。
++ 实现HandlerExceptionResolver处理异常。
+
+### &emsp;Web原生组件注入
+
+即注入Servlet、Filter、Listener。
+
+#### &emsp;&emsp;Servlet API
+
+在boot下新建一个serlvet包，并新建一个TestServlet：
+
+```java
+// HttpServlet.java
+package org.didnelpsun.boot.servlet;
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+// WebServlet表示当前为WebServlet
+// 用于标注在一个继承了HttpServlet类之上，属于类级别的注解
+@WebServlet(name = "TestServlet", value = "/testServlet")
+public class TestServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.getWriter().write("doGet");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+
+    }
+}
+```
+
+除此之外还需要将@WebServlet注解的Servlet注入到容器中，需要在主程序类Application的累上添加@ServletComponetScan对@WebServlet注解进行扫描实例化并注入。如我这里是`@ServletComponentScan(basePackages = {"org.didnelpsun.boot.servlet","org.didnelpsun.boot.filter","org.didnelpsun.boot.listener"})`。
+
+同理我们可以使用@WebFilter、@WebListener注册过滤器和监听器，同样使用@ServletComponetScan注解来扫描注册到容器中，新建filter和listener包并添加过滤器和监听器：
+
+```java
+// TestFilter.java
+package org.didnelpsun.boot.filter;
+
+import lombok.extern.slf4j.Slf4j;
+import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import java.io.IOException;
+
+@Slf4j
+@WebFilter(filterName = "TestFilter", value = "/*")
+public class TestFilter implements Filter {
+    @Override
+    public void init(FilterConfig filterConfig) {
+        log.info("过滤器初始化完成");
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        log.info("过滤器工作");
+        // 过滤器放行
+        filterChain.doFilter(servletRequest,servletResponse);
+    }
+
+    @Override
+    public void destroy() {
+        log.info("过滤器销毁完成");
+    }
+}
+```
+
+```java
+// TestListener.java
+package org.didnelpsun.boot.listener;
+
+import lombok.extern.slf4j.Slf4j;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
+
+@Slf4j
+@WebListener
+public class TestListener implements ServletContextListener {
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        log.info("容器初始化完成");
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        log.info("容器销毁完成");
+    }
+}
+```
+
+此时我们如果使用了拦截器，则会发现这个原生Servlet没有经过拦截器。因为SpringBoot基于SpringMVC，请求全部经过前端控制器DispatcherServlet，通过doDispatch方法进行拦截，而这里我们使用原生Servlet，所以不走前端控制器，所以此时的拦截器就没用了。
+
+#### &emsp;&emsp;RegistrationBean
+
+filter用于数据过滤处理、listener用于初始化作用域数据、interceptor用于拦截请求。
+
+有ServletRegistrationBean、FilterRegistrationBean、ServletListenserRegistrationBean三个组件。使用配置类将这三个Bean放到容器中。
+
+先将主程序的ServletComponentScan注解注释掉。
+
+在config包中添加RegisterConfig：
+
+```java
+// RegisterConfig.java
+package org.didnelpsun.boot.config;
+
+import org.didnelpsun.boot.filter.TestFilter;
+import org.didnelpsun.boot.listener.TestListener;
+import org.didnelpsun.boot.servlet.TestServlet;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import java.util.List;
+
+@Configuration
+public class RegisterConfig {
+    @Bean
+    public ServletRegistrationBean<TestServlet> testServlet(){
+        // 将定义的Servlet注册
+        return new ServletRegistrationBean<>(new TestServlet(),"/testServlet");
+    }
+    @Bean
+    public FilterRegistrationBean<TestFilter> testFilter(){
+        // 对Servlet进行过滤
+//        return new FilterRegistrationBean<>(new TestFilter(), testServlet());
+        // 对URL进行过滤
+        FilterRegistrationBean<TestFilter> filterRegistrationBean = new FilterRegistrationBean<>(new TestFilter());
+        filterRegistrationBean.setUrlPatterns(List.of("/*"));
+        return filterRegistrationBean;
+    }
+    @Bean
+    public ServletListenerRegistrationBean<TestListener> testListener(){
+        return new ServletListenerRegistrationBean<>(new TestListener());
+    }
+}
+```
+
+这里@Configuration的proxyBeanMethods保持为true，保证过滤器等都是一个，避免多次请求新建多个处理器。
+
+### &emsp;嵌入式Servlet容器
+
+SpringBoot使用嵌入式Servlet容器，之前SpringMVC需要使用外置的Tomcat服务器，将Java项目打包为war然后放到Tomcat上运行，配置起来十分麻烦，而SpringBoot自己的容器就自动配置好，可以独立运行。
+
+#### &emsp;&emsp;嵌入式Servlet容器运行流程
+
+默认支持的WebServer：Tomcat、Jetty和Undertow。原理是底层的ServletWebServerApplicationContext容器启动自动寻找ServletSebServerFactory并引导创建服务器：
+
+1. SpringBoot启动应用，发现是Web应用，Web场景包导入了Tomcat。
+2. Web应用会创建一个Web版的IoC容器ServletWebServerApplicationContext。
+3. ServletWebServerApplicationContext启动寻找ServletSebServerFactory服务器工厂。
+4. 底层ServletWebServerFactoryAutoConfiguration根据导入依赖自动配置TomcatServletWebServerFactory、JettyServletWebServerFactory、UndertowServletWebServerFactory。Web场景默认导入Tomcat。
+
+#### &emsp;&emsp;切换嵌入式Servlet容器
+
+使用不同的场景，默认spring-boot-starter-web是使用Tomcat：
+
++ spring-boot-starter-tomcat。
++ spring-boot-starter-jetty。
++ spring-boot-starter-undertow。
+
+如果使用其他的就要在web场景中排除Tomcat再引入其他的容器：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jetty</artifactId>
+</dependency>
+```
+
+maven重新导入启动服务器就发现切换了服务器。
+
+#### &emsp;&emsp;定制Servlet容器
+
+1. 实现`WebServerFactorycustomizer<ConfigurableServletwebServerFactory>`接口。
+2. 修改配置文件中server.xxx的相关内容。
+3. 直接自定义ConfigurableServletWebServerFactory。
 
 &emsp;
 
 ## 数据访问
+
+### &emsp;SQL
+
+#### &emsp;配置数据库
+
+首先需要导入相关依赖，这里使用的是JDBC：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jdbc</artifactId>
+</dependency>
+```
+
+导入后可以发现其导入了com.zaxxer.HikariCP数据源、org.springframework.spring-jdbc数据操作、org.springframework.spring-tx事务管理。我们可以发现这里没用导入驱动Driver，这是因为官方不知道我们开发者开发时需要使用什么数据库，所以就没有默认指定驱动。
+
+如我们使用MySQL，就需要自己导入mysql-connector-java包，之前已经使用过。其中SpringBoot已经对MySQL依赖已经进行版本仲裁，所以可以不用写版本，也可以在配置文件中对版本修改。注意本机数据库版本与驱动版本相对应。
+
+```xml
+<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.28</version>
+</dependency>
+```
+
+自动配置类：
+
++ DataSourceAutoConfiguration：数据源的自动配置。
++ DataSourceTransactionManagerAutoConfiguration：事务管理器的自动配置。
++ JdbcTemplateAutoConfiguration：JdbcTemplate的自动配置，可以来对数据库进行CRUD。
++ JndiDataSourceAutoConfiguration：JNDI的自动配置。
++ XADataSourceAutoConfiguration：分布式事务相关。
+
+
+### &emsp;NoSQL
 
 &emsp;
 
