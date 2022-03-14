@@ -725,9 +725,7 @@ maven重新导入启动服务器就发现切换了服务器。
 
 ## 数据访问
 
-### &emsp;SQL
-
-#### &emsp;配置数据库
+### &emsp;配置数据库
 
 首先需要导入相关依赖，这里使用的是JDBC：
 
@@ -759,8 +757,476 @@ maven重新导入启动服务器就发现切换了服务器。
 + JndiDataSourceAutoConfiguration：JNDI的自动配置。
 + XADataSourceAutoConfiguration：分布式事务相关。
 
+SpringBoot底层配置好的数据库连接池为HikariDataSource。
 
-### &emsp;NoSQL
+使用数据库还使用yaml配置数据源spring.datasousrce的相关数据：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/data
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+```
+
+如果数据库没有配置会报错：
+
+```txt
+Consider the following:
+    If you want an embedded database (H2, HSQL or Derby), please put it on the classpath.
+    If you have database settings to be loaded from a particular profile you may need to activate it (no profiles are currently active).
+```
+
+项目启动会自动去连接数据库，如果配置内容有问题则会报错：Caused by: java.sql.SQLException: Access denied for user 'root'@'localhost' (using password: YES)。
+
+只有所有数据库配置没问题才能启动成功。
+
+### &emsp;配置Druid连接池
+
+SpringBoot默认使用HikariCP，SpringMVC默认使用C3P0。我们这里可以整合第三方[Druid](https://druid.apache.org/)。
+
+整合方法有两种：1、纯手工自定义；2、找starter。
+
+#### &emsp;&emsp;配置文件
+
+首先引入依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.2.8</version>
+</dependency>
+```
+
+然后SpringMVC是使用XML来配置数据源，SpringBoot使用Java代码Config来配置，config下新建一个DataSourceConfig：
+
+```java
+// DataSourceConfig.java
+package org.didnelpsun.boot.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.support.http.StatViewServlet;
+import com.alibaba.druid.support.http.WebStatFilter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.List;
+
+@Configuration
+public class DataSourceConfig {
+    // 使用配置文件注入，Druid的配置名和默认的一样所以可以直接配置
+    @ConfigurationProperties("spring.datasource")
+    @Bean
+    public DataSource dataSource() throws SQLException {
+        DruidDataSource dataSource = new DruidDataSource();
+        // 开启监控和防火墙功能
+        dataSource.setFilters("stat,wall");
+        return dataSource;
+    }
+    // 配置Druid官方教程的数据库连接池监控页
+    // Druid内置提供了一个StatViewServlet用于展示Druid的统计信息。
+    //这个StatViewServlet的用途包括：
+    //提供监控信息展示的html页面
+    //提供监控信息的JSON API
+    @Bean
+    public ServletRegistrationBean<?> statViewServlet(){
+        // 监控首页地址为/druid/index.html
+        ServletRegistrationBean<StatViewServlet> servletRegistrationBean = new ServletRegistrationBean<>(new StatViewServlet(), "/druid/*");
+        // 添加监控页的用户密码
+        servletRegistrationBean.addInitParameter("loginUsername","admin");
+        servletRegistrationBean.addInitParameter("loginPassword", "root");
+        return servletRegistrationBean;
+    }
+    // WebStatFilter用于监控Web-JDBC应用数据
+    @Bean
+    public FilterRegistrationBean<?> webStatFilter(){
+        FilterRegistrationBean<WebStatFilter> filterRegistrationBean = new FilterRegistrationBean<>(new WebStatFilter());
+        filterRegistrationBean.setUrlPatterns(List.of("/*"));
+        // 对静态资源和druid监控页进行排除，使用初始化参数
+        filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*ico,/druid/*");
+        return filterRegistrationBean;
+    }
+}
+```
+
+#### &emsp;&emsp;starter
+
+将配置文件全部注解掉。
+
+除了配置文件，其实阿里也提供了官方的starter：druid-spring-boot-starter：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid-spring-boot-starter</artifactId>
+    <version>1.2.8</version>
+</dependency>
+```
+
+配置跟默认数据源一样，所以不需要额外配置用户名密码等：
+
+```yaml
+spring:
+  datasource:
+    druid:
+      # 开启监控和防火墙
+      filters: stat,wall
+      aop-patterns:
+        - org.didnelpsun.boot.*
+      # 开启监控页
+      stat-view-servlet:
+        enabled: true
+        login-username: admin
+        login-password: root
+        # 必须开启这个运行才能使用
+        allow: ""
+      # 开启web监控过滤器
+      web-stat-filter:
+        enabled: true
+        urlPattern: /*
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*ico,/druid/*'
+```
+
+### &emsp;整合MyBatis
+
+MyBatis是第三方，所以其starter应该是以mybatis开头：
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>2.2.2</version>
+</dependency>
+```
+
+然后在配置文件中添加：
+
+```yaml
+mybatis:
+  config-location: classpath:mybatis.xml
+```
+
+resources下新建一个mybatis.xml：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--config文件专用的dtd格式文件-->
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!--mybatis的主配置文件-->
+<configuration>
+    <!--配置已经在yaml文件中配置好了-->
+</configuration>
+```
+
+下面的两种配置方式在MyBatis中就已经使用过，实际上就是MyBatis的具体应用，这里可以继续重温一遍。
+
+#### &emsp;&emsp;XML方式
+
++ 依赖提供全局配置文件。
++ SqlSessionFactory：自动配置。
++ SqlSession：自动配置了SqlSessionTemplate组合了SqlSession。
++ @Import(AutoConfigurationMapperScannerRegistrar.class)：导入自动配置扫描注册器。
++ Mapper：只要编写操作MyBatis的接口标注了@Mapper就能自动扫描进行。
++ 修改配置文件的mybatis对MyBatis进行配置。
+
+即MyBatis中的配置方式需要XML文件，其中需要两种配置文件，一种是写基本数据操作的DAO接口Java文件，一种是具体实现操作编写SQL语句的DAO配置XML文件。
+
+在boot文件夹新建一个dao包，并新建一个接口：
+
+```java
+// IUserDao.java
+package org.didnelpsun.boot.dao;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.didnelpsun.boot.bean.User;
+import java.util.List;
+
+//@Repository
+// 这里不能使用@Repository，因为这个注释需要配置扫描地址，否则报错
+// Parameter 0 of method setUserDao in org.didnelpsun.boot.service.UserServiceImpl required a bean of type 'org.didnelpsun.boot.dao.IUserDao' that could not be found.
+// @Mapper不需要配置扫描地址，所有的Mapper注解都会被扫描到
+@Mapper
+public interface IUserDao {
+    // 查询所有用户
+    List<User> selectAllUsers();
+    // 查询一个用户
+    User selectUser(Integer id);
+    // 插入用户
+    void insertUser(User user);
+    // 更新用户
+    void updateUser(User user);
+    // 删除用户
+    void deleteUser(Integer id);
+    // 根据用户名模糊查询用户
+    List<User> selectUsersByName(String name);
+    // 获取用户总数
+    Integer getUsersSum();
+}
+```
+
+然后在resources文件下新建一个dao包，创建XML文件UserDaoImpl编写接口对应的SQL语句：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace是DAO的地址-->
+<mapper namespace="org.didnelpsun.boot.dao.IUserDao">
+    <!--配置查询所有，id为对应类的方法名，不能随便改-->
+    <!--resultType即持久层返回的数据应该封装成什么样的数据类-->
+    <select id="selectAllUsers" resultType="org.didnelpsun.boot.bean.User">
+        select * from user
+    </select>
+    <!--查询一个用户-->
+    <select id="selectUser" parameterType="Integer" resultType="org.didnelpsun.boot.bean.User">
+        select * from user where id=#{id};
+    </select>
+    <!--插入用户-->
+    <insert id="insertUser" parameterType="org.didnelpsun.boot.bean.User">
+        insert into user(name,sex,birthday,address) values (#{name},#{sex},#{birthday},#{address});
+    </insert>
+    <!--更新用户-->
+    <update id="updateUser" parameterType="org.didnelpsun.boot.bean.User">
+        update user set name=#{name},sex=#{sex},birthday=#{birthday},address=#{address} where id=#{id};
+    </update>
+    <!--删除用户-->
+    <delete id="deleteUser" parameterType="Integer">
+        <!--由于只有一个参数，所以这个参数就是个占位符，叫什么都可以-->
+        delete from user where id=#{id};
+    </delete>
+    <!--获取用户总数，即记录总条数-->
+    <select id="getUsersSum" resultType="Integer">
+        select count(id) from user;
+    </select>
+    <!--根据名称模糊查询用户-->
+    <select id="selectUsersByName" parameterType="String" resultType="org.didnelpsun.boot.bean.User">
+        <!--这里不能使用百分号来模糊查询，必须在测试代码中写-->
+        <!--这种方式参数是以PreparedStatement占位参数的形式变成SQL语句，即进行预处理，所以更推荐-->
+        select * from user where name like #{name}
+        <!--如果是模糊查询也可以使用下面的方式，不过里面的参数固定为 ${value} -->
+        <!-- select * from user where name like '${value}'; -->
+        <!--这种方式参数是以Statement拼接字符串的形式变成SQL语句-->
+    </select>
+</mapper>
+```
+
+此时需要在yaml中添加`mapper-locations: classpath:dao/*.xml`表示映射的具体SQL语句在resources文件夹下的dao文件夹，并对应所有XML文件。
+
+由于服务层调用持久层，所以新建一个service包，并新建一个IUserService和UserServiceImpl：
+
+```java
+// IUserService.java
+package org.didnelpsun.boot.service;
+
+import org.didnelpsun.boot.bean.User;
+import java.util.List;
+
+public interface IUserService {
+    // 查询所有用户
+    List<User> selectAllUsers();
+    // 查询一个用户
+    User selectUser(Integer id);
+    // 插入用户
+    void insertUser(User user);
+    // 更新用户
+    void updateUser(User user);
+    // 删除用户
+    void deleteUser(Integer id);
+    // 根据用户名模糊查询用户
+    List<User> selectUsersByName(String name);
+    // 获取用户总数
+    Integer getUsersSum();
+}
+```
+
+```java
+// UserService.java
+package org.didnelpsun.boot.service;
+
+import org.didnelpsun.boot.bean.User;
+import org.didnelpsun.boot.dao.IUserDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class UserServiceImpl implements IUserService {
+    private IUserDao userDao;
+
+    @Autowired
+    public void setUserDao(IUserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public List<User> selectAllUsers() {
+        return userDao.selectAllUsers();
+    }
+
+    @Override
+    public User selectUser(Integer id) {
+        return userDao.selectUser(id);
+    }
+
+    @Override
+    public void insertUser(User user) {
+        userDao.insertUser(user);
+    }
+
+    @Override
+    public void updateUser(User user) {
+        userDao.updateUser(user);
+    }
+
+    @Override
+    public void deleteUser(Integer id) {
+        userDao.deleteUser(id);
+    }
+
+    @Override
+    public List<User> selectUsersByName(String name) {
+        return userDao.selectUsersByName(name);
+    }
+
+    @Override
+    public Integer getUsersSum() {
+        return userDao.getUsersSum();
+    }
+}
+```
+
+在控制层调用服务层：
+
+```java
+// TestController
+package org.didnelpsun.boot.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import org.didnelpsun.boot.bean.User;
+import org.didnelpsun.boot.service.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+@Slf4j
+@RestController
+public class TestController {
+    UserServiceImpl userService;
+
+    @Autowired
+    public void setUserService(UserServiceImpl userService) {
+        this.userService = userService;
+    }
+
+    @RequestMapping("/img/test.jpg")
+    public String test(){
+        return "test";
+    }
+    @RequestMapping("/login")
+    public String login(String name, String password, HttpServletRequest request){
+        HttpSession session = request.getSession();
+        session.setAttribute("name", name);
+        session.setAttribute("password", password);
+        System.out.println(name + password);
+        return "登录成功！";
+    }
+    @PostMapping("/upload")
+    public String upload(@RequestPart("file") MultipartFile file, HttpSession session) throws IOException {
+        // 类标注@Slf4j来获取日志打印信息对象log进行信息打印
+        log.info("文件信息：原始名称：{}，大小：{}，路径：{}",file.getOriginalFilename(), file.getSize(), file.getResource());
+        if(!file.isEmpty()){
+            // 利用transferTo进行文件传输到项目静态资源的img文件夹下
+            file.transferTo(new File(session.getServletContext().getRealPath("")+ File.separator +file.getOriginalFilename()));
+            return "上传成功！";
+        }
+        else
+            return "文件为空！";
+    }
+    @RequestMapping("/allUser")
+    public List<User> allUser(){
+        return userService.selectAllUsers();
+    }
+    @RequestMapping("/user/{id}")
+    public User user(@PathVariable Integer id){
+        return userService.selectUser(id);
+    }
+}
+```
+
+记住最后一定要覆盖原来的User类：
+
+```java
+// User.java
+package org.didnelpsun.boot.bean;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements Serializable{
+    private Integer id;
+    private String name;
+    private Date birthday;
+    private String sex;
+    private String address;
+}
+```
+
+访问<http://localhost:8080/allUser>，没问题。
+
+如果需要开启驼峰命名策略，即将数据库中的user_id看成Java对象的userId，需要在MyBatis的XML配置文件中配置：
+
+```xml
+<!--mybatis的主配置文件-->
+<configuration>
+    <!--配置已经在yaml文件中配置好了-->
+    <!--开启驼峰命名策略-->
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+</configuration>
+```
+
+在YAML中只需要配置这两个规则配置就完成了。其实不使用config-location不写MyBatis的XML配置文件也可以使用，直接在yaml配置文件的mybatis.configuration下配置就可以了，但是注意此时就不能配置config-location了：
+
+```yaml
+mybatis:
+#  config-location: classpath:mybatis.xml
+  mapper-locations:
+    - classpath:dao/*.xml
+  # 配置了configuration就不能配置config-location来指定配置文件，否则会冲突
+  configuration:
+    map-underscore-to-camel-case: true
+```
+
+#### &emsp;&emsp;注解方式
 
 &emsp;
 
