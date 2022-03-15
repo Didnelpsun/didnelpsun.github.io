@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "应用开发"
+title: "基本应用开发"
 date: 2022-03-10 17:48:02 +0800
 categories: notes springboot base
 tags: SpringBoot 基础 开发
-excerpt: "应用开发"
+excerpt: "基本应用开发"
 ---
 
 SpringBoot可以支持多种开发模式，可以开发各种应用，主要的还是Web应用。
@@ -782,7 +782,7 @@ Consider the following:
 
 只有所有数据库配置没问题才能启动成功。
 
-### &emsp;配置Druid连接池
+### &emsp;整合Druid
 
 SpringBoot默认使用HikariCP，SpringMVC默认使用C3P0。我们这里可以整合第三方[Druid](https://druid.apache.org/)。
 
@@ -1162,12 +1162,12 @@ public class TestController {
         else
             return "文件为空！";
     }
-    @RequestMapping("/allUser")
-    public List<User> allUser(){
+    @GetMapping("/selectAllUsers")
+    public List<User> selectAllUsers(){
         return userService.selectAllUsers();
     }
-    @RequestMapping("/user/{id}")
-    public User user(@PathVariable Integer id){
+    @GetMapping("/user/{id}")
+    public User selectUser(@PathVariable Integer id){
         return userService.selectUser(id);
     }
 }
@@ -1219,6 +1219,7 @@ public class User implements Serializable{
 ```yaml
 mybatis:
 #  config-location: classpath:mybatis.xml
+  # 如果DAO的SQL映射XML文件与DAO接口Java文件同目录可以不写这个配置
   mapper-locations:
     - classpath:dao/*.xml
   # 配置了configuration就不能配置config-location来指定配置文件，否则会冲突
@@ -1226,13 +1227,218 @@ mybatis:
     map-underscore-to-camel-case: true
 ```
 
+所以XML整合MyBatis的步骤：
+
+1. 导入MyBatis官方starter。
+2. 编写DAO接口Java文件并添加@Mapper注解。
+3. 编写SQL映射XML文件并绑定DAO接口。
+4. applcation.yaml中指定全局配置信息，包括MyBatis配置、DAO配置文件位置等。
+
 #### &emsp;&emsp;注解方式
 
-&emsp;
+基本上没有很大差别，只是将XML配置SQL文件给去掉，直接在持久层接口的方法上使用注解，里面编写SQL语句。
 
-## 单元测试
+还可以使用混合版本，简单SQL语句使用注解，复杂SQL语句使用XML。
 
-&emsp;
+所以注解整合MyBatis的步骤：
 
-## 指标监控
+1. 导入MyBatis官方starter。
+2. 编写DAO接口Java文件并添加@Mapper注解。
+3. 在接口的每个方法上用@Select、@Update、@Delete、@Insert编写SQL语句。
+4. applcation.yaml中指定全局配置信息。
 
+<span style="color:yellow">提示：</span>可以使用@MapperScan在主程序类上来标识要扫描的持久层包，包下面的所有接口在编译之后都会生成相应的实现类，这样就不用给每个持久层方法标注@Mapper了。
+
+### &emsp;整合MyBatis-Plus
+
+MyBatis-Plus是一个MyBatis的增强工具，在MyBatis的基础上只增强不修改。
+
+可以下载一个MyBatisX的插件。
+
+#### &emsp;&emsp;MyBatis-Plus配置
+
+SpringBoot提供整合MyBatis-Plus的starter：mybatis-plus-boot-starter。由于mybatis-plus-boot-starter就已经引入了mybatis的依赖包，所以这时需要将MyBatis的mybatis-spring-boot-starter的依赖注释掉：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.5.1</version>
+</dependency>
+```
+
+进行了自动配置：
+
++ 使用MybatisPlusAutoConfiguration配置类，MybatisPlusProperties配置项绑定。yaml配置文件的前缀mybatis-plus就是对MyBatis-Plus的定制。
++ sqlSessionFactory自动配置。底层容器为默认数据源。
++ mapperLocations持久层SQL实现是自动配置好的。有默认值为：classpath*:/mapper/**/*.xml即任意包的类路径下的所有mapper文件夹下任意路径下的所有XML文件都是SQL映射文件。建议以后SQL映射文件放在mapper下。
++ 容器中也自动配置好了SqlSessionTemplate。
++ @Mapper标注的接口也会被自动扫描。
+
+<span style="color:orange">注意：</span>MyBatis-Plus强制要求实体类中的所有属性都必须在数据库中，如果有多余的属性就会报错，如果要保留这些属性就需要在每个属性上添加`@TableField(exist = false)`标识这个属性在表中不存在。
+
+<span style="color:orange">注意：</span>MyBatis-Plus会自动根据实体类的名字在数据库中找同名的表进行查询，如`BaseMap<User>`就会在数据库中找user表自动查询，如果找不到才会报错，这时需要在实体类上用`@TableName(查询表名)`注解表明查询表明，如User类上添加`@TableName("user")`。
+
+#### &emsp;&emsp;CRUD
+
+持久层编写一个新的DAO方法继承BaseMapper就能获得基本的CRUD方法而不用自己写：
+
+```java
+// IUserPlusDao.java
+package org.didnelpsun.boot.dao;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.didnelpsun.boot.bean.User;
+
+// 操作哪个类型的数据就向泛型传输哪个类型的数据
+@Mapper
+public interface IUserPlusDao extends BaseMapper<User> {
+    // MyBatis-Plus封装了基本的增删改查方法
+}
+```
+
+MyBatis-Plus提供了服务层接口的顶级接口IService，需要所有服务层接口继承这个接口，提供了服务层实现的顶级实现ServiceImpl，需要所有服务层实现继承这个实现。服务层只用继承这两个接口和父类就可以不用写任何方法，直接在控制器调用MyBatis-Plus提供的服务层方法就可以了。MyBatis-Plus一般只支持单表操作，多表操作可以试试diboot框架：
+
+```java
+// IUserService.java
+package org.didnelpsun.boot.service;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import org.didnelpsun.boot.bean.User;
+
+// IService需要一个泛型，为操作数据的类型
+public interface IUserService extends IService<User> {
+}
+```
+
+```java
+// UserService.java
+package org.didnelpsun.boot.service;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.didnelpsun.boot.bean.User;
+import org.didnelpsun.boot.dao.IUserPlusDao;
+import org.springframework.stereotype.Service;
+
+// ServiceImpl有两个参数，第一个是操作的DAO接口，第二个是操作的数据类型
+@Service
+public class UserServiceImpl extends ServiceImpl<IUserPlusDao, User> implements IUserService {
+}
+```
+
+直接修改控制层：
+
+```java
+@GetMapping("/selectAllUsers")
+public List<User> selectAllUsers(){
+    return userService.list();
+}
+// 通用查询，如果传入的值可以转为数字就是根据ID，否则使用模糊查询
+@RequestMapping("/user/{query}")
+public List<User> selectUsers(@PathVariable String query){
+    try {
+        return List.of(userService.getById(Integer.valueOf(query)));
+    }
+    catch (NumberFormatException e){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        // 第一个参数：该参数是一个布尔类型，只有该参数是true时，才将like条件拼接到sql中；本例中，如果name字段不为空，则拼接name字段的like查询条件；
+        // 第二个参数：该参数是数据库中的字段名；
+        // 第三个参数：该参数值字段值；
+        queryWrapper.like(StringUtils.isNotBlank(query), "name", query);
+        return userService.list(queryWrapper);
+    }
+    catch (NullPointerException e){
+        return null;
+    }
+}
+@PostMapping ("/user")
+public Boolean insertUser(User user){
+    return userService.save(user);
+}
+@PutMapping ("/user")
+public Boolean updateUser(User user){
+    return userService.updateById(user);
+}
+@DeleteMapping("/user/{id}")
+public Boolean deleteUser(@PathVariable Integer id){
+    return userService.removeById(id);
+}
+@RequestMapping("/user/getUsersSum")
+public long getUsersSum(){
+    return userService.count();
+}
+```
+
+访问<http://localhost:8080/user/1>发现没问题。
+
+#### &emsp;&emsp;分页查询
+
+可以使用MyBatis-Plus提供的服务层的page方法完成分页功能：
+
+```java
+// 参数为当前查询页码
+@GetMapping("/selectAllUsers/{page}")
+public List<User> selectAllUsersByPage(@PathVariable Integer page){
+    // 泛型为数据操作对象
+    // 创建有两个参数，第一个是当前页面页码，第二个是页面大小
+    Page<User> userPage = new Page<>(page,10);
+    // page的第一个参数为Page对象，对分页的页面进行配置，第二个参数为查询条件
+    return userService.page(userPage, null).getRecords();
+}
+```
+
+除此之外还需要一个分页插件，新建一个config用来使用MyBatis-Plus的分页拦截器：
+
+```java
+// MybatisPlusConfig.java
+package org.didnelpsun.boot.config;
+
+import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@MapperScan("org.didnelpsun.boot.dao")
+public class MybatisPlusConfig {
+
+    /**
+     * 新的分页插件,一缓和二缓遵循mybatis的规则,需要设置 MybatisConfiguration#useDeprecatedExecutor = false 避免缓存出现问题(该属性会在旧插件移除后一同移除)
+     */
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
+        return interceptor;
+    }
+}
+```
+
+### &emsp;整合Redis
+
+#### &emsp;&emsp;Redis配置
+
+SpringBoot已经给出了Redis的starter：spring-boot-starter-data-redis。
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <version>2.6.4</version>
+</dependency>
+```
+
+SpringBoot对Redis进行了自动配置：
+
++ 使用RedisAutoConfiguration自动配置类。导入RedisProperties属性类的属性，spring.redis.x是对redis的配置。
++ 连接工厂有两个：LettuceConnectionConfiguration、JedisConnectionConfiguration。
++ 自动注入了RedisTemplate（key和value都是Object类型）和StringRedisTemplate（key和value都是String类型）。底层只要我们使用StringRedisTemplate，RedisTemplate就可以操作Redis。
+
+Redis的连接地址为redis://用户:密码@网站地址:端口号（默认为6379）。本地默认为<redis://localhost:6379/>。
+
+[案例二基本应用开发：SpringBoot/demo2_develop](https://github.com/Didnelpsun/SpringBoot/tree/master/demo2_develop)。

@@ -372,7 +372,9 @@ List<User> selectUsersByQuery(Query query);
 
 这里返回封装的目标是一个类，在实际返回时由于可能返回多个值所以可以返回List泛型即POJO列表。
 
-### &emsp;插入后自动生成主键获取
+### &emsp;自增ID处理
+
+#### &emsp&emsp;插入后自动生成主键获取
 
 在进行插入操作时，如果一条记录的主键是由数据库自动生成的话，那我们基本上是不能直接插入这个属性的，那么我们插入记录后如何获取这个记录所自动生成的主键呢？
 
@@ -389,6 +391,18 @@ List<User> selectUsersByQuery(Query query);
    </selectKey>
 </insert>
 ```
+
+#### &emsp&emsp;自增ID注入
+
+也可以不用多写SQL语句，MyBatis已经提供属性来获取这个自增的ID：
+
+```xml
+<insert id="DAO处理类方法名" parameterType="参数名" useGenerateKeys="true" keyProperty="自增的ID名">
+    插入语句
+</insert>
+```
+
+这样插入后MyBatis会自动获取数据库返回的自增ID赋值给传入的类的实例中。
 
 ### &emsp;Java属性与数据库列名关系
 

@@ -89,6 +89,12 @@ Integer getUsersSum();
 
 [案例八单表操作代码：MyBatis/demo8_annotation_single](https://github.com/Didnelpsun/MyBatis/tree/main/demo8_annotation_single)。
 
+### &emsp;自增ID处理
+
+在XML配置方式中已经给出了如何获取插入时自增ID的获取方式，那么注解如何处理？在插入方法上添加`@Options(useGenerateKey = true, keyProperty=自增ID名)`。
+
+注意此时传入的参数一定是一个实体类，里面必须包含keyProperty，否则找不到赋值的属性。
+
 ### &emsp;别名设置
 
 当Java代码与数据库列名不一致时，XML方式使用resultMap属性，注解方式使用@Results注解。
