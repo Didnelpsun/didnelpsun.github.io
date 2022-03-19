@@ -1418,27 +1418,4 @@ public class MybatisPlusConfig {
 }
 ```
 
-### &emsp;整合Redis
-
-#### &emsp;&emsp;Redis配置
-
-SpringBoot已经给出了Redis的starter：spring-boot-starter-data-redis。
-
-```xml
-<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-redis</artifactId>
-    <version>2.6.4</version>
-</dependency>
-```
-
-SpringBoot对Redis进行了自动配置：
-
-+ 使用RedisAutoConfiguration自动配置类。导入RedisProperties属性类的属性，spring.redis.x是对redis的配置。
-+ 连接工厂有两个：LettuceConnectionConfiguration、JedisConnectionConfiguration。
-+ 自动注入了RedisTemplate（key和value都是Object类型）和StringRedisTemplate（key和value都是String类型）。底层只要我们使用StringRedisTemplate，RedisTemplate就可以操作Redis。
-
-Redis的连接地址为redis://用户:密码@网站地址:端口号（默认为6379）。本地默认为<redis://localhost:6379/>。
-
 [案例二基本应用开发：SpringBoot/demo2_develop](https://github.com/Didnelpsun/SpringBoot/tree/master/demo2_develop)。
