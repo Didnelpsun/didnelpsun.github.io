@@ -180,9 +180,13 @@ Github有相关非官方的Windwos版本<https://github.com/tporadowski/redis/re
 + redis-server：Redis服务器启动命令。
 + redis-cli：客户端，操作入口。
 
-### &emsp;启动Redis
+### &emsp;Windows启动Redis
 
-如果是Windows操作系统，启动方式比较简单，基本上默认配置是开机自启，所以这里介绍Linux如何启动。
+如果是Windows操作系统，启动方式比较简单，基本上默认配置是开机自启。
+
+可以使用`redis-server --service-install redis.windows.conf`或`redis-server --service-start`来启动。
+
+### &emsp;Linux启动Redis
 
 #### &emsp;前台启动
 
@@ -201,6 +205,14 @@ Github有相关非官方的Windwos版本<https://github.com/tporadowski/redis/re
 即Redis-Cli，如果启动了Redis Server，执行`redis-cli`就能启动Redis客户端。如果要在不同的端口启动多个不同的Redis客户端，就要使用`redis-cli -p 端口号`。
 
 如果是单个实例，直接使用`redis-cli shutdown`关闭这个Redis客户端，也可以进行`redis-cli`进入终端后调用`shutdown`关闭。如果是多个实例，需要指定端口进行关闭`redis-cli -p 端口号 shutdown`。
+
+&emsp;
+
+## 关闭
+
+### &emsp;Windows关闭Redis
+
+可以使用进程管理关闭，也可以调用`redis-server --service-stop`关闭。
 
 &emsp;
 
