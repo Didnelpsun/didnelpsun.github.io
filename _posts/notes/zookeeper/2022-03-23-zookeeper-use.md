@@ -1,153 +1,170 @@
 ---
 layout: post
-title: "原理"
+title: "基本使用"
 date: 2022-03-23 16:46:51 +0800
 categories: notes zookeeper base
 tags: ZooKeeper 基础 原理
-excerpt: "原理"
+excerpt: "基本使用"
 ---
 
-## 数据结构
+## Curator客户端
 
-ZooKeeper的数据保存在节点上，即znode，多个znode构成一个树型结构。ZooKeeper就是一个树。
+ZooKeeper的原生客户端为zkCli，Java可以使用[Curator](https://curator.apache.org/)客户端框架。
 
-ZooKeeper的节点引用通过路径模式。
+首先利用Spring Initializr新建一个SpringBoot项目，名称为curator，组和软件包名为为org.didnelpsun，Java选择17。依赖项选择Lombok、Spring Configuration Processor、Spring Web。
 
-### &emsp;路径结构
+### &emsp;引入依赖
 
-首先启动zkServer，打开zkCli。
+首先引入ZooKeeper，然后引入Curator：
 
-随便输入什么就可以查看所有操作命令：
-
-```txt
-addWatch [-m mode] path # optional mode is one of [PERSISTENT, PERSISTENT_RECURSIVE] - default is PERSISTENT_RECURSIVE
-addauth scheme auth
-close
-config [-c] [-w] [-s]
-connect host:port
-create [-s] [-e] [-c] [-t ttl] path [data] [acl]
-delete [-v version] path
-deleteall path [-b batch size]
-delquota [-n|-b|-N|-B] path
-get [-s] [-w] path
-getAcl [-s] path
-getAllChildrenNumber path
-getEphemerals path
-history
-listquota path
-ls [-s] [-w] [-R] path
-printwatches on|off
-quit
-reconfig [-s] [-v version] [[-file path] | [-members serverID=host:port1:port2;port3[,...]*]] | [-add serverId=host:port1:port2;port3[,...]]* [-remove serverId[,...]*]
-redo cmdno
-removewatches path [-c|-d|-a] [-l]
-set [-s] [-v version] path data
-setAcl [-s] [-v version] [-R] path acl
-setquota -n|-b|-N|-B val path
-stat [-w] path
-sync path
-version
-whoami
+```xml
+<!-- https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper -->
+<dependency>
+    <groupId>org.apache.zookeeper</groupId>
+    <artifactId>zookeeper</artifactId>
+    <version>3.8.0</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework -->
+<dependency>
+    <groupId>org.apache.curator</groupId>
+    <artifactId>curator-framework</artifactId>
+    <version>5.2.1</version>
+</dependency>
 ```
 
-#### &emsp;&emsp;查看路径
+### &emsp;基本配置
 
-我们可以通过ls path来查看对应路径下有什么节点。
+修改application.properties：
 
-如`ls /`就可以看到[zookeeper]，然后`ls /zookeeper`，就可以看到[config, quota]，然后查看发现两个都是空的，所以基础的ZooKeeper节点为：
-
-```txt
-   zookeeper
-       |
-   ---------
-   |       |
-config   quota
+```properties
+# 重试连接次数
+curator.retryCount=5
+# 超时时间，单位为毫秒
+curator.elapsedTimeMs=5000
+# 连接字符串
+curator.connectString=127.0.0.1:2181
+# Session超时时间
+curator.sessionTimeoutMs=60000
+# 连接超时时间
+curator.connectionTimeoutMs=5000
 ```
 
-#### &emsp;&emsp;添加节点
+然后新建config包并新建一个配置文件CuratorConfig：
 
-然后通过`create 路径`就可以创建节点。但是只能一层层的创建，如果其父路径不存在则创建失败。
+```java
+// CuratorConfig.java
+package org.didnelpsun.config;
 
-如`create /test test`就可以存储数据test到一个新建的test节点中。
+import lombok.Data;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryNTimes;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-#### &emsp;&emsp;存储数据
+@Data
+@ConfigurationProperties(prefix = "curator")
+@Configuration
+public class CuratorConfig{
+    private int retryCount;
+    private int elapsedTimeMs;
+    private String connectString;
+    private int sessionTimeoutMs;
+    private int connectionTimeoutMs;
 
-使用`set 路径 值`就可以将对应值存入节点中。然后通过`get 路径`就可以获取数据。
+    @Bean(initMethod="start")
+    public CuratorFramework curatorFramework() {
+        return CuratorFrameworkFactory.newClient(connectString, sessionTimeoutMs, connectionTimeoutMs, new RetryNTimes(retryCount, elapsedTimeMs));
+    }
+}
+```
 
-#### &emsp;&emsp;删除节点
+### &emsp;编写测试
 
-可以通过`delete 路径`来删除对应节点，但是这个路径必须是一个叶子节点，如果是非叶子节点，即其节点还有子节点就会删除失败：Arguments are not valid。
+对test文件夹下的测试文件进行修改：
 
-如果要删除非叶子节点就需要使用`deleteall 路径`。
+```java
+// CuratorApplicationTests.java
+package org.didnelpsun;
 
-### &emsp;节点结构
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.CreateMode;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-包括四个部分：
+import java.nio.charset.StandardCharsets;
 
-+ data：保存数据。
-+ acl：保存权限。定义了什么样的用户可以操作这个节点，且能够进行怎么样的操作。
-+ stat：保存当前znode的状态元数据。
-+ child：当前节点子节点。
+@SpringBootTest
+class CuratorApplicationTests {
+    private CuratorFramework curatorFramework;
+    @Autowired
+    public void setCuratorFramework(CuratorFramework curatorFramework) {
+        this.curatorFramework = curatorFramework;
+    }
+    @Test
+    // 创建新节点
+    public void createNode() throws Exception{
+        // 添加持久节点，默认为持久节点
+        String path = curatorFramework.create().forPath("/test");
+        // 设置数据
+        curatorFramework.setData().forPath("/test", "test".getBytes(StandardCharsets.UTF_8));
+        // 添加持久序号节点
+        // withMode表示这个节点的类型
+        String path2 = curatorFramework.create().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath("/test/ps", "ps".getBytes(StandardCharsets.UTF_8));
+        // 添加临时序号节点
+        String path3 = curatorFramework.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath("/test/es", "es".getBytes(StandardCharsets.UTF_8));
+        System.out.printf("Curator创建持久节点%s成功",path);
+        System.out.printf("Curator创建持久序号节点%s成功",path2);
+        System.out.printf("Curator创建临时序号节点%s成功",path3);
+        // 获取某个节点的所有子节点
+        System.out.println(curatorFramework.getChildren().forPath("/"));
+    }
+    @Test
+    // 获取节点数据
+    public void getData() throws Exception{
+        byte[] bytes = curatorFramework.getData().forPath("/test/ps");
+        System.out.println(new String(bytes));
+    }
+    @Test
+    // 创建父结点
+    public void createWithParent() throws Exception{
+        // 检查某节点是否存在
+        // 返回值为Stat类型，如果不存在就返回null
+        if(curatorFramework.checkExists().forPath("/test")!=null){
+            String path = curatorFramework.create().creatingParentsIfNeeded().forPath("/test/parent/child");
+            System.out.printf("Curator创建节%s成功", path);
+        }
+    }
+    @Test
+    // 删除节点
+    public void deleteNode() throws Exception{
+        // guaranteed表示如果服务端可能删除成功，但是client没有接收到删除成功的提示，Curator将会在后台持续尝试删除该节点
+        // deletingChildrenIfNeeded表示如果存在子节点就一起删除
+        curatorFramework.delete().guaranteed().deletingChildrenIfNeeded().forPath("/test/parent");
+    }
+}
+```
 
-#### &emsp;&emsp;节点权限
+&emsp;
 
-+ c：create创建权限，允许在该节点下创建子节点。
-+ w: write更新权限，允许更新该节点的数据。
-+ r: read读取权限，允许读取该节点的内容以及子节点的列表信息。
-+ d: delete删除权限，允许删除该节点的子节点。
-+ a: admin管理者权限，允许对该节点进行acl权限设置。
+## 分布式锁
 
-#### &emsp;&emsp;节点状态
+### &emsp;锁的种类
 
-使用`stat 路径`或`get -s 路径`可以获取节点状态信息：
++ 读锁：大家都可以读，要想上读锁的前提是之前的锁没有写锁。
++ 写锁：只有得到写锁的才能写。要想上写锁的前提是，之前没有任何锁。
 
-+ czxid：创建节点的事务ZXID。
-+ znode：被创建的毫秒数（从1970年开始）。
-+ mzxid：znode最后更新的事务zxid。
-+ mtime: znodc最后修改的毫秒致（从1970年开始）。
-+ pZxid：znode最后更新的子节点zxid。
-+ cversion：znode子节点变化号，znode子节点修改次数。
-+ dataVersion: znode数据变化号。
-+ aclVersion：znode访问控制列表的变化号。
-+ ephemeralOwner：如果是临时节点，这个是znode拥有者的session id。如果不是临时节点则是0。
-+ datalength：znode的数据长度。
-+ numChildren：znode子节点数量。
+Zookeeper对读写锁进行统一管理。
 
-### &emsp;节点类型
+### &emsp;读锁
 
-#### &emsp;&emsp;节点分类
-
-+ 持久化目录节点（Persistent）：客户端和服务器端断开连接后，创建的节点不删除。
-+ 持久化顺序编号目录节点（Persistent Sequential）：
-  + 客户端和服务器端断开连接后，创建的节点不删除，并且ZooKeeper给该节点名称进行顺序编号。
-  + ZooKeeper在创建znode时就会设置顺序标识，名称后面会附加一个值，顺序号是一个单调递增的计数器，由父结点维护。
-  + 在分布式系统中，顺序号可以被用于为所有的事件进行全局排序，这样客户端可以通过顺序号推断事件的顺序。
-+ 临时目录节点（Ephemeral）：客户端和服务器端断开连接后，创建的节点自己删除。
-+ 临时顺序编号目录节点（Ephemeral Sequential）：客户端和服务器端断开连接后，创建的节点自动删除，然而ZooKeeper给该节点名称进行顺序编号。
-
-使用`create [-s] [-e] 路径 数据`，其中-s为有序节点，-e为临时节点，如果不写-s/-e默认为创建持久化节点。
-
-#### &emsp;&emsp;类型实现原理
-
-对于持久节点：
-
-1. Zookeeper客户端向Zookeeper服务端发送创建连接请求。
-2. 连接生成后Zookeeper服务端返回session id。
-
-对于临时节点：
-
-1. Zookeeper客户端向Zookeeper服务端发送创建连接请求。
-2. 连接生成后Zookeeper服务端返回session id。
-3. 持续会话，Zookeeper客户端会不断续约session id的时间。
-4. Zookeeper客户端将会话中断。
-5. Zookeeper服务端在一段时间后会删除没有续约的session id所创建的临时节点。
-
-#### &emsp;&emsp;临时节点应用
-
-+ 临时节点：实现服务注册和发现。服务注册到注册中心中，对应创建的临时节点就在线，如果服务下线，则其临时节点也就消失了。
-+ 临时序号节点：适用于临时的分布式锁。
-+ Container节点（3.5.3新增）：容器节点，当容器中没有任何子节点后，该容器节点会被Zookeeper每隔60s自动删除。
-+ TTL节点：指定节点的到期时间，到期后自动被删除。只能通过系统配置zookeeper.extendedTypesEnabled=true开启。
++ 创建一个临时序号节点，节点的数据是read，表示是读锁。
++ 获取当前Zookeeper中序号比自己小的所有节点。
++ 判断最小节点是否是读锁：
+  + 如果不是读锁的话，则上锁失败，为最小节点设置监听。阻塞等待，Zookeeper的watch机制会当最小节点发生变化时通知当前节点，于是再执行第二步的流程。
+  + 如果是读锁的话，则上锁成功。
 
 &emsp;
 

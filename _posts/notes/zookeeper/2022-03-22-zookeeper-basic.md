@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "基础"
+title: "基础原理"
 date: 2022-03-23 14:46:27 +0800
 categories: notes zookeeper base
-tags: ZooKeeper 基础
-excerpt: "基础"
+tags: ZooKeeper 基础原理
+excerpt: "基础原理"
 ---
 
 是一个开源分布式提供协商服务的项目。
@@ -67,8 +67,8 @@ ZooKeeper数据模型的结构与Unix文件系统很类似，整体上可以看�
 修改zoo.cfg文件：
 
 ```cfg
-dataDir=D:\\ZooKeeper\\apache-zookeeper-3.8.0-bin\\data
-dataLogDir=D:\\ZooKeeper\\apache-zookeeper-3.8.0-bin\\log
+dataDir=D:\ZooKeeper\apache-zookeeper-3.8.0-bin\data
+dataLogDir=D:\ZooKeeper\apache-zookeeper-3.8.0-bin\log
 ```
 
 ### &emsp;配置文件
@@ -109,3 +109,188 @@ Linux和Windows操作一致。
 + 启动客户端：Linux：`bin/zkCli.sh`；Windows：`zkCli`。
 + 退出客户端：`quit`。
 + 关闭ZooKeeper：Linux：`bin/zkServer.sh stop`；Windows：关闭控制台。
+
+&emsp;
+
+
+## 数据结构
+
+ZooKeeper的数据保存在节点上，即znode，多个znode构成一个树型结构。ZooKeeper就是一个树。
+
+ZooKeeper的节点引用通过路径模式。
+
+### &emsp;路径结构
+
+首先启动zkServer，打开zkCli。
+
+随便输入什么就可以查看所有操作命令：
+
+```txt
+addWatch [-m mode] path # optional mode is one of [PERSISTENT, PERSISTENT_RECURSIVE] - default is PERSISTENT_RECURSIVE
+addauth scheme auth
+close
+config [-c] [-w] [-s]
+connect host:port
+create [-s] [-e] [-c] [-t ttl] path [data] [acl]
+delete [-v version] path
+deleteall path [-b batch size]
+delquota [-n|-b|-N|-B] path
+get [-s] [-w] path
+getAcl [-s] path
+getAllChildrenNumber path
+getEphemerals path
+history
+listquota path
+ls [-s] [-w] [-R] path
+printwatches on|off
+quit
+reconfig [-s] [-v version] [[-file path] | [-members serverID=host:port1:port2;port3[,...]*]] | [-add serverId=host:port1:port2;port3[,...]]* [-remove serverId[,...]*]
+redo cmdno
+removewatches path [-c|-d|-a] [-l]
+set [-s] [-v version] path data
+setAcl [-s] [-v version] [-R] path acl
+setquota -n|-b|-N|-B val path
+stat [-w] path
+sync path
+version
+whoami
+```
+
+#### &emsp;&emsp;查看路径
+
+我们可以通过`ls path`来查看对应路径下有什么节点。
+
+如`ls /`就可以看到[zookeeper]，然后`ls /zookeeper`，就可以看到[config, quota]，然后查看发现两个都是空的，所以基础的ZooKeeper节点为：
+
+```txt
+   zookeeper
+       |
+   ---------
+   |       |
+config   quota
+```
+
+使用`ls -R 路径`可以递归查询路径下的所有节点。
+
+&emsp;
+
+## 节点
+
+### &emsp;节点结构
+
+包括四个部分：
+
++ data：保存数据。
++ acl：保存权限。定义了什么样的用户可以操作这个节点，且能够进行怎么样的操作。
++ stat：保存当前znode的状态元数据。
++ child：当前节点子节点。
+
+#### &emsp;&emsp;节点权限
+
++ c：create创建权限，允许在该节点下创建子节点。
++ w: write更新权限，允许更新该节点的数据。
++ r: read读取权限，允许读取该节点的内容以及子节点的列表信息。
++ d: delete删除权限，允许删除该节点的子节点。
++ a: admin管理者权限，允许对该节点进行acl权限设置。
+
+#### &emsp;&emsp;节点状态
+
+使用`stat 路径`或`get -s 路径`可以获取节点状态信息：
+
++ czxid：创建节点的事务ZXID。
++ znode：被创建的毫秒数（从1970年开始）。
++ mzxid：znode最后更新的事务zxid。
++ mtime: znodc最后修改的毫秒致（从1970年开始）。
++ pZxid：znode最后更新的子节点zxid。
++ cversion：znode子节点变化号，znode子节点修改次数。
++ dataVersion: znode数据变化号。
++ aclVersion：znode访问控制列表的变化号。
++ ephemeralOwner：如果是临时节点，这个是znode拥有者的session id。如果不是临时节点则是0。
++ datalength：znode的数据长度。
++ numChildren：znode子节点数量。
+
+### &emsp;节点类型
+
+#### &emsp;&emsp;节点分类
+
++ 持久化目录节点（Persistent）：客户端和服务器端断开连接后，创建的节点不删除。
++ 持久化顺序编号目录节点（Persistent Sequential）：
+  + 客户端和服务器端断开连接后，创建的节点不删除，并且ZooKeeper给该节点名称进行顺序编号。
+  + ZooKeeper在创建znode时就会设置顺序标识，名称后面会附加一个值，顺序号是一个单调递增的计数器，由父结点维护。
+  + 在分布式系统中，顺序号可以被用于为所有的事件进行全局排序，这样客户端可以通过顺序号推断事件的顺序。
++ 临时目录节点（Ephemeral）：客户端和服务器端断开连接后，创建的节点自己删除。
++ 临时顺序编号目录节点（Ephemeral Sequential）：客户端和服务器端断开连接后，创建的节点自动删除，然而ZooKeeper给该节点名称进行顺序编号。
+
+使用`create [-s] [-e] 路径 数据`，其中-s为有序节点，-e为临时节点，如果不写-s/-e默认为创建持久化节点。
+
+#### &emsp;&emsp;类型实现原理
+
+对于持久节点：
+
+1. Zookeeper客户端向Zookeeper服务端发送创建连接请求。
+2. 连接生成后Zookeeper服务端返回session id。
+
+对于临时节点：
+
+1. Zookeeper客户端向Zookeeper服务端发送创建连接请求。
+2. 连接生成后Zookeeper服务端返回session id。
+3. 持续会话，Zookeeper客户端会不断续约session id的时间。
+4. Zookeeper客户端将会话中断。
+5. Zookeeper服务端在一段时间后会删除没有续约的session id所创建的临时节点。
+
+#### &emsp;&emsp;临时节点应用
+
++ 临时节点：实现服务注册和发现。服务注册到注册中心中，对应创建的临时节点就在线，如果服务下线，则其临时节点也就消失了。
++ 临时序号节点：适用于临时的分布式锁。
++ Container节点（3.5.3新增）：容器节点，当容器中没有任何子节点后，该容器节点会被Zookeeper每隔60s自动删除。使用`create -c 路径`来创建。
++ TTL节点：指定节点的到期时间，到期后自动被删除。只能通过系统配置zookeeper.extendedTypesEnabled=true开启。
+
+### &emsp;节点操作
+
+#### &emsp;&emsp;添加节点
+
+然后通过`create 路径`就可以创建节点。但是只能一层层的创建，如果其父路径不存在则创建失败。
+
+如`create /test test`就可以存储数据test到一个新建的test节点中。
+
+#### &emsp;&emsp;存储数据
+
+使用`set 路径 值`就可以将对应值存入节点中。然后通过`get 路径`就可以获取数据。
+
+#### &emsp;&emsp;删除节点
+
+可以通过`delete 路径`来删除对应节点，但是这个路径必须是一个叶子节点，如果是非叶子节点，即其节点还有子节点就会删除失败：Arguments are not valid。
+
+如果要删除非叶子节点就需要使用`deleteall 路径`。
+
+#### &emsp;&emsp;乐观锁
+
+通过版本号dataVersion属性对数据进行上锁。对数据的每一次更新操作都会让数据的dataVersion版本号加一。
+
+如果在命令中添加`-v 版本号`表示对这个版本的数据进行操作，如果版本号与当前数据版本号不一致则执行失败。
+
+#### &emsp;&emsp;权限设置
+
+执行`addauth digest 用户名:密码`给当前会话添加权限用户。如`addauth digest Didnelpsun:1234`。
+
+`操作 路径 数值 auth:用户名:密码:权限`来给数据添加权限。如`create /test test auth:Didnelpsun:1234:cdrwa`，即给/test路径的节点赋值为test，并给用户Didnelpsun添加对于这个节点的权限，包括cdrwa，即Didnelpsun对这个节点能创建、删除、读、写、授权。
+
+&emsp;
+
+## 数据持久化
+
+Zookeeper的数据是运行在内存中，Zookeeper提供了两种数据持久化机制。
+
+默认两种持久化机制都开启，通过两种形式的持久化，在恢复时先恢复快照文件中的数据到内存中，再用日志文件中的数据做增量恢复，这样的恢复速度更快。
+
+### &emsp;事务日志
+
+把执行的命令以日志形式保存在dataLogDir指定的路径的文件中，如果没有指定这个配置，那么按照dataDir指定的路径来保存。
+
+保存文件以log为名字，为二进制文件打开乱码。
+
+### &emsp;数据快照
+
+Zookeeper会在一定的时间间隔内做一次内存数据的快照，把该时刻的内存数据保存在快照文件中。
+
+保存文件以snapshot为名字，为二进制文件打开乱码。
