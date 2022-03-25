@@ -64,11 +64,11 @@ ZooKeeper数据模型的结构与Unix文件系统很类似，整体上可以看�
 
 安装目录下新建一个data文件夹和一个log文件夹。
 
-修改zoo.cfg文件：
+修改zoo.cfg文件，注意Windows是两个斜杠：
 
 ```cfg
-dataDir=D:\ZooKeeper\apache-zookeeper-3.8.0-bin\data
-dataLogDir=D:\ZooKeeper\apache-zookeeper-3.8.0-bin\log
+dataDir=D:\\ZooKeeper\\apache-zookeeper-3.8.0-bin\\data
+dataLogDir=D:\\ZooKeeper\\apache-zookeeper-3.8.0-bin\\log
 ```
 
 ### &emsp;配置文件
@@ -102,7 +102,7 @@ ZooKeeper新版本启动的过程中，ZooKeeper新增的审核日志是默认�
 
 ### &emsp;其他操作
 
-Linux和Windows操作一致。
+Linux和Windows操作一致。但是Windows下的zkServer不能传参数。
 
 + 查看进程是否启动：`jps`。
 + 查看状态：Linux：`bin/zkServer.sh status`。
@@ -111,7 +111,6 @@ Linux和Windows操作一致。
 + 关闭ZooKeeper：Linux：`bin/zkServer.sh stop`；Windows：关闭控制台。
 
 &emsp;
-
 
 ## 数据结构
 
