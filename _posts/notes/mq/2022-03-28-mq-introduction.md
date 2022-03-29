@@ -82,8 +82,8 @@ JMS是一种与厂商无关的API，用来访问收发系统消息，它类似�
 + JMS客户：生产或消费基于消息的Java的应用程序或对象。
 + JMS生产者：创建并发送消息的JMS客户。
 + JMS消费者：接收消息的JMS客户。
-+ JMS消息：包括可以在JMS客户之间传递的数据的对象。具有五种类型：
-  + StreamMessage：Java原始值的数据流
++ JMS消息：包括可以在JMS客户之间传递的数据的对象。由消息头、消息体、消息属性三个部分。具有五种类型：
+  + StreamMessage：Java原始值的数据流。
   + MapMessage：一套键值对。
   + TextMessage：一个字符串对象。
   + ObjectMessage：一个序列化的Java对象。
@@ -106,9 +106,36 @@ JMS是一种与厂商无关的API，用来访问收发系统消息，它类似�
 
 ## 流程
 
+### &emsp;基本逻辑
+
 发送者把消息发送给消息服务器，消息服务器将消息存放在若干队列或主题中，在合适的时候，消息服务器会将消息转发给接受者。在这个过程中，发送和接受是异步的，也就是发送无需等待，而且发送者和接受者的生命周期也没有必然关系。
 
 尤其在发布pub/订阅sub模式下，也可以完成一对多的通信，即让一个消息有多个接受者。
+
+### &emsp;MQ标准流程
+
+```txt
+                   Connection Factory
+                       连接工厂
+                          |
+                          |创建
+                          |
+                          v
+                      Connection
+                         连接
+                          |
+                          |创建
+                          |
+                          v
+Message Producer<------Session------>Message Consumer
+    消息生产者    创建   会话  创建     消息接收者
+        |                 |                 |
+        |发送             |创建             |接收
+        |                 |                 |
+        v                 v                 v
+   Destination         Message         Destination
+     目的地              消息             目的地
+```
 
 &emsp;
 
