@@ -39,6 +39,10 @@ ActiveMQ的后端接口是61616。
 
 使用`./activemq start > 地址`可以将启动时的日志保存到这个地址中。
 
+### &emsp;配置文件
+
+安装目录的/conf/activemq.xml文件就是总的配置文件，我们可以通过`activemq start xbean:file:\配置文件地址`来指定启动的配置文件，从而能启动多个ActiveMQ实例，如`activemq start xbean:file:\D:\ActiveMQ\apache-activemq-5.17.0\conf\activemq.xml`。
+
 &emsp;
 
 ## Java实现队列

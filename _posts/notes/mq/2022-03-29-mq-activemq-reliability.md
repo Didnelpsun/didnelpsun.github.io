@@ -209,10 +209,63 @@ createSession的第二个用来传签收的参数。
 
 ### &emsp;非事务模式
 
-+ 自动签收AUTO_ACKNOWLEDGE：默认，一旦接收方应用程序的消息处理回调函数返回，会话对象就会自动确认消息的接收。 一般接收方的做法是调用`consumer.setMessageListener()`注册消息处理函数，如果该函数返回，代表着一条消息被接受方成功接收， ActiveMQ服务器会认为消息接收成功。函数的返回可以是正常的返回，也可以是因为抛出异常而结束。
-+ 手动签收CLIENT_ACKNOWLEDGE：客户端调用acknowledge方法进行签收。
-+ 允许重复消息：DUPS_OK_ACKNOWLEDGE：可以允许部分重复，。
++ 自动签收AUTO_ACKNOWLEDGE：默认，一旦接收方应用程序的消息处理回调函数返回，会话对象就会自动确认消息的接收删除消息。函数的返回可以是正常的返回，也可以是因为抛出异常而结束。
++ 手动签收CLIENT_ACKNOWLEDGE：客户端调用Message的acknowledge方法进行签收，如果没有调用则会重复消费，ActiveMQ不会更新消息出队删除消息，出现的效果跟事务的没有commit一样。
++ 允许重复消息DUPS_OK_ACKNOWLEDGE：带副本的可以允许部分重复，即允许存在重复签收的状态，自动批量确认，具有延时发送ACK的特点，内部累计一定数量才一起自动确认，可以减低Session的消耗。
 
 ### &emsp;有事务模式
 
-SESSION_TRANSACTED：使用事务签收
+如果将事务开启，且执行了commit，那么默认会自动签收，第二个关于签收的参数作用不大，也就是说如果`createSession(true,Session.CLIENT_ACKNOWLEDGE)`后面没有acknowledge确认也不会出现重复消费的情况。
+
+如果将事务开启，但没有commit，此时还是`createSession(true,Session.CLIENT_ACKNOWLEDGE)`，但是进行了acknowledge确认，此时还是会出现重复消费的情况。
+
+这是因为事务机制和签收机制是冲突的，所以只能选一项机制，而createSession函数的第一个参数是事务参数，第二个参数是签收参数，所以可以看出事务优先于签收。
+
++ 使用事务签收SESSION_TRANSACTED：即如果开启了事务，第一个参数为true，那么第二个参数无论写的什么源码都会把它改为SESSION_TRANSACTED，必须commit才能提交事务。
+
+### &emsp;事务与签收
+
++ 在事务性会话中，当一个事务被成功提交则消息被自动签收。如果事务回滚，则消息会被再次传送。
++ 非事务性会话中，消息何时被确认取决于创建会话时的应答模式acknowledge mode。
++ 对于消费者的事务，能让消费和签收一次性完成，消费了就必然签收，如果没有消费就会回滚不会签收。
++ 对于生产者的事务，能让生产的消息一次性入队，一般消息生产一条入队一条，如果生产多条消息希望一次性全部入队则可以使用事务。
+
+&emsp;|事务|签收
+:----:|:--:|:--:
+性能|较低|普通签收与事务差不多，批量和异步签收性能更高
+消息数量|同队列的多条一起操作|发送一条签收一条
+针对对象|生产者与消费者|消费者，生产者不存在签收概念
+
+&emsp;
+
+## Broker
+
+相当于内嵌一个ActiveMQ的服务器实例。实现了用代码的形式启动ActiveMQ将MQ嵌入到Java代码中，以便随时用随时启动，在用的时候再去启动这样能节省了资源，也保证了可靠性。类似SpringBoot内嵌Tomcat容器。
+
+由于Broker数据交互需要使用JSON，所以使用时需要导入JSON的依赖：
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.2.2</version>
+</dependency>
+```
+
+如果ActiveMQ宕机了我们可以使用Java自定义一个ActiveMQ：
+
+```java
+// 定义一个Borker实体
+BrokerService brokerService = new BrokerService();
+// 开启JMS
+brokerService.setUseJms(true);
+// 指定服务地址，使用TCP协议
+brokerService.addConnector("tcp://localhost:61616");
+// 开启服务
+brokerService.start()
+```
+
+如果服务开启后闪退可以使用循环或等待输入来不断维持服务。
+
+[ActiveMQ使用Java实现可靠性：MQ/activemq_java_reliability](https://github.com/Didnelpsun/MQ/tree/main/activemq_java_reliability)。
