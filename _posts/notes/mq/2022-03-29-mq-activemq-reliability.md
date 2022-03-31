@@ -7,7 +7,7 @@ tags: MQ ActiveMQ 消息 事务
 excerpt: "ActiveMQ可靠性"
 ---
 
-JMS的可靠性靠三个方面完成：持久性、事务、签收。
+JMS的可靠性靠三个方面完成：持久、事务、签收。
 
 ## 消息
 
@@ -56,29 +56,29 @@ JMS的可靠性靠三个方面完成：持久性、事务、签收。
 
 使用`setStringProperty`方法设置，`getStringProperty`方法获取。
 
-### &emsp;持久化
+### &emsp;持久
 
 通过对Producer设置传输模式JSMDeliveryMode。
 
-#### &emsp;&emsp;队列非持久化
+#### &emsp;&emsp;非持久模式队列
 
-如果对于队列进行非持久化，即对`Producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)`，那么消息是不存在的，即数量为0，但是此时队列这个容器还是存在的。
+如果对于队列设置非持久模式，即对`Producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT)`，那么消息是不存在的，即数量为0，但是此时队列这个容器还是存在的。
 
-#### &emsp;&emsp;队列持久化
+#### &emsp;&emsp;持久模式队列
 
-消息持久化是队列的的默认传送模式，此模式保证这些消息只被传送一次和成功使用一次。对于这些消息，可靠性是优先考虑的因素。可靠性的另一个重要方面是确保持久性消息传送至目标后，消息服务在向消费者传送即消费前它们之前不会丢失这些消息。
+持久模式消息是队列的的默认传送模式，此模式保证这些消息只被传送一次和成功使用一次。对于这些消息，可靠性是优先考虑的因素。可靠性的另一个重要方面是确保持久性消息传送至目标后，消息服务在向消费者传送即消费前它们之前不会丢失这些消息。
 
-如果设置数据持久化，那么消息是能被保存的，这个消息是被保存在Number of Pending Messages中，即等待入队。
+如果设置持久模式数据，那么消息是能被保存的，这个消息是被保存在Number of Pending Messages中，即等待入队。
 
-此时Messages Enqueued和Messages Dequeued都是0，即使宕机前已经有消息入队了，即ActiveMQ只保存消息本身，而不保存消息是否入队这个状态，因为ActiveMQ是无状态的，如果宕机了，持久化会保存消息并认为消息是没有入队的。
+此时Messages Enqueued和Messages Dequeued都是0，即使宕机前已经有消息入队了，即ActiveMQ只保存消息本身，而不保存消息是否入队这个状态，因为ActiveMQ是无状态的，如果宕机了，持久模式设置会保存消息并认为消息是没有入队的。
 
 如果消息已经出队了被消费掉了则ActiveMQ是不保存的。
 
-#### &emsp;&emsp;主题持久化
+#### &emsp;&emsp;持久模式主题
 
-ActiveMQ默认的主题消费者是不持久的，只向当前启动的消费者发送消息，关掉的消费者，会错过很多消息，并无法再次接收这些消息，所以无法同步信息。让消费者重新启动时，接收到错过的消息就必须持久化订阅。
+ActiveMQ默认的主题消费者是不持久的，只向当前启动的消费者发送消息，关掉的消费者，会错过很多消息，并无法再次接收这些消息，所以无法同步信息。让消费者重新启动时，接收到错过的消息就必须持久订阅。
 
-持久化订阅必须设置客户端ID`connection.setClientID`，且需要定义一个TopicSubscriber来替换原来的MessageConsumer。
+持久订阅必须设置客户端ID`connection.setClientID`，且需要定义一个TopicSubscriber来替换原来的MessageConsumer。
 
 接着上面使用过的[ActiveMQ使用Java实现：MQ/activemq_java](https://github.com/Didnelpsun/MQ/tree/main/activemq_java)，并重命名为activemq_java_reliability，在entity下新建一个PersistentConsumer并复制TopicConsumer代码进行改造：
 
@@ -164,7 +164,7 @@ public class PersistentTest {
 }
 ```
 
-然后运行这个测试函数，跳到<http://127.0.0.1:8161/admin/subscribers.jsp>可以看到订阅的信息，Active Durable Topic Subscribers标识活跃的持久化主题订阅者，这里就有我们定义的默认ID为clientId的订阅者信息，然后运行test中的ProviderTest提供信息，订阅者打印：
+然后运行这个测试函数，跳到<http://127.0.0.1:8161/admin/subscribers.jsp>可以看到订阅的信息，Active Durable Topic Subscribers标识活跃的持久模式主题订阅者，这里就有我们定义的默认ID为clientId的订阅者信息，然后运行test中的ProviderTest提供信息，订阅者打印：
 
 ```txt
 receivePersistentTopicMessage:sendTopicMessage:1
@@ -177,7 +177,7 @@ receivePersistentTopicMessage:sendTopicMessage:3
 
 此时如果我们先启动生产者程序再生产三条消息，然后再将订阅者程序运行让clientId订阅者上线，则clientId订阅者可以收到刚生产的三条信息。
 
-所以持久化订阅后一定要先运行一次消费者程序，让订阅者向MQ注册，即“留个坑位”。无论订阅者是否在线，等上线后订阅者都能收到没有收到的所有消息。
+所以持久订阅后一定要先运行一次消费者程序，让订阅者向MQ注册，即“留个坑位”。无论订阅者是否在线，等上线后订阅者都能收到没有收到的所有消息。
 
 &emsp;
 

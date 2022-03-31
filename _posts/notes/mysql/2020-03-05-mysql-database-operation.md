@@ -15,7 +15,7 @@ excerpt: "数据库基础操作"
 
 其中两个DEFAULT是可有可无的。
 
-如：`CREATE DATABASE IF NOT EXISTS yiibaidb DEFAULT CHARSET utf8 COLLATE utf8_general_ci;`
+如：`CREATE DATABASE IF NOT EXISTS didnelpsun DEFAULT CHARSET utf8 COLLATE utf8_general_ci;`
 
 &emsp;
 
@@ -81,6 +81,3 @@ LINES TERMINATED BY '\r\n';
 CSV文件包含结果集中的行集合。每行由一个回车序列和由LINES TERMINATED BY '\r\n'子句指定的换行字符终止。文件中的每行包含表的结果集的每一行记录。
 
 每个值由FIELDS ENCLOSED BY '"'子句指示的双引号括起来。 这样可以防止可能包含逗号(，)的值被解释为字段分隔符。 当用双引号括住这些值时，该值中的逗号不会被识别为字段分隔符。
-
-
-
