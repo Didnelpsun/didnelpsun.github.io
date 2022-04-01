@@ -233,7 +233,7 @@ public class DelayQueueConsumerTest {
 
 ## 消息重发
 
-![官网重发介绍](https://activemq.apache.org/redelivery-policy)。
+[官网重发介绍](https://activemq.apache.org/redelivery-policy)。
 
 ### &emsp;重发场景
 
