@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "RabbitMQ模式"
+title:  "RabbitMQ简单模式"
 date:   2022-04-01 15:12:42 +0800
 categories: notes mq rabbitmq
 tags: MQ RabbitMQ 模式
-excerpt: "RabbitMQ模式"
+excerpt: "RabbitMQ模式（上）"
 ---
 
 接下来会介绍之前讲到的六种模式。首先利用IDEA建立一个Maven项目rabbitmq_mode，然后把src删掉。
@@ -542,17 +542,17 @@ public class Worker {
 
 发布确认模式最大的好处在于他是异步的，一旦发布一条消息，生产者应用程序就可以在等信道返回确认的同时继续发送下一条消息，当消息最终得到确认之后，生产者应用便可以通过回调方法来处理该确认消息，如果RabbitMQ因为自身内部错误导致消息丢失，就会发送一条nack消息，生产者应用程序同样可以在回调方法中处理该nack消息。
 
-使用`channel.confirmSelect();`方法来使用确认发布模式。
+使用`channel.confirmSelect();`方法来使用发布确认模式。
 
-### &emsp;单个确认发布模式
+### &emsp;单个发布确认模式
 
-#### &emsp;&emsp;单个确认发布特点
+#### &emsp;&emsp;单个发布确认特点
 
-这是一种简单的确认方式，是一种同步确认发布的方式，也就是发布一个消息之后只有它被确认发布，后续的消息才能继续发布，`waitForConfirmsOrDie(long)`这个方法只有在消息被确认的时候才返回，如果在指定时间范围内这个消息没有被确认那么它将抛出异常。
+这是一种简单的确认方式，是一种同步发布确认的方式，也就是发布一个消息之后只有它被发布确认，后续的消息才能继续发布，`waitForConfirmsOrDie(long)`这个方法只有在消息被确认的时候才返回，如果在指定时间范围内这个消息没有被确认那么它将抛出异常。
 
-这种确认方式有一个最大的缺点就是发布速度特别的慢，因为如果没有确认发布的消息就会阻塞所有后续消息的发布，这种方式最多提供每秒不超过数百条发布消息的吞吐量。当然对于某些应用程序来说这可能已经足够了。
+这种确认方式有一个最大的缺点就是发布速度特别的慢，因为如果没有发布确认的消息就会阻塞所有后续消息的发布，这种方式最多提供每秒不超过数百条发布消息的吞吐量。当然对于某些应用程序来说这可能已经足够了。
 
-#### &emsp;&emsp;单个确认发布代码
+#### &emsp;&emsp;单个发布确认代码
 
 ```java
 // Producer.java
@@ -564,7 +564,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-import static org.didnelpsun.Property.QUEUE_NAME;
+import static org.didnelpsun.Property.*;
 
 public class Producer {
     // 批量发信息的个数
@@ -592,7 +592,7 @@ public class Producer {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, TimeoutException {
-        // 单个确认发布
+        // 单个发布确认
         new Producer().sendSingle();
     }
 }
@@ -600,18 +600,365 @@ public class Producer {
 
 可以得出大概76毫秒。
 
-### &emsp;批量确认发布模式
+### &emsp;批量发布确认模式
 
-#### &emsp;&emsp;批量确认发布特点
+#### &emsp;&emsp;批量发布确认特点
 
 上面那种方式非常慢，与单个等待确认消息相比，先发布一批消息然后一起确认可以极大地提高吞吐量，当然这种方式的缺点就是当发生故障导致发布出现问题时，不知道是哪个消息出现问题了，我们必须将整个批处理保存在内存中，以记录重要的信息而后重新发布消息。当然这种方案仍然是同步的，也一样阻塞消息的发布。
 
-#### &emsp;&emsp;批量确认发布代码
+#### &emsp;&emsp;批量发布确认代码
 
-### &emsp;异步确认发布模式
+添加一个新的方法，由于发布确认方法只有确认部分代码不一样，所以使用匿名表达式将公共部分抽取出来，并将参数放到utils的Porperty中：
 
-#### &emsp;&emsp;
+```java
+// Property.java
+package org.didnelpsun;
 
-#### &emsp;&emsp;
+public class Property {
+    public static final String host = "127.0.0.1";
+    public static final int port = 5672;
+    public static final String username = "guest";
+    public static final String password = "guest";
+    // 队列名称
+    public static final String QUEUE_NAME = "hello-world";
+    // 发信息总个数
+    public static final int COUNT = 1000;
+    // 批量消息数
+    public static final int BATCH = 105;
+}
+```
 
-### &emsp;确认发布模式对比
+```java
+// Producer.java
+package org.didnelpsun;
+
+import com.rabbitmq.client.Channel;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
+
+import static org.didnelpsun.Property.*;
+
+public class Producer {
+    // 传入处理方法
+    public void send(int count, IConfirm iConfirm) throws IOException, TimeoutException {
+        Channel channel = RabbitUtil.getChannel();
+        // 生成队列
+        channel.queueDeclare(String.valueOf(count), true, false, false, null);
+        // 开启发布确认
+        channel.confirmSelect();
+        // 获取开始时间
+        long start = System.currentTimeMillis();
+        // 批量发送消息方法，参数为信道以及发送信息条数
+        // 返回值为布尔值，true为发送成功，false为发送失败
+        if(!iConfirm.confirm(channel)){
+            System.out.println("发送消息失败");
+        }
+        // 获取结束时间
+        System.out.println("执行"+ count +"条命令确认需要" + (System.currentTimeMillis() - start) + "毫秒");
+    }
+
+    // 单个确认
+    public void sendSingle(int count) throws IOException, TimeoutException {
+        this.send(count, (channel) -> {
+            try {
+                // 批量发送消息
+                for (int i = 1; i <= count; i++) {
+                    channel.basicPublish("", QUEUE_NAME, null, (String.valueOf(i)).getBytes(StandardCharsets.UTF_8));
+                    // 马上发布确认
+                    if (channel.waitForConfirms()) {
+                        System.out.println("消息" + i + "发送成功！");
+                    }
+                    else
+                    {
+                        System.out.println("消息" + i + "发送失败！");
+                        return false;
+                    }
+                }
+                return true;
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    // 批量确认
+    // 两个参数，第一个参数是发送消息的条数，第二个参数为批量确认中每批的条数
+    public void sendBatch(int count, int batch) throws IOException, TimeoutException {
+        this.send(count, (channel) -> {
+            try {
+                // 批量发送消息
+                for (int i = 1; i <= count; i++) {
+                    channel.basicPublish("", QUEUE_NAME, null, (String.valueOf(i)).getBytes(StandardCharsets.UTF_8));
+                    // 如果到每一批再确认，即当前次数模批容量为0
+                    if (i%batch==0){
+                        if (channel.waitForConfirms()) {
+                            System.out.println("消息第" + i/batch + "批（" + (i-batch) + "-" + i + "）发送成功！");
+                        }
+                        else
+                        {
+                            System.out.println("消息第" + i/batch + "批（" + (i-batch) + "-" + i + "）发送失败！");
+                            return false;
+                        }
+                    }
+                    // 如果总数不能被批数整除，则最后几个不能被确认
+                    // 需要判断count能否被batch整除，如果不能则最后一个还要继续确认一次
+                    if (!(count%batch==0)&&i==count){
+                        if (channel.waitForConfirms()) {
+                            System.out.println("消息第" + (i/batch+1) + "批（" + (i-i%batch) + "-" + i + "）发送成功！");
+                        }
+                        else{
+                            System.out.println("消息第" + (i/batch+1) + "批（" + (i-i%batch) + "-" + i + "）发送失败！");
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    public static void main(String[] args) throws IOException, TimeoutException {
+        // 单个发布确认
+        new Producer().sendSingle(COUNT);
+        // 批量发布确认
+        new Producer().sendBatch(COUNT, BATCH);
+    }
+}
+```
+
+可以将打印字符串部分删掉然后再运行，避免大量打印的时间开销对运行造成的影响，这样打印出来的就只有运行时间，可以看出批量确认速度会快很多：
+
+```txt
+执行1000条命令确认需要299毫秒
+执行1000条命令确认需要37毫秒
+```
+
+### &emsp;异步发布确认模式
+
+异步确认虽然编程逻辑比上两个要复杂，但是性价比最高，无论是可靠性还是效率都没得说，他是利用回调函数来达到消息可靠性传递的，这个中间件也是通过函数回调来保证是否投递成功。
+
+#### &emsp;&emsp;异步发布确认原理
+
+在信道中会使用一个Map，key为消息序号，value为消息内容，消息成功或失败可以根据消息序号来定位。
+
+Broker收到一条消息就会进行确认收到，回调确认函数向生产者进行确认。同理如果没有收到就会回调未确认函数通知生产者。
+
+所以生产者不用堵塞等待确认，只需要不断的发送消息就可以了，如果收到未确认通知则按照通知上的消息序号重发消息。
+
+#### &emsp;&emsp;异步发布确认代码
+
+需要一个监听器来监听消息情况：
+
+```java
+// 异步确认
+public void sendAsync(int count) throws IOException, TimeoutException {
+    this.send(count, (channel) -> {
+        try {
+            // 准备消息监听器，监听消息成功或失败
+            // 第一个参数是对确认的回调处理，第二个参数是对未确认的回调处理
+            channel.addConfirmListener(
+                    (deliveryTag, multiple)->{
+                        // System.out.println("消息" + deliveryTag + "发送成功！");
+                    }, (deliveryTag, multiple) ->{
+                        // System.out.println("消息" + deliveryTag + "发送失败！");
+                    }
+            );
+            // 批量发送消息，只负责发消息
+            for (int i = 1; i <= count; i++) {
+                channel.basicPublish("", QUEUE_NAME, null, (String.valueOf(i)).getBytes(StandardCharsets.UTF_8));
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    });
+}
+```
+
+如果打印确认消息会发现消息序号是混乱的，且即使异步确认函数执行完成打印：执行1000条命令确认需要xx毫秒，后面还是会打印消息xxx发送成功，这是因为确认是异步的，所以会有监听器和发布消息两个线程共同独立执行，所以即使程序次数执行完成，异步的确认还没有完全收到：
+
+```txt
+消息625发送成功！
+消息630发送成功！
+执行1000条命令确认需要41毫秒
+消息643发送成功！
+消息644发送成功！
+```
+
+此时再把打印字符串给注释掉，同时执行三种方式的确认函数：
+
+```txt
+执行1000条命令确认需要330毫秒
+执行1000条命令确认需要32毫秒
+执行1000条命令确认需要21毫秒
+```
+
+异步确认函数的速度是最快的。
+
+#### &emsp;&emsp;异步未确认消息处理
+
+最好的解决的解决方案就是把未确认的消息放到一个基于内存的能被发布线程访问的队列，比如说用ConcurrentLinkedQueue这个队列在发布确认回调与发布线程之间进行消息的传递。
+
+由于异步确认会在确认代码之后完成，所以用来记录未处理消息的容器不能在确认代码中设置，不然会在异步确认完成前销毁，可以在对象中定义一个，在发消息时将消息全部加入，在发送成功时从容器把对应消息删除，最后容器中留下来的就是发送失败的消息：
+
+```java
+// Producer.java
+package org.didnelpsun;
+
+import com.rabbitmq.client.Channel;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeoutException;
+
+import static org.didnelpsun.Property.*;
+
+public class Producer {
+    // 定义一个处理未确认消息的容器
+    // 必须适用于高并发且线程安全有序
+    public ConcurrentSkipListMap<Long, String> confirm;
+
+    // 传入处理方法
+    public void send(int count, IConfirm iConfirm) throws IOException, TimeoutException {
+        Channel channel = RabbitUtil.getChannel();
+        // 生成队列
+        channel.queueDeclare(String.valueOf(count), true, false, false, null);
+        // 开启发布确认
+        channel.confirmSelect();
+        // 获取开始时间
+        long start = System.currentTimeMillis();
+        // 批量发送消息方法，参数为信道以及发送信息条数
+        // 返回值为布尔值，true为发送成功，false为发送失败
+        if (!iConfirm.confirm(channel)) {
+            System.out.println("发送消息失败");
+        }
+        // 获取结束时间
+        System.out.println("执行" + count + "条命令确认需要" + (System.currentTimeMillis() - start) + "毫秒");
+    }
+
+    // 单个确认
+    public void sendSingle(int count) throws IOException, TimeoutException {
+        this.send(count, (channel) -> {
+            try {
+                // 批量发送消息
+                for (int i = 1; i <= count; i++) {
+                    channel.basicPublish("", QUEUE_NAME, null, (String.valueOf(i)).getBytes(StandardCharsets.UTF_8));
+                    // 马上发布确认
+                    if (channel.waitForConfirms()) {
+//                        System.out.println("消息" + i + "发送成功！");
+                    } else {
+//                        System.out.println("消息" + i + "发送失败！");
+                        return false;
+                    }
+                }
+                return true;
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    // 批量确认
+    // 两个参数，第一个参数是发送消息的条数，第二个参数为批量确认中每批的条数
+    public void sendBatch(int count, int batch) throws IOException, TimeoutException {
+        this.send(count, (channel) -> {
+            try {
+                // 批量发送消息
+                for (int i = 1; i <= count; i++) {
+                    channel.basicPublish("", QUEUE_NAME, null, (String.valueOf(i)).getBytes(StandardCharsets.UTF_8));
+                    // 如果到每一批再确认，即当前次数模批容量为0
+                    if (i % batch == 0) {
+                        if (channel.waitForConfirms()) {
+//                            System.out.println("消息第" + i/batch + "批（" + (i-batch) + "-" + i + "）发送成功！");
+                        } else {
+//                            System.out.println("消息第" + i/batch + "批（" + (i-batch) + "-" + i + "）发送失败！");
+                            return false;
+                        }
+                    }
+                    // 如果总数不能被批数整除，则最后几个不能被确认
+                    // 需要判断count能否被batch整除，如果不能则最后一个还要继续确认一次
+                    if (!(count % batch == 0) && i == count) {
+                        if (channel.waitForConfirms()) {
+//                            System.out.println("消息第" + (i/batch+1) + "批（" + (i-i%batch) + "-" + i + "）发送成功！");
+                        } else {
+//                            System.out.println("消息第" + (i/batch+1) + "批（" + (i-i%batch) + "-" + i + "）发送失败！");
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    // 异步确认
+    public void sendAsync(int count) throws IOException, TimeoutException {
+        this.send(count, (channel) -> {
+            try {
+                // 准备消息监听器，监听消息成功或失败
+                // 第一个参数是对确认的回调处理，第二个参数是对未确认的回调处理
+                channel.addConfirmListener(
+                        (deliveryTag, multiple) -> {
+                            if (multiple) {
+                                // 如果是批处理则获取一批
+                                // headMap返回这个标记之前的所有
+                                ConcurrentNavigableMap<Long, String> confirmed = confirm.headMap(deliveryTag);
+                                // 清除
+                                confirmed.clear();
+                            } else {
+                                // 如果是非批处理，则删除已经确认的单条消息
+                                confirm.remove(deliveryTag);
+                            }
+//                            System.out.println("消息" + deliveryTag + "发送成功！");
+                        }, (deliveryTag, multiple) -> {
+//                            System.out.println("消息" + deliveryTag + "发送失败！");
+                            System.out.println("消息" + confirm.get(deliveryTag) + "发送失败");
+                        }
+                );
+                // 批量发送消息，只负责发消息
+                for (int i = 1; i <= count; i++) {
+                    // 把消息放入容器
+                    // key为getNextPublishSeqNo获取下一个发布的序号，value即message
+                    // 因为现在还没有发布信息所以下一个发布的序号就是当前循环的序号
+                    confirm.put(channel.getNextPublishSeqNo(), String.valueOf(i));
+                    channel.basicPublish("", QUEUE_NAME, null, (String.valueOf(i)).getBytes(StandardCharsets.UTF_8));
+                }
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    public static void main(String[] args) throws IOException, TimeoutException {
+        // 单个发布确认
+        new Producer().sendSingle(COUNT);
+        // 批量发布确认
+        new Producer().sendBatch(COUNT, BATCH);
+        // 异步发布确认
+        new Producer().sendAsync(COUNT);
+    }
+}
+```
+
+### &emsp;发布确认模式对比
+
++ 单独发布消息：同步等待确认，简单，但吞吐量非常有限。
++ 批量发布消息：批量同步等待确认，简单，合理的吞吐量，一旦出现问题但很难推断出是那条消息出现了问题。
++ 异步发布消息：最佳性能和资源使用，在出现错误的情况下可以很好地控制，但是实现起来稍微难些。
+
+[RabbitMQ模式：MQ/rabbitmq_mode](https://github.com/Didnelpsun/MQ/tree/main/rabbitmq_mode)。
