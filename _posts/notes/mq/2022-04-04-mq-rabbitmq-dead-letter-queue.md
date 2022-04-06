@@ -1,31 +1,35 @@
 ---
 layout: post
-title:  "RabbitMQ高级队列"
+title:  "RabbitMQ死信队列"
 date:   2022-04-04 22:03:11 +0800
 categories: notes mq rabbitmq
-tags: MQ RabbitMQ 队列
-excerpt: "RabbitMQ高级应用与队列"
+tags: MQ RabbitMQ 队列 死信
+excerpt: "RabbitMQ死信队列"
 ---
-
-## 死信队列
 
 之前已经讲述过死信队列就是无法被消费的信息所构成的队列。
 
-### &emsp;死信队列概念
+## 概念
 
-#### &emsp;&emsp;死信队列应用场景
+### &emsp;应用场景
 
 为了保证消息数据不丢失，使用死信队列；当消息消费发生异常时，将消息投入死信队列中；还有信息消费超时时，使用死信队列。
 
-#### &emsp;&emsp;死信来源
+### &emsp;死信来源
 
 + 消息TTL过期。
 + 队列达到最大长度，队列满了，无法再添加数据到MQ中。
 + 消息被拒绝，basic.reject或basic.nack，并且requeue=false不放回队列中。
 
-### &emsp;死信队列代码
+&emsp;
 
-首先新建一个rabbitmq_queue的Maven项目，删掉src目录，新建一个utils模块，把原来[RabbitMQ模式：MQ/rabbitmq_mode](https://github.com/Didnelpsun/MQ/tree/main/rabbitmq_mode)的utils模块的两个文件粘过来。并修改一下：
+## 配置
+
+首先新建一个rabbitmq_queue的Maven项目，删掉src目录，新建一个utils模块，把原来[RabbitMQ模式：MQ/rabbitmq_mode](https://github.com/Didnelpsun/MQ/tree/main/rabbitmq_mode)的utils模块的两个文件粘过来。
+
+### &emsp;参数配置
+
+并修改一下：
 
 ```java
 // Property.java
@@ -71,6 +75,8 @@ public class RabbitUtil {
 }
 ```
 
+### &emsp;依赖配置
+
 新建一个dead_queue的Maven模块，并在父项目引入依赖：
 
 ```xml
@@ -104,7 +110,7 @@ public class RabbitUtil {
 </dependencies>
 ```
 
-#### &emsp;&emsp;死信执行流程
+### &emsp;执行流程
 
 首先确定死信队列执行流程。
 
@@ -126,7 +132,7 @@ public class Property {
 }
 ```
 
-#### &emsp;&emsp;死信连接配置
+### &emsp;连接配置
 
 我们是非持久化队列，所以在一开始就要绑定对应交换机、连接、队列，为了降低耦合，将建立连接和绑定关系的部分单独拿出来，消费者、生产者、处理者只做自己的简单逻辑而不关心连接问题。
 
@@ -210,7 +216,7 @@ public class Connection {
 
 运行建立连接关系。其中控制台的Queues会显示一个normal_queue，其中Features会显示DLX死信交换机，DLK死信RoutingKey。如果没有显示就证明其中的设置有问题。
 
-#### &emsp;&emsp;死信消费者与处理者
+### &emsp;死信消费者与处理者
 
 消费者和处理者代码基本上，差别只在队列名称，这里只需要获取正常队列然后消费队列上的消息：
 
@@ -266,7 +272,13 @@ public class DeadConsumerRun {
 
 运行。
 
-#### &emsp;&emsp;TTL过期
+&emsp;
+
+## 种类
+
+一共有三种情况会发生死信。
+
+### &emsp;TTL过期
 
 TTL一般由生产者指定，所以每一条消息的TTL在生产者那里提供设置，TTL过期放到死信队列是MQ自动完成的，不需要消费者自己编写代码处理过期消息。
 
@@ -329,7 +341,7 @@ public class Producer {
 
 normal_queue的Ready和Total先为1然后都为0，dead_queue始终为0，因为DeadConsumerRun将死信消费掉了。
 
-#### &emsp;&emsp;队列达到最大长度
+### &emsp;队列达到最大长度
 
 队列达到最大长度成为死信的配置依然在生产者代码中。指定最大长度后多出来的消息会被放入死信队列中。
 
@@ -431,7 +443,7 @@ public class Connection {
 
 此时控制台的队列的normal_queue会显示Lim，表示设置了队列中消息数量x-max-length参数。
 
-#### &emsp;&emsp;消息被拒绝
+### &emsp;消息被拒绝
 
 调用`channel.basicReject(consumerTag)`来拒绝消息，需要手动应答，并定义一个接口来实现匿名内部类传递判断消息是否被拒绝的函数：
 
@@ -530,46 +542,4 @@ public class DeadConsumerRun {
 }
 ```
 
-&emsp;
-
-## 延迟队列
-
-### &emsp;延迟队列概念
-
-#### &emsp;&emsp;延迟队列定义
-
-延迟队列即死信队列的一种，是属于消息TTL过期的情况。在死信队列的TTL过期的情况下，有一个消费者和一个处理者共同消费消息，如果消费者超过TTL不消费消息则消息转发到处理者。对于处理者而言，这个消息就相当于延迟了一个TTL时间。
-
-延迟队列就是存放需要在指定时间被处理的元素队列。
-
-#### &emsp;&emsp;延迟队列应用场景
-
-对于延迟时间发送的实现，可以使用定时器轮询机制不断查看数据进行延时发送，比如每天零点查看有哪些数据需要定时，但是对于大批量数据而言这种轮询机制效率十分低下，所以就需要延迟队列。
-
-### &emsp;延迟队列代码
-
-#### &emsp;&emsp;延迟执行流程
-
-首先只需要一个生产者Producer和一个消费者Consumer。生产者Producer发送消息给普通发送的路由交换机normal_exchange。普通交换机使用delay_3的RoutingKey来绑定队列queue_3，表示这个队列的消息将延时3秒发送；使用delay_10的RoutingKey来绑定队列queue_10，表示这个队列的消息将延时10秒发送。queue_3和queue_10都通过send的RoutingKey绑定到延迟发送的路由交换机delay_exchange（死信交换机），延迟发送交换机再把消息延时发送给队列queue（实际上是一个死信队列）中，queue绑定发送消息给Consumer。
-
-#### &emsp;&emsp;延迟连接配置
-
-新建一个delay_queue模块，新建一个Property：
-
-&emsp;
-
-## 高级发布确认
-
-&emsp;
-
-## 幂等性
-
-&emsp;
-
-## 优先级队列
-
-&emsp;
-
-## 惰性队列
-
-&emsp;
+[RabbitMQ队列：MQ/rabbitmq_queue](https://github.com/Didnelpsun/MQ/tree/main/rabbitmq_queue)。
