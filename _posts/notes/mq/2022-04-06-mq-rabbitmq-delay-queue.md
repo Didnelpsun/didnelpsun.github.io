@@ -31,7 +31,7 @@ excerpt: "RabbitMQ延迟队列"
 
 ### &emsp;延迟队列连接配置
 
-新建一个delay_queue模块，注意这里我们不再使用Maven，而是整合SpringBoot，使用Spring Initializr，依赖项选择Lombok、Spring Configuration Processor、Spring Web、Spring for RabbitMQ。
+继续使用[RabbitMQ队列：MQ/rabbitmq_queue](https://github.com/Didnelpsun/MQ/tree/main/rabbitmq_queue)。新建一个delay_queue模块，注意这里我们不再使用Maven，而是整合SpringBoot，使用Spring Initializr，依赖项选择Lombok、Spring Configuration Processor、Spring Web、Spring for RabbitMQ。
 
 修改配置文件为YAML文件：
 
