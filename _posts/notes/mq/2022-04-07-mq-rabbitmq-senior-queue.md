@@ -113,6 +113,7 @@ lazy模式即为惰性队列的模式，可以通过调用`channel.queueDeclare(
 如果要通过声明的方式改变已有队列的模式的话，那么只能先删除队列，然后再重新声明一个新的。
 
 ```java
-Map<String, Object> args = new HashMap<String, Object>();args.put(""x-queue-mode" , " lazy");
-channel.queueDeclare("myqueue" , false, false, false, args);
+Map<String, Object> args = new HashMap<String, Object>();
+args.put("x-queue-mode", " lazy");
+channel.queueDeclare("myqueue", false, false, false, args);
 ```
