@@ -3,7 +3,7 @@ layout: post
 title:  "RocketMQ基础"
 date:   2022-04-09 00:53:39 +0800
 categories: notes mq rocketmq
-tags: MQ RocketMQ 基础
+tags: MQ RocketMQ 安装 配置
 excerpt: "RocketMQ基础"
 ---
 
@@ -202,12 +202,211 @@ rocketmq.config.isVIPChannel=false
 
 ### &emsp;搭建集群
 
-这里搭建的是异步刷盘消息队列集群即2m-2s-async。
+这里搭建的是异步复制消息队列集群即2m-2s-async。
 
-打开安装包的conf文件夹下你就会发现2m-2s-async文件夹，这就是异步两主两从集群的配置文件，里面有四个properties文件。分别是broker-a、broker-b两个主机和broker-a-s、broker-b-s两个从机。broker-a和broker-a-s保存同样的数据，broker-b和broker-b-s保存同样的数据。
+#### &emsp;&emsp;配置思路
 
-我们在配置时需要将broker-a和borker-b-s配置在一起，broker-b和broker-a-s配置在一起，为什么要交叉的配置？为什么不是broker-a和borker-a-s配置在一起，broker-b和broker-b-s配置在一起？因为假如broker-a宕机了，那么跟他一起配置的Broker也会一起宕机，如果配置的是broker-a-s，则所有保存a数据的节点全部宕机，就无法使用a的数据了，如果配置的是broker-b-s，则另一组是broker-b和broker-a-s，此时a和b的数据都有，broker-a-s上升为主机。
+为了进行测试，在RocketMQ安装目录的conf文件夹的同级目录新建一个test目录从来保存我们后面要配置的文件，然后将conf文件夹下的2m-2s-async文件夹复制到test文件夹中。
+
+该文件夹下有四个properties文件，这个是RocktMQ为我们默认配置的两主两从异步集群配置文件。分别是broker-a、broker-b两个主机和broker-a-s、broker-b-s两个从机。broker-a和broker-a-s保存同样的数据，broker-b和broker-b-s保存同样的数据。（同理另外还有两个两主两从同步集群和两主集群）
+
+我们在配置时需要将broker-a和borker-b-s配置在一起注册到namesrv1，broker-b和broker-a-s配置在一起注册到namesrv2，为什么要交叉的配置？为什么不是broker-a和borker-a-s配置在一起，broker-b和broker-b-s配置在一起？因为假如namesrv1宕机了，那么跟他一起配置的Broker也会一起宕机，如果配置的是broker-a-s，则所有保存a数据的节点全部宕机，就无法使用a的数据了，如果配置的是broker-b-s，则另一组是broker-b和broker-a-s，此时a和b的数据都有，broker-a-s上升为主机。
+
+首先我们要定义四个Broker消息服务节点，两主两从，然后把这四个节点全部放到Broker的注册中心NameServer中分为两组进行注册，消息生产者（Producer）在发送消息之前先从NameServer获取Broker服务器列表，然后根据负载从列表中选择一台Broker进行消息发送：
+
+Broker节点名|NameServer名|NameServer端口|Broker监听端口
+:----------:|:----------:|:------------:|:------------:
+broker-a|namesrv1|9876|10911
+broker-a-s|namesrv2|9875|10921
+broker-b|namesrv1|9876|10931
+borker-b-s|namesrv2|9875|10941
+
+如果是两台主机则：A上运行nameserverA、brokerA、brokerBSlave、B上运行nameserverB、brokerB、brokerASlave，这里是一台主机所以交叉配置是没有效果的，只是为了模拟。
+
+#### &emsp;&emsp;配置NameServer集群
+
+NameServer默认的端口是9876，在同一台机器启动两个不同实例，我们需要使用的端口号。
+
+在test目录下新建两个namesrv1.properties，和namesrv2.properties用于指定不同的服务端：
+
+```properties
+listenPort=9876
+```
+
+```properties
+listenPort=9875
+```
+
+运行`mqnamesrv -c D:\RocketMQ\rocketmq-4.9.3\test\namesrv1.properties`，`mqnamesrv -c D:\RocketMQ\rocketmq-4.9.3\test\namesrv2.properties`。
+
+#### &emsp;&emsp;配置Broker集群
 
 打开broker-a.properties查看里面默认的配置：
 
+```properties
+# 默认的集群名称
+brokerClusterName=DefaultCluster
+# 指定主从集群名称，一个RocketMQ集群中可以包含多个主从集群
+# 名字可重复，为了管理，每个master起一个名字，他的slave同他的名字一样
+brokerName=broker-a
+# 节点ID，如果是0就是主节点，非0就是从节点
+brokerId=0
+# 指定删除已经过期的消息存储文件的时间为凌晨4点
+deleteWhen=04
+# 指定未发生更新的消息存储文件的保留时间为48小时，48小时后删除
+fileReservedTime=48
+# 指定当前Broker为异步复制Master
+brokerRole=ASYNC_MASTER
+# 指定刷盘策略为异步刷盘
+flushDiskType=ASYNC_FLUSH
+```
 
+同理broker-a-s.properties，角色和ID不同，且没有设置brokerRole：
+
+```properties
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+```
+
+对于配置文件还有下面的配置，注意Windows系统的路径必须使用双斜杠：
+
+```properties
+# nameServer地址，分号分割，前一个为当前主从集群部署地址，后一个为另一个主从集群部署地址
+# 由于我们使用的一台主机，所以没什么区别
+namesrvAddr=127.0.0.1:9876;127.0.0.1:9875
+# 在发送消息时，自动创建服务器不存在的topic，默认创建的队列数
+defaultTopicQueueNums=4
+# 是否允许 Broker 自动创建Topic，建议线下开启，线上关闭
+autoCreateTopicEnable=true
+# 是否允许 Broker 自动创建订阅组，建议线下开启，线上关闭
+autoCreateSubscriptionGroup=true
+# Broker对外服务的监听端口，即Broker与Produceer与Consumer通信的端口。
+# 默认为10911，主机从机需要使用不同的端口
+listenPort=10911
+# commitLog每个文件的大小默认1G
+mapedFileSizeCommitLog=1073741824
+# ConsumeQueue每个文件默认存30W条，根据业务情况调整
+mapedFileSizeConsumeQueue=300000
+# destroyMapedFileIntervalForcibly=120000
+# redeleteHangedFileInterval=120000
+# 检测物理文件磁盘空间
+diskMaxUsedSpaceRatio=88
+# 存储路径
+storePathRootDir=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a
+# commitLog存储路径
+storePathCommitLog=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a\\commitlog
+# 消费队列存储路径存储路径
+storePathConsumeQueue=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a\\consumequeue
+# 消息索引存储路径
+storePathIndex=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a\\index
+# checkpoint文件存储路径
+storeCheckpoint=D:\\RocketMQ\\rocketmq-4.9.3\\store\\checkpoint
+# abort 文件存储路径
+abortFile=D:\\RocketMQ\\rocketmq-4.9.3\\store\\abort
+# 限制的消息大小
+maxMessageSize=65536
+# flushCommitLogLeastPages=4
+# flushConsumeQueueLeastPages=2
+# flushCommitLogThoroughInterval=10000
+# flushConsumeQueueThoroughInterval=60000
+# checkTransactionMessageEnable=false
+# 发消息线程池数量
+# sendMessageThreadPoolNums=128
+# 拉消息线程池数量
+# pullMessageThreadPoolNums=128
+```
+
+配置broker-a.properties：
+
+```properties
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+namesrvAddr=127.0.0.1:9876;127.0.0.1:9875
+listenPort=10911
+storePathRootDir=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a
+storePathCommitLog=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a\\commitlog
+storePathConsumeQueue=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a\\consumequeue
+storePathIndex=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a\\index
+storeCheckpoint=D:\\RocketMQ\\rocketmq-4.9.3\\store\\checkpoint
+abortFile=D:\\RocketMQ\\rocketmq-4.9.3\\store\\abort
+```
+
+配置broker-b-s.properties，由于broker-b-s应该和broker-a配置在一起所以namesrvAddr跟broker-a的一样，在9876端口，且注意需改监听端口并且要和默认的10911相差5以上：
+
+```properties
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+namesrvAddr=127.0.0.1:9876;127.0.0.1:9875
+listenPort=10941
+storePathRootDir=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b-s
+storePathCommitLog=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b-s\\commitlog
+storePathConsumeQueue=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b-s\\consumequeue
+storePathIndex=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b-s\\index
+storeCheckpoint=D:\\RocketMQ\\rocketmq-4.9.3\\store\\checkpoint
+abortFile=D:\\RocketMQ\\rocketmq-4.9.3\\store\\abort
+```
+
+同理第二组的broker-b.properties：
+
+```properties
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+namesrvAddr=127.0.0.1:9876;127.0.0.1:9875
+listenPort=10913
+storePathRootDir=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b
+storePathCommitLog=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b\\commitlog
+storePathConsumeQueue=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b\\consumequeue
+storePathIndex=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-b\\index
+storeCheckpoint=D:\\RocketMQ\\rocketmq-4.9.3\\store\\checkpoint
+abortFile=D:\\RocketMQ\\rocketmq-4.9.3\\store\\abort
+```
+
+<!-- 127.0.0.1:9875;127.0.0.1:9876 -->
+
+broker-a-s.properties：
+
+```properties
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+namesrvAddr=127.0.0.1:9876;127.0.0.1:9875
+listenPort=10912
+storePathRootDir=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a-s
+storePathCommitLog=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a-s\\commitlog
+storePathConsumeQueue=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a-s\\consumequeue
+storePathIndex=D:\\RocketMQ\\rocketmq-4.9.3\\store\\broker-a-s\\index
+storeCheckpoint=D:\\RocketMQ\\rocketmq-4.9.3\\store\\checkpoint
+abortFile=D:\\RocketMQ\\rocketmq-4.9.3\\store\\abort
+```
+
+然后启动两个Master，并指定启动的配置文件：`mqbroker -c D:\RocketMQ\rocketmq-4.9.3\test\2m-2s-async\broker-a.properties`，`mqbroker -c D:\RocketMQ\rocketmq-4.9.3\test\2m-2s-async\broker-b.properties`。启动两个Slave：`mqbroker -c D:\RocketMQ\rocketmq-4.9.3\test\2m-2s-async\broker-a-s.properties`，`mqbroker -c D:\RocketMQ\rocketmq-4.9.3\test\2m-2s-async\broker-b-s.properties`。（必须先主后从）
+
+使用JSP：`jps`查看服务。
+
+#### &emsp;&emsp;修改控制台
+
+修改application.properties的配置：rocketmq.config.namesrvAddr=127.0.0.1:9876;127.0.0.1:9875。然后重新运行`mvn spring-boot:run`。（如果是一台主机其实可以不改，如果是两台则必须要改）
