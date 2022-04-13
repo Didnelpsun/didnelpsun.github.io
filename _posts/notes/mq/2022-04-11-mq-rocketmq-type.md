@@ -865,6 +865,8 @@ PushConsumer:MessageExt [brokerName=Didnelpsun, queueId=0, storeSize=205, queueO
 PushConsumer:MessageExt [brokerName=Didnelpsun, queueId=0, storeSize=203, queueOffset=1, sysFlag=0, bornTimestamp=1649754623505, bornHost=/192.168.208.209:49398, storeTimestamp=1649754623512, storeHost=/192.168.208.209:10911, msgId=C0A8D0D100002A9F0000000000000307, commitLogOffset=775, bodyCRC=1547882344, reconsumeTimes=0, preparedTransactionOffset=0, toString()=Message{topic='orderedTopic', flag=0, properties={MIN_OFFSET=0, MAX_OFFSET=2, KEYS=0, CONSUME_START_TIME=1649754623527, UNIQ_KEY=7F000001DD3C63947C6B3C554E100000, CLUSTER=DefaultCluster, TAGS=sync}, body=[79, 114, 100, 101, 114, 101, 100, 83, 121, 110, 99, 80, 114, 111, 100, 117, 99, 101, 114], transactionId='null'}]
 ```
 
+&emsp;
+
 ## 延时消息
 
 ### &emsp;延迟消息定义
@@ -1075,6 +1077,8 @@ PushConsumer等待消息:ClientConfig [namesrvAddr=127.0.0.1:9876, clientIP=192.
 02:26->PushConsumer:MessageExt [brokerName=Didnelpsun, queueId=0, storeSize=240, queueOffset=0, sysFlag=0, bornTimestamp=1649761319822, bornHost=/192.168.208.209:57789, storeTimestamp=1649761324931, storeHost=/192.168.208.209:10911, msgId=C0A8D0D100002A9F00000000000004CB, commitLogOffset=1227, bodyCRC=1902791803, reconsumeTimes=0, preparedTransactionOffset=0, toString()=Message{topic='delayTopic', flag=0, properties={MIN_OFFSET=0, REAL_TOPIC=delayTopic, MAX_OFFSET=1, CONSUME_START_TIME=1649761346989, UNIQ_KEY=7F000001831463947C6B3CBB7B8E0000, CLUSTER=DefaultCluster, DELAY=2, WAIT=true, TAGS=delay, REAL_QID=0}, body=[68, 101, 108, 97, 121, 80, 114, 111, 100, 117, 99, 101, 114], transactionId='null'}]
 ```
 
+&emsp;
+
 ## 事务消息
 
 即用原子性保证可靠性。由于消费服务器和业务服务器在不同的服务器上，所以需要分布式事务。
@@ -1146,6 +1150,308 @@ XA模式是一个典型的2PC，其执行原理如下：
 
 ### &emsp;事务消息代码
 
+#### &emsp;&emsp;修改父生产者
+
+首先抽取公共代码到父生产者：
+
+```java
+// Producer.java
+package org.didnelpsun;
+
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+
+// 生产者父类
+public class Producer {
+    // NameServer地址，并指定默认值
+    protected String nameServer = "127.0.0.1:9876";
+    // 组名
+    protected String group;
+
+    // 如果是一个参数就指定group
+    public Producer(String group) {
+        this.group = group;
+    }
+
+    public Producer(String nameServer, String group) {
+        this.nameServer = nameServer;
+        this.group = group;
+    }
+
+    // 直接获取MQProducer静态实例
+    public static DefaultMQProducer getDefaultMQProducer(String nameServer, String group) {
+        DefaultMQProducer producer = new DefaultMQProducer(group);
+        producer.setNamesrvAddr(nameServer);
+        return producer;
+    }
+
+    // 由于同步发送和异步发送不兼容，且两个重复发送次数都是int类型，所以一起设置，只有对应的类型对应的参数才会有用
+    public static DefaultMQProducer getDefaultMQProducer(String nameServer, String group, int retryTimesWhenFailed, int sendMsgTimeout) {
+        DefaultMQProducer producer = getDefaultMQProducer(nameServer, group);
+        // 设置当发送失败是重试发送的次数，默认为为2次
+        producer.setRetryTimesWhenSendFailed(retryTimesWhenFailed);
+        producer.setRetryTimesWhenSendAsyncFailed(retryTimesWhenFailed);
+        // 设置发送超时时限，默认为3s
+        producer.setSendMsgTimeout(sendMsgTimeout);
+        return producer;
+    }
+
+    public static TransactionMQProducer getTransactionMQProducer(String nameServer, String group) {
+        TransactionMQProducer producer = new TransactionMQProducer(group);
+        producer.setNamesrvAddr(nameServer);
+        return producer;
+    }
+
+    public static TransactionMQProducer getTransactionMQProducer(String nameServer, String group, int retryTimesWhenFailed, int sendMsgTimeout) {
+        TransactionMQProducer producer = getTransactionMQProducer(nameServer, group);
+        // 默认事务都是同步的，异步无法保证原子性
+        producer.setRetryTimesWhenSendFailed(retryTimesWhenFailed);
+        producer.setSendMsgTimeout(sendMsgTimeout);
+        return producer;
+    }
+
+    public SendResult send(String topic, String tag, String message) throws Exception {
+        return new SendResult();
+    }
+}
+```
+
+#### &emsp;&emsp;事务消息监听器
+
+首先定义一个监听器监听事务执行情况：
+
+```java
+// DefaultTransactionListener
+package org.didnelpsun.transaction;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.LocalTransactionState;
+import org.apache.rocketmq.client.producer.TransactionListener;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageExt;
+
+import java.nio.charset.StandardCharsets;
+
+public class DefaultTransactionListener implements TransactionListener {
+    // 回调操作
+    // 消息预提交成功会触发该方法，用于完成本地事务
+    @Override
+    public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+        System.out.println("预提交消息成功:" + new String(message.getBody(), StandardCharsets.UTF_8));
+        // 根据传入消息的tag对事务进行处理
+        // 成功commit，失败rollback，消息回查unknow
+        if (StringUtils.equals("commit", message.getTags())) return LocalTransactionState.COMMIT_MESSAGE;
+        else if (StringUtils.equals("rollback", message.getTags())) return LocalTransactionState.ROLLBACK_MESSAGE;
+        else if (StringUtils.equals("unknow", message.getTags())) return LocalTransactionState.UNKNOW;
+        return LocalTransactionState.UNKNOW;
+    }
+
+    // 当没有收到发送半消息的响应，broker将会通过该方法回查本地事务的状态，从而决定半消息是提交还是回滚
+    // 引发原因
+    // 1.回调操作返回UNKNOW
+    // 2.TC没有接收到TM的最终全局事务确认指令
+    // 因回查被取消因此checkLocalTransaction(MessageExt msg)没有作用了，所以如果LocalTransactionState.UNKNOW将无法处理，会使得topic一直处于不显示状态
+    @Override
+    public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+        System.out.println("消息回查:" + messageExt.getTags());
+        return LocalTransactionState.COMMIT_MESSAGE;
+    }
+}
+```
+
+#### &emsp;&emsp;事务消息生产者
+
 由于事务生产者需要线程池，所以不能使用原来的DefaultMQProducer了。
+
+```java
+// TransactionProducer.java
+package org.didnelpsun.transaction;
+
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.common.message.Message;
+import org.didnelpsun.Producer;
+
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.*;
+
+// 事务生产者
+public class TransactionProducer extends Producer {
+    private int corePoolSize = 10;
+    private int maximumPoolSize = 100;
+    private int keepAliveTime = 5;
+    private TimeUnit unit = TimeUnit.SECONDS;
+    private int capacity = 1000;
+
+    public TransactionProducer() {
+        super("transaction");
+    }
+
+    public TransactionProducer(String nameServer, String group) {
+        super(nameServer, group);
+    }
+
+    public TransactionProducer(String nameServer, String group, int corePoolSize, int maximumPoolSize) {
+        super(nameServer, group);
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+    }
+
+    public TransactionProducer(String nameServer, String group, int corePoolSize, int maximumPoolSize, int capacity) {
+        super(nameServer, group);
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.capacity = capacity;
+    }
+
+    public TransactionProducer(String nameServer, String group, int corePoolSize, int maximumPoolSize, int keepAliveTime, int capacity) {
+        super(nameServer, group);
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.keepAliveTime = keepAliveTime;
+        this.capacity = capacity;
+    }
+
+    public TransactionProducer(String nameServer, String group, int corePoolSize, int maximumPoolSize, int keepAliveTime, TimeUnit unit, int capacity) {
+        super(nameServer, group);
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.keepAliveTime = keepAliveTime;
+        this.unit = unit;
+        this.capacity = capacity;
+    }
+
+
+    // corePoolSize指在池中保持的核心线程数
+    // maximumPoolSize指在池中保持的最大线程数
+    // keepAliveTime指线程池中线程数量大于核心线程数量时，多余空闲线程的存活时间
+    // unit指时间单位
+    // workQueue指当请求的线程多于maximumPoolSize时消息请求存放的临时工作队列
+    // capacity指可容纳的待处理消息数量
+    public ThreadPoolExecutor getThreadPoolExecutor() {
+        return new ThreadPoolExecutor(this.corePoolSize, this.maximumPoolSize, this.keepAliveTime, this.unit, new ArrayBlockingQueue<>(this.capacity), r -> {
+            Thread thread = new Thread(r);
+            thread.setName("transaction-" + new SimpleDateFormat("mm:ss:S").format(new Date()));
+            return thread;
+        });
+    }
+
+    public SendResult send(String topic, String message) throws Exception {
+        return send(topic, "", message);
+    }
+
+    public SendResult send(String topic, String tag, String message) throws MQClientException {
+        return send(topic, tag, message, 2, 3000);
+    }
+
+    public SendResult send(String topic, String tag, String message, int retryTimesWhenSendFailed, int sendMsgTimeout) throws MQClientException {
+        TransactionMQProducer producer = Producer.getTransactionMQProducer(this.nameServer, this.group, retryTimesWhenSendFailed, sendMsgTimeout);
+        // 生产者指定线程池
+        producer.setExecutorService(getThreadPoolExecutor());
+        // 生产者添加事务监听器
+        producer.setTransactionListener(new DefaultTransactionListener());
+        // 开启生产者
+        producer.start();
+        // 生产消息
+        Message msg = new Message(topic, tag, message.getBytes(StandardCharsets.UTF_8));
+        // 发送事务消息
+        // 第二个参数用于指定在执行本地事务需要的一些业务参数
+        SendResult result = producer.sendMessageInTransaction(msg, null);
+        // 获取回执
+        if (result.getSendStatus() == SendStatus.SEND_OK)
+            System.out.println("TransactionProducer发送完成");
+        else
+            System.out.println("TransactionProducer发送失败");
+        producer.shutdown();
+        return result;
+    }
+
+    public ArrayList<SendResult> send(String topic, ArrayList<String> tags, ArrayList<String> messages) throws MQClientException {
+        return send(topic, tags, messages, 2, 3000);
+    }
+
+    public ArrayList<SendResult> send(String topic, ArrayList<String> tags, ArrayList<String> messages, int retryTimesWhenSendFailed, int sendMsgTimeout) throws MQClientException {
+        if (tags.size() == 0 || messages.size() == 0) {
+            System.out.println("tags和messages不应为空");
+            return null;
+        }
+        TransactionMQProducer producer = Producer.getTransactionMQProducer(this.nameServer, this.group, retryTimesWhenSendFailed, sendMsgTimeout);
+        // 生产者指定线程池
+        producer.setExecutorService(getThreadPoolExecutor());
+        // 生产者添加事务监听器
+        producer.setTransactionListener(new DefaultTransactionListener());
+        // 开启生产者
+        producer.start();
+        // 定义一个返回数组
+        ArrayList<SendResult> results = new ArrayList<>();
+        // 循环，针对message大小，如果tag大小不一致则不一一对应，如果tag数量小于message数量则取模运算
+        for (int i = 0; i < messages.size(); i++) {
+            // 生产消息
+            Message msg = new Message(topic, tags.get(i % tags.size()), messages.get(i).getBytes(StandardCharsets.UTF_8));
+            // 发送事务消息
+            // 第二个参数用于指定在执行本地事务需要的一些业务参数
+            SendResult result = producer.sendMessageInTransaction(msg, null);
+            // 获取回执
+            if (result.getSendStatus() == SendStatus.SEND_OK)
+                System.out.println("TransactionProducer发送完成");
+            else
+                System.out.println("TransactionProducer发送失败");
+            results.add(result);
+        }
+        producer.shutdown();
+        return results;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add("commit");
+        tags.add("rollback");
+        tags.add("unknow");
+        ArrayList<String> messages = new ArrayList<>();
+        messages.add("TransactionProducer-commit");
+        messages.add("TransactionProducer-rollback");
+        messages.add("TransactionProducer-unknow");
+        System.out.println(new TransactionProducer().send("transactionTopic", tags, messages));
+    }
+}
+```
+
+```txt
+预提交消息成功:TransactionProducer-commit
+TransactionProducer发送完成
+预提交消息成功:TransactionProducer-rollback
+TransactionProducer发送完成
+预提交消息成功:TransactionProducer-unknow
+TransactionProducer发送完成
+[SendResult [sendStatus=SEND_OK, msgId=7F0000014C8063947C6B40ED5ED60000, offsetMsgId=null, messageQueue=MessageQueue [topic=transactionTopic, brokerName=Didnelpsun, queueId=3], queueOffset=203], SendResult [sendStatus=SEND_OK, msgId=7F0000014C8063947C6B40ED5EF30001, offsetMsgId=null, messageQueue=MessageQueue [topic=transactionTopic, brokerName=Didnelpsun, queueId=0], queueOffset=204], SendResult [sendStatus=SEND_OK, msgId=7F0000014C8063947C6B40ED5EF70002, offsetMsgId=null, messageQueue=MessageQueue [topic=transactionTopic, brokerName=Didnelpsun, queueId=1], queueOffset=205]]
+```
+
+此时查看RocketMQ控制台的消息，只有一条TransactionProducer-commit消息，其他两条都不会出现。
+
+#### &emsp;&emsp;事务消息消费者
+
+```java
+// TransactionConsumerRun.java
+package org.didnelpsun.consumer;
+
+import org.apache.rocketmq.client.exception.MQClientException;
+
+public class TransactionConsumerRun {
+    public static void main(String[] args) throws MQClientException {
+        new PushConsumer("transactionTopic").receive();
+    }
+}
+```
+
+```txt
+PushConsumer等待消息:ClientConfig [namesrvAddr=127.0.0.1:9876, clientIP=192.168.208.209, instanceName=24396#13164664812600, clientCallbackExecutorThreads=8, pollNameServerInterval=30000, heartbeatBrokerInterval=30000, persistConsumerOffsetInterval=5000, pullTimeDelayMillsWhenException=1000, unitMode=false, unitName=null, vipChannelEnabled=false, useTLS=false, language=JAVA, namespace=null, mqClientApiTimeout=3000]
+38:54->PushConsumer:MessageExt [brokerName=Didnelpsun, queueId=3, storeSize=291, queueOffset=0, sysFlag=8, bornTimestamp=1649831698135, bornHost=/192.168.208.209:50319, storeTimestamp=1649831698173, storeHost=/192.168.208.209:10911, msgId=C0A8D0D100002A9F000000000001294D, commitLogOffset=76109, bodyCRC=204269846, reconsumeTimes=0, preparedTransactionOffset=75507, toString()=Message{topic='transactionTopic', flag=0, properties={MIN_OFFSET=0, REAL_TOPIC=transactionTopic, MAX_OFFSET=1, TRAN_MSG=true, CONSUME_START_TIME=1649831934811, UNIQ_KEY=7F0000014C8063947C6B40ED5ED60000, CLUSTER=DefaultCluster, PGROUP=transaction, WAIT=true, TAGS=commit, REAL_QID=3}, body=[84, 114, 97, 110, 115, 97, 99, 116, 105, 111, 110, 80, 114, 111, 100, 117, 99, 101, 114, 45, 99, 111, 109, 109, 105, 116], transactionId='7F0000014C8063947C6B40ED5ED60000'}]
+```
 
 [RocketMQ消息类型：MQ/rocketmq_type](https://github.com/Didnelpsun/MQ/tree/main/rocketmq_type)。
