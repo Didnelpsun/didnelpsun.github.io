@@ -382,7 +382,358 @@ SQL过滤表达式中支持多种常量类型与运算符。
 
 如果是SQL过滤，则首先在生产者生产消息时埋入过滤属性，通过`message.putUserProperty(过滤名, 过滤值)`来指定，在消费的订阅的tag位置填上`MessageSelector.bySql(语句)`来过滤，语句跟SQL语句不同，没有动词，如`age between 0 and 6`。
 
-默认情况下Broker没有开启消息的SQL过滤功能，需要在Broker加载的配置文件broker.conf或properties中添加如下属性，以开启该功能`enablePropertyFilter = true`。
+默认情况下Broker没有开启消息的SQL过滤功能，需要在Broker加载的配置文件broker.conf（单机）或properties（集群）中添加如下属性，以开启该功能`enablePropertyFilter = true`，重新启动时要指定配置文件`mqbroker -n localhost:9876 -c D:\RocketMQ\rocketmq-4.9.3\conf\broker.conf`。否则会报错：Exception in thread "main" org.apache.rocketmq.remoting.exception.RemotingTooMuchRequestException: sendDefaultImpl call timeout和CODE: 1  DESC: The broker does not support consumer to filter message by SQL92。此时查看RocketMQ控制台的集群的分片的配置找到enablePropertyFilter就可以发现为true。
+
+#### &emsp;&emsp;过滤消息生产者
+
+定义一个父类，里面有一个配置的Map属性：
+
+```java
+// FilterProducer.java
+package org.didnelpsun.filter;
+
+import org.apache.rocketmq.common.message.Message;
+import org.didnelpsun.Producer;
+
+import java.util.Map;
+
+// 参数生产者
+public class FilterProducer extends Producer {
+
+    // Map类型参数
+    protected Map<String, Object> properties;
+
+    public FilterProducer() {
+        super("filter");
+    }
+
+    public FilterProducer(Map<String, Object> properties) {
+        super("filter");
+        this.properties = properties;
+    }
+
+    public FilterProducer(String group) {
+        super(group);
+    }
+
+    public FilterProducer(String nameServer, String group) {
+        super(nameServer, group);
+    }
+
+    // 添加参数
+    public Object put(String key, Object value) {
+        return this.properties.put(key, value);
+    }
+
+    // 移除参数
+    public Object remove(String key) {
+        return this.properties.remove(key);
+    }
+
+    // 对参数赋值
+    public Message putUserProperty(Message message){
+        for (String key : this.properties.keySet()) {
+            message.putUserProperty(key,  String.valueOf(this.properties.get(key)));
+        }
+        return message;
+    }
+}
+```
+
+#### &emsp;&emsp;过滤同步消息生产者
+
+参考同步生产者：
+
+```java
+// SyncFilterProducer.java
+package org.didnelpsun.filter;
+
+import org.apache.rocketmq.client.exception.MQBrokerException;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.remoting.exception.RemotingException;
+import org.didnelpsun.Producer;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+// 参数同步生产者
+public class SyncFilterProducer extends FilterProducer {
+
+    public SyncFilterProducer() {
+        super();
+    }
+
+    public SyncFilterProducer(Map<String, Object> properties) {
+        super();
+        this.properties = properties;
+    }
+
+    public SyncFilterProducer(String group) {
+        super(group);
+    }
+
+    public SyncFilterProducer(String nameServer, String group) {
+        super(nameServer, group);
+    }
+
+    public SendResult send(String topic, String message) throws Exception {
+        return send(topic, "", message);
+    }
+
+    public SendResult send(String topic, String tag, String message) throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
+        return send(topic, tag, message, 2, 3000);
+    }
+
+    public SendResult send(String topic, String tag, String message, int retryTimesWhenSendFailed, int sendMsgTimeout) throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
+        DefaultMQProducer producer = Producer.getDefaultMQProducer(this.nameServer, this.group, retryTimesWhenSendFailed, sendMsgTimeout);
+        // 开启生产者
+        producer.start();
+        // 生产消息
+        Message msg = new Message(topic, tag, message.getBytes(StandardCharsets.UTF_8));
+        // 发送消息并赋值
+        SendResult result = producer.send(this.putUserProperty(msg));
+        producer.shutdown();
+        System.out.println("SyncFilterProducer发送完成");
+        return result;
+    }
+
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> prop = new HashMap<>();
+        prop.put("age", 10);
+        System.out.println(new SyncFilterProducer(prop).send("filterTopic", "sync", "SyncFilterProducer"));
+    }
+}
+```
+
+```txt
+SyncFilterProducer发送完成
+SendResult [sendStatus=SEND_OK, msgId=7F00000173C418B4AAC246F1964A0000, offsetMsgId=C0A8006600002A9F00000000000150A4, messageQueue=MessageQueue [topic=filterTopic, brokerName=broker-a, queueId=0], queueOffset=0]
+```
+
+#### &emsp;&emsp;过滤异步消息生产者
+
+同理：
+
+```java
+// AsyncFilterProducer.java
+package org.didnelpsun.filter;
+
+import org.apache.rocketmq.client.exception.MQBrokerException;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendCallback;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.remoting.exception.RemotingException;
+import org.didnelpsun.Producer;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+// 参数异步生产者
+public class AsyncFilterProducer extends FilterProducer {
+    // 异步等待确认的睡眠时间
+    private int sleep;
+
+    public AsyncFilterProducer() {
+        super();
+        this.sleep = 5;
+    }
+
+    public AsyncFilterProducer(Map<String, Object> properties) {
+        super();
+        this.properties = properties;
+        this.sleep = 5;
+    }
+
+    public AsyncFilterProducer(String group) {
+        super(group);
+        this.sleep = 5;
+    }
+
+    public AsyncFilterProducer(String group, int sleep) {
+        super(group);
+        this.sleep = sleep;
+    }
+
+    public AsyncFilterProducer(String nameServer, String group) {
+        super(nameServer, group);
+        this.sleep = 5;
+    }
+
+    public AsyncFilterProducer(String nameServer, String group, int sleep) {
+        super(nameServer, group);
+        this.sleep = sleep;
+    }
+
+    public SendResult send(String topic, String message) throws Exception {
+        return send(topic, "", message);
+    }
+
+    public SendResult send(String topic, String tag, String message) throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
+        return send(topic, tag, message, 2, 3000);
+    }
+
+    public SendResult send(String topic, String tag, String message, int retryTimesWhenSendFailed, int sendMsgTimeout) throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
+        DefaultMQProducer producer = Producer.getDefaultMQProducer(this.nameServer, this.group, retryTimesWhenSendFailed, sendMsgTimeout);
+        // 开启生产者
+        producer.start();
+        // 生产消息
+        Message msg = new Message(topic, tag, message.getBytes(StandardCharsets.UTF_8));
+        // 发送消息，需要传入一个异步回调函数
+        final SendResult[] result = new SendResult[]{null};
+        producer.send(this.putUserProperty(msg), new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                result[0] = sendResult;
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+        // 必须休眠等待发送结果，否则会直接关闭
+        TimeUnit.SECONDS.sleep(this.sleep);
+        producer.shutdown();
+        System.out.println("AsyncFilterProducer发送完成");
+        return result[0];
+    }
+
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> prop = new HashMap<>();
+        prop.put("age", 15);
+        System.out.println(new AsyncFilterProducer(prop).send("filterTopic", "async", "AsyncFilterProducer"));
+    }
+}
+```
+
+```txt
+AsyncFilterProducer发送完成
+SendResult [sendStatus=SEND_OK, msgId=7F0000011C7818B4AAC246F1F6710000, offsetMsgId=C0A8006600002A9F000000000001538F, messageQueue=MessageQueue [topic=filterTopic, brokerName=broker-a, queueId=0], queueOffset=1]
+```
+
+#### &emsp;&emsp;过滤消息消费者
+
+由于tag和sql是不兼容的，而我们之前已经定死了使用tag，所以我们需要重新设置一个新的Consumer：
+
+```java
+// FilterConsumer.java
+package org.didnelpsun.consumer;
+
+import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
+import org.apache.rocketmq.client.consumer.MessageSelector;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
+import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
+import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class FilterConsumer extends Consumer {
+    // SQL语句，默认为空
+    // 如果sql为空，则默认tag为*进行查询，而父类默认tag就是*，所以此时不用再重新设置
+    protected String sql = "";
+
+    public FilterConsumer(String topic) {
+        super("filter", topic);
+    }
+
+    public FilterConsumer(String topic, String sql) {
+        super("filter", topic);
+        this.sql = sql;
+    }
+
+    public FilterConsumer(String group, String topic, String sql) {
+        super(group, topic);
+        this.sql = sql;
+    }
+
+    public FilterConsumer(String group, ConsumeFromWhere type, String topic) {
+        super(group, type, topic);
+    }
+
+    public FilterConsumer(String nameServer, String group, String topic, String sql) {
+        super(nameServer, group, topic, sql);
+        this.sql = sql;
+    }
+
+    public FilterConsumer(String group, ConsumeFromWhere type, String topic, String sql) {
+        super(group, type, topic);
+        this.sql = sql;
+    }
+
+    public FilterConsumer(String group, String topic, String tag, MessageModel mode) {
+        super(group, topic, tag, mode);
+    }
+
+    public FilterConsumer(String nameServer, String group, ConsumeFromWhere type, String topic, String sql, MessageModel mode) {
+        super(nameServer, group, type, topic, mode);
+        this.sql = sql;
+    }
+
+    // 获取过滤消费者实例
+    public static DefaultMQPushConsumer getFilterMQPushConsumer(String nameServer, String group, ConsumeFromWhere type, String topic, String sql, MessageModel mode) throws MQClientException {
+        // 定义一个filter的Consumer
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(group);
+        consumer.setNamesrvAddr(nameServer);
+        consumer.setConsumeFromWhere(type);
+        consumer.subscribe(topic, MessageSelector.bySql(sql));
+        consumer.setMessageModel(mode);
+        return consumer;
+    }
+
+    @Override
+    public void receive() throws MQClientException {
+        DefaultMQPushConsumer consumer;
+        if (this.sql.length() == 0)
+            consumer = getDefaultMQPushConsumer(this.nameServer, this.group, this.type, this.topic, this.tag, this.mode);
+
+        else
+            // 定义一个filter的Consumer
+            consumer = getFilterMQPushConsumer(this.nameServer, this.group, this.type, this.topic, this.sql, this.mode);
+        // 注册监听器
+        // MessageListenerConcurrently为监听订阅消息
+        // 返回值为当前消费者状态
+        consumer.registerMessageListener((MessageListenerConcurrently) (list, consumeConcurrentlyContext) -> {
+            for (MessageExt msg : list) {
+                System.out.print(new SimpleDateFormat("mm:ss").format(new Date()));
+                System.out.println("->FilterConsumer:" + msg);
+            }
+            // 返回状态为成功
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+        });
+        // 开启消费者
+        consumer.start();
+        System.out.println("FilterConsumer等待消息:" + consumer);
+    }
+
+    @Override
+    public String toString() {
+        return "FilterConsumer{" + "sql='" + sql + '\'' + ", nameServer='" + nameServer + '\'' + ", group='" + group + '\'' + ", type=" + type + ", topic='" + topic + '\'' + ", tag='" + tag + '\'' + ", mode=" + mode + '}';
+    }
+
+    public static void main(String[] args) throws MQClientException {
+        new FilterConsumer("filterTopic", "age > 10").receive();
+    }
+}
+```
+
+此时发现只过滤到了age为15的异步消息。
+
+```txt
+FilterConsumer等待消息:ClientConfig [namesrvAddr=127.0.0.1:9876, clientIP=192.168.0.102, instanceName=20352#31031653679500, clientCallbackExecutorThreads=8, pollNameServerInterval=30000, heartbeatBrokerInterval=30000, persistConsumerOffsetInterval=5000, pullTimeDelayMillsWhenException=1000, unitMode=false, unitName=null, vipChannelEnabled=false, useTLS=false, language=JAVA, namespace=null, mqClientApiTimeout=3000]
+37:42->FilterConsumer:MessageExt [brokerName=broker-a, queueId=0, storeSize=203, queueOffset=1, sysFlag=0, bornTimestamp=1649932662386, bornHost=/192.168.0.102:54725, storeTimestamp=1649932662396, storeHost=/192.168.0.102:10911, msgId=C0A8006600002A9F000000000001538F, commitLogOffset=86927, bodyCRC=496717472, reconsumeTimes=0, preparedTransactionOffset=0, toString()=Message{topic='filterTopic', flag=0, properties={MIN_OFFSET=0, MAX_OFFSET=2, CONSUME_START_TIME=1649932662409, UNIQ_KEY=7F0000011C7818B4AAC246F1F6710000, CLUSTER=DefaultCluster, TAGS=async, age=15}, body=[65, 115, 121, 110, 99, 70, 105, 108, 116, 101, 114, 80, 114, 111, 100, 117, 99, 101, 114], transactionId='null'}]
+```
 
 &emsp;
 
