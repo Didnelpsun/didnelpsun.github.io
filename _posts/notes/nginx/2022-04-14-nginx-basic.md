@@ -13,6 +13,8 @@ excerpt: "基础概念与安装"
 
 常用的有[Nginx开源版](https://nginx.org)、[Nginx plus商业版](https://www.nginx.com)、[Openresty](https://openresty.org)、[Tengine](https://tengine.taobao.org)四个版本。
 
+#### &emsp;&emsp;Windows安装
+
 这里我们使用Nginx开源版在Windows下安装。点击官网的download，选择nginx/Windows版本安装。下载后直接解压放到安装目录下。
 
 <!-- 然后直接把这个安装目录放到环境变量下。 -->
@@ -36,7 +38,19 @@ excerpt: "基础概念与安装"
 
 也可以修改Nginx默认端口。
 
+#### &emsp;&emsp;Linux安装
+
+`sudo apt install nginx`直接安装。使用`nginx -v`直接查看版本。使用`service nginx start`启动Nginx。同理可以`service nginx stop`停止Nginx。`service nginx restart`重启服务。
+
+<!-- 其他的命令和Windows的一致。 -->
+
+或者使用`ps -ef | grep nginx`获取进程，然后`kill -9 对应pid`杀死。（对应第二个数字）
+
+如果报错：nginx: \[error\] open() "/run/nginx.pid" failed (2: No such file or directory)，表示找不到这个目录，可以创建这个目录，也可以修改nginx.conf指定pid文件所在地址。
+
 ### &emsp;基本配置
+
+Windows在指定安装路径下，Linux在etc下。
 
 #### &emsp;&emsp;基本文件
 
@@ -51,6 +65,12 @@ excerpt: "基础概念与安装"
 如果你的server中没有 listen字段，默认的还是80的端口，暂时没有找到修改默认值的地方，应该是程序内部给写死了。
 
 访问<http://localhost:85>。
+
+#### &emsp;&emsp;修改默认pid地址
+
+如果不修改则创建pid文件：`touch /run/nginx.pid`。
+
+打开Nginx的配置文件nginx.conf，修改`pid /run/nginx.pid;`为指定目录。然后Linux通过`mkdir`创建，Windows直接创建。
 
 #### &emsp;&emsp;运行关系
 
