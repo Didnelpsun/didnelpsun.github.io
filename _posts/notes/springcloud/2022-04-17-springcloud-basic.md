@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "基础使用"
-date: 2022-04-14 21:11:00 +0800
+title: "基本项目"
+date: 2022-04-17 21:11:00 +0800
 categories: notes springcloud base
 tags: SpringCloud 基础
-excerpt: "基础使用"
+excerpt: "基本项目"
 ---
 
 ## 基础概念
@@ -24,6 +24,8 @@ SpringCloud就是提供一整个服务。具体说明可以查看[SpringCloud的
 + 服务总线：Bus（不推荐）、Nacos（推荐）。
 
 &emsp;
+
+所有的代码都放在一个父工程下：[SpringCloud项目](https://github.com/Didnelpsun/SpringCloud)。
 
 ## 父工程
 
@@ -158,22 +160,114 @@ SpringCloud就是提供一整个服务。具体说明可以查看[SpringCloud的
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
 </project>
 ```
 
-此时父pom文件下的packaging标签上会出现：
+### &emsp;父依赖
+
+在父pom.xml中规定项目的版本号，并定义common的版本号，这样以后其他模块调用common时就不用指定版本号：
 
 ```xml
-<modules>
-    <module>common</module>
-</modules>
-```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-表示加入模块依赖。
+    <groupId>org.didnelpsun</groupId>
+    <artifactId>springcloud</artifactId>
+    <version>${project.version}</version>
+    <modules>
+        <module>common</module>
+        <module>pay</module>
+        <module>order</module>
+    </modules>
+    <!--打包方式为pom-->
+    <packaging>pom</packaging>
+
+    <!--统一管理版本号-->
+    <properties>
+        <project.version>1.0-SNAPSHOT</project.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>2.6.6</spring.version>
+        <springcloud.version>3.1.1</springcloud.version>
+        <mysql.version>8.0.28</mysql.version>
+        <druid.version>1.2.9</druid.version>
+        <lombok.version>1.18.22</lombok.version>
+        <mybatis.version>2.2.2</mybatis.version>
+    </properties>
+
+    <!--子模块继承后锁定依赖版本-->
+    <!--只锁定版本号，不引入依赖，所以子类要使用依赖还是需要显式引入依赖-->
+    <!--如果需要覆盖，则自己在对应pom.xml指定-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.didnelpsun</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-context -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-context</artifactId>
+                <version>${springcloud.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
+```
 
 ### &emsp;实体类定义
 
@@ -270,7 +364,6 @@ public class Result<data> {
         <dependency>
             <groupId>org.didnelpsun</groupId>
             <artifactId>common</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -520,7 +613,7 @@ public class PayServiceImpl implements IPayService {
 
 #### &emsp;&emsp;pay控制层
 
-控制层基本上代码较少：
+控制层基本上代码较少，记住传递实体类参数时一定要加@RequestBody注解。当前端传来的值，不是个完整的对象，只是包含了Request中的部分参数时，不需要@RequestBody，当前端传来的是一个完成对象的时候，需要@RequestBody，只有加上注解，Spring才会自动将JSON类型数据与我们的类进行匹配，否则会添加一个null值：
 
 ```java
 package org.didnelpsun.controller;
@@ -553,12 +646,12 @@ public class PayController {
     }
 
     @PostMapping()
-    public Result<Integer> insert(Pay pay) {
+    public Result<Integer> insert(@RequestBody Pay pay) {
         return payService.insert(pay);
     }
 
     @PutMapping()
-    public Result<Integer> update(Pay pay) {
+    public Result<Integer> update(@RequestBody Pay pay) {
         return payService.update(pay);
     }
 
@@ -602,9 +695,189 @@ public class PayApplication {
 
 同理需要引用配置，但是注意的是，这里order需要引用哪些依赖？order是客户端，客户端只能访问对应的页面，请求对应的数据，所以它是不能操作数据的，所以order模块不会直接调用SQL语句操作数据库，而是会调用pay模块。所以order模块只有控制层，而没有业务层和持久层。
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud</artifactId>
+        <groupId>org.didnelpsun</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>order</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.didnelpsun</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+#### &emsp;&emsp;order的yaml配置
+
+在order模块的resources下添加配置application.yaml，基本上就是模块运行端口，以及远程调用端口：
+
+```yaml
+server:
+  # 客户端默认会访问80的端口
+  port: 81
+
+spring:
+  application:
+    name: order
+
+remote:
+  url: http://localhost
+  port: 8001
+```
+
+### &emsp;order代码
+
+#### &emsp;&emsp;order控制层
+
 由于只有控制层，所以order模块必须通过HTTP来调用pay模块的方法，这里就需要使用到RestTemplate。
+
+首先使用新建config，然后新建一个配置类来返回RestTemplate实例：
+
+```java
+// ApplicationContextConfig.java
+package org.didnelpsun.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class ApplicationContextConfig {
+    @Bean
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+}
+```
 
 RestTemplate提供了多种便捷访问远程HTTP服务的方法，是一种简单便捷的访问Restful服务模板类，是Spring提供的用于访问Rest服务的客户端模板工具集。
 
 使用RestTemplate访问Restful接口非常的简单，只有三个参数：url、requlestMap、ResponseBean.class，这三个参数分别代表REST请求地址、请求参数、HTTP响应转换被转换成的对象类型。
 
+```java
+// OrderController.java
+package org.didnelpsun.controller;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.didnelpsun.entity.Pay;
+import org.didnelpsun.entity.Result;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("/order")
+@Configuration
+@ConfigurationProperties(prefix = "remote")
+@Data
+@Slf4j
+public class OrderController {
+    private String url;
+    private String port;
+    private String baseUrl;
+    @Resource
+    private RestTemplate restTemplate;
+
+    @PostConstruct
+    public void setBaseUrl() {
+        this.baseUrl = this.url + ":" + this.port + "/pay";
+    }
+
+    @GetMapping()
+    public Result<?> selects() {
+        log.info(baseUrl);
+        return restTemplate.getForObject(baseUrl, Result.class);
+    }
+
+    @GetMapping("/{id}")
+    public Result<?> select(@PathVariable Long id) {
+        return restTemplate.getForObject(baseUrl + "/" + id, Result.class);
+    }
+
+    @PostMapping()
+    public Result<?> insert(Pay pay) {
+        return restTemplate.postForObject(baseUrl, pay, Result.class);
+    }
+
+    // 最近在使用spring的RestTemplate的时候,调用他的delete方法发现没有返回值
+    // 所以使用exchange来代替,就能得到调用后的返回值
+
+    @PutMapping()
+    public ResponseEntity<Result> update(Pay pay) {
+        return restTemplate.exchange(baseUrl, HttpMethod.PUT , new HttpEntity<>(pay, new HttpHeaders()),Result.class);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Result> delete(@PathVariable Long id) {
+        return restTemplate.exchange(baseUrl + "/" + id, HttpMethod.DELETE, null, Result.class);
+    }
+}
+```
+
+#### &emsp;&emsp;order插件
+
+由于需要引入配置YAML文件的数据，所以需要引入插件：
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+    <version>${spring.version}</version>
+</dependency>
+```
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+</dependency>
+```
+
+#### &emsp;&emsp;order主类
+
+记住启动时如果是单纯的原来类启动会报错：Failed to determine a suitable driver class，我们没有配置数据源，但是order模块不需要配置，所以需要排除数据源检查。
+
+```java
+// OrderApplication.java
+package org.didnelpsun;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
+public class OrderApplication {
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(OrderApplication.class, args);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+此时访问<http://localhost:81/order>就可以调用pay模块进行调用订单数据操作。
