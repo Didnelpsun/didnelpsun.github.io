@@ -183,8 +183,6 @@ SpringCloud就是提供一整个服务。具体说明可以查看[SpringCloud的
     <version>${project.version}</version>
     <modules>
         <module>common</module>
-        <module>pay</module>
-        <module>order</module>
     </modules>
     <!--打包方式为pom-->
     <packaging>pom</packaging>
@@ -338,11 +336,11 @@ public class Result<data> {
 
 ## 支付模块
 
-新建一个订单支付模块。利用Maven创建子模块pay。（注意不要使用Spring Initliazr，因为Spring Initliazr会让pay继承SpringBoot官方父项目，而项目只能有一个parent，从而我们不能控制pay模块的版本号）
+新建一个订单支付模块。利用Maven创建子模块pay8001。（8001为当前模块端口注意不要使用Spring Initliazr，因为Spring Initliazr会让pay7001继承SpringBoot官方父项目，而项目只能有一个parent，从而我们不能控制pay7001模块的版本号）
 
-### &emsp;pay配置
+### &emsp;支付配置
 
-#### &emsp;&emsp;pay的XML配置
+#### &emsp;&emsp;支付XML配置
 
 首先需要引用common模块依赖，然后引入其他独有的依赖：
 
@@ -358,7 +356,7 @@ public class Result<data> {
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pay</artifactId>
+    <artifactId>pay8001</artifactId>
 
     <dependencies>
         <dependency>
@@ -382,9 +380,9 @@ public class Result<data> {
 </project>
 ```
 
-#### &emsp;&emsp;pay的yaml配置
+#### &emsp;&emsp;支付YAML配置
 
-在pay模块的resources下添加配置application.yaml：
+在pay8001模块的resources下添加配置application.yaml：
 
 ```yaml
 server:
@@ -406,9 +404,9 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
 ```
 
-### &emsp;Pay实体类
+### &emsp;支付实体类
 
-由于我们需要使用到pay实体类，所以创建pay表。
+由于我们需要使用到Pay实体类，所以创建pay表。
 
 ```sql
 CREATE TABLE `pay` (
@@ -441,11 +439,11 @@ public class Pay implements Serializable {
 }
 ```
 
-### &emsp;pay代码
+### &emsp;支付代码
 
 从持久层、业务层、控制层的逻辑来编写。在java文件夹下编写org.didnelpsun软件包，在下面编写业务代码。
 
-#### &emsp;&emsp;pay持久层
+#### &emsp;&emsp;支付持久层
 
 首先新建一个dao软件包，添加一个Pay的持久层接口，定义CRUD操作：
 
@@ -507,7 +505,7 @@ public interface IPayDao {
 </mapper>
 ```
 
-#### &emsp;&emsp;pay业务层
+#### &emsp;&emsp;支付业务层
 
 首先新建一个service软件包，然后定义一个业务层接口：
 
@@ -611,7 +609,7 @@ public class PayServiceImpl implements IPayService {
 }
 ```
 
-#### &emsp;&emsp;pay控制层
+#### &emsp;&emsp;支付控制层
 
 控制层基本上代码较少，记住传递实体类参数时一定要加@RequestBody注解。当前端传来的值，不是个完整的对象，只是包含了Request中的部分参数时，不需要@RequestBody，当前端传来的是一个完成对象的时候，需要@RequestBody，只有加上注解，Spring才会自动将JSON类型数据与我们的类进行匹配，否则会添加一个null值：
 
@@ -662,19 +660,19 @@ public class PayController {
 }
 ```
 
-#### &emsp;&emsp;pay主类
+#### &emsp;&emsp;支付主类
 
 创建主类：
 
 ```java
-// PayApplication.java
+// Pay8001Application.java
 package org.didnelpsun;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PayApplication {
+public class Pay8001Application {
     public static void main(String[] args) {
         SpringApplication.run(PayApplication.class, args);
     }
@@ -687,13 +685,13 @@ public class PayApplication {
 
 ## 订单模块
 
-同样利用Maven创建子模块order。
+同样利用Maven创建子模块order81。
 
-### &emsp;order配置
+### &emsp;订单配置
 
-#### &emsp;&emsp;order的XML配置
+#### &emsp;&emsp;订单XML配置
 
-同理需要引用配置，但是注意的是，这里order需要引用哪些依赖？order是客户端，客户端只能访问对应的页面，请求对应的数据，所以它是不能操作数据的，所以order模块不会直接调用SQL语句操作数据库，而是会调用pay模块。所以order模块只有控制层，而没有业务层和持久层。
+同理需要引用配置，但是注意的是，这里order81需要引用哪些依赖？order81是客户端，客户端只能访问对应的页面，请求对应的数据，所以它是不能操作数据的，所以order81模块不会直接调用SQL语句操作数据库，而是会调用pay8001模块。所以order81模块只有控制层，而没有业务层和持久层。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -707,7 +705,7 @@ public class PayApplication {
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>order</artifactId>
+    <artifactId>order81</artifactId>
 
     <dependencies>
         <dependency>
@@ -719,9 +717,9 @@ public class PayApplication {
 </project>
 ```
 
-#### &emsp;&emsp;order的yaml配置
+#### &emsp;&emsp;订单YAML配置
 
-在order模块的resources下添加配置application.yaml，基本上就是模块运行端口，以及远程调用端口：
+在order81模块的resources下添加配置application.yaml，基本上就是模块运行端口，以及远程调用端口：
 
 ```yaml
 server:
@@ -737,11 +735,11 @@ remote:
   port: 8001
 ```
 
-### &emsp;order代码
+### &emsp;订单代码
 
-#### &emsp;&emsp;order控制层
+#### &emsp;&emsp;订单控制层
 
-由于只有控制层，所以order模块必须通过HTTP来调用pay模块的方法，这里就需要使用到RestTemplate。
+由于只有控制层，所以order81模块必须通过HTTP来调用pay8001模块的方法，这里就需要使用到RestTemplate。
 
 首先使用新建config，然后新建一个配置类来返回RestTemplate实例：
 
@@ -835,7 +833,9 @@ public class OrderController {
 }
 ```
 
-#### &emsp;&emsp;order插件
+注意此时的Pay参数就没有使用@RequestBody将前端传来的Pay的JSON数据与Pay实体类进行映射，因为订单模块不与数据库连接，而这种映射交给与数据库连接的支付模块进行处理。
+
+#### &emsp;&emsp;订单插件
 
 由于需要引入配置YAML文件的数据，所以需要引入插件：
 
@@ -855,12 +855,12 @@ public class OrderController {
 </dependency>
 ```
 
-#### &emsp;&emsp;order主类
+#### &emsp;&emsp;订单主类
 
-记住启动时如果是单纯的原来类启动会报错：Failed to determine a suitable driver class，我们没有配置数据源，但是order模块不需要配置，所以需要排除数据源检查。
+记住启动时如果是单纯的原来类启动会报错：Failed to determine a suitable driver class，我们没有配置数据源，但是order81模块不需要配置，所以需要排除数据源检查。
 
 ```java
-// OrderApplication.java
+// Order81Application.java
 package org.didnelpsun;
 
 import org.springframework.boot.SpringApplication;
@@ -869,7 +869,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
-public class OrderApplication {
+public class Order81Application {
     public static void main(String[] args) {
         try {
             SpringApplication.run(OrderApplication.class, args);
