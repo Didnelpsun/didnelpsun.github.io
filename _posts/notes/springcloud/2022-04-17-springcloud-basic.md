@@ -764,6 +764,11 @@ RestTemplate提供了多种便捷访问远程HTTP服务的方法，是一种简�
 
 使用RestTemplate访问Restful接口非常的简单，只有三个参数：url、requlestMap、ResponseBean.class，这三个参数分别代表REST请求地址、请求参数、HTTP响应转换被转换成的对象类型。
 
++ getForObject/postForObject：返回对象为响应体中数据转化成的对象，可以立即为JSON对象。
++ getForEntity/postForEntity：返回对象为ResgonseEntity对象，包含了响应中的一些重要信息，比如响应头、响应状态码、响应体等。
+  + 通过getObject方法获取JSON数据。
+  + 通过getStatusCode方法获取状态码，然后通过is2xxSuccessful方法判断是否为2开头的成功状态码。
+
 ```java
 // OrderController.java
 package org.didnelpsun.controller;

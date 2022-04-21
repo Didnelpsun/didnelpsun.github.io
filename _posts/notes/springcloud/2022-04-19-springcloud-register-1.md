@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "服务注册（上）"
+title: "注册发现（上）"
 date: 2022-04-19 15:09:47 +0800
 categories: notes springcloud base
 tags: SpringCloud 基础 Eureka 注册
-excerpt: "服务注册（上）"
+excerpt: "注册发现（上）"
 ---
 
 服务注册中心包括Eureka、Zookeeper、Consul、Nacos四个部分。
@@ -39,7 +39,7 @@ Eureka采用了CS的没计架构，Eureka Sever作为服务注册功能的服务
 
 ### &emsp;单机注册中心
 
-#### &emsp;&emsp;单机注册中心配置
+#### &emsp;&emsp;单机注册中心配置XML
 
 首先需要新建一个Eureka注册中心，从而其他模块的服务能注册到这个注册中心中。
 
@@ -66,6 +66,8 @@ eureka子工程：
     <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 </dependency>
 ```
+
+#### &emsp;&emsp;单机注册中心配置YAML
 
 添加YAML配置文件：
 
@@ -163,7 +165,7 @@ Correct the classpath of your application so that it contains compatible version
 
 查看注册中心的Instances currently registered with Eureka显示No instances available表示还没有实例注入。
 
-#### &emsp;&emsp;单机支付模块配置
+#### &emsp;&emsp;单机支付模块配置XML
 
 所以要将支付模块注册为客户端进入，作为提供者。之后需要将订单模块注册为客户端进入，作为消费者。
 
@@ -186,6 +188,8 @@ Correct the classpath of your application so that it contains compatible version
     <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 </dependency>
 ```
+
+#### &emsp;&emsp;单机支付模块配置YAML
 
 修改YAML文件：
 
@@ -424,7 +428,7 @@ server:
 
 spring:
   application:
-    name: order81
+    name: order
 
 remote:
   url: http://localhost
@@ -444,7 +448,7 @@ eureka:
       defaultZone: http://${eureka.server.hostname}:${eureka.server.port}/eureka/
 ```
 
-在主启动类上添加@EnableEurekaClient注解并排除org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class。此时控制台又多出了一个ORDER81应用。
+在主启动类上添加@EnableEurekaClient注解并排除org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class。此时控制台又多出了一个ORDER应用。
 
 &emsp;
 
@@ -591,7 +595,7 @@ server:
 
 spring:
   application:
-    name: order81
+    name: order
 
 remote:
   url: http://localhost
@@ -615,7 +619,7 @@ eureka:
       defaultZone: http://${eureka.server.hostname[0]}:${eureka.server.port[0]}/eureka/, http://${eureka.server.hostname[1]}:${eureka.server.port[1]}/eureka/
 ```
 
-启动订单模块。发现两个端口都有ORDER81服务。
+启动订单模块。发现两个端口都有ORDER服务。
 
 ### &emsp;添加集群支付模块
 
