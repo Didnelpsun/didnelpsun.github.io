@@ -726,7 +726,7 @@ management:
 
 可以在服务端的某个方法下使用`TimeUnit.SECONDS.sleep(3)`来故意暂停进程。OpenFeign底层Ribbon默认等待1秒。
 
-此时需要在客户端的YAML中开启超时配置：
+此时需要在客户端的YAML中开启超时配置，单位为毫秒：
 
 #### &emsp;&emsp;Ribbon设置
 
@@ -734,23 +734,102 @@ management:
 
 ```yaml
 ribbon:  
-    ReadTimeout: 30000
-    ConnectTimeout: 30000
+  ReadTimeout: 3000
+  ConnectTimeout: 3000
 ```
 
 指定服务配置：
 
 ```yaml
 pay:
-    ribbon:  
-        ReadTimeout: 30000
-        ConnectTimeout: 30000
+  ribbon:  
+    ReadTimeout: 3000
+    ConnectTimeout: 3000
 ```
 
 #### &emsp;&emsp;Feign设置
 
+全局配置：
 
+```yaml
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 3000
+        readTimeout: 3000
+```
 
-feign.client.config.default.read-timeout是读超时时间，feign.client.config.default.connect-timeout是连接超时时间，单位为毫秒。
+指定服务配置：
+
+```yaml
+feign:
+  client:
+    config:
+      pay:
+        connectTimeout: 3000
+        readTimeout: 3000
+```
+
+#### &emsp;&emsp;优先级
+
+如果同时配置了Ribbon、Feign，那么 Feign 的配置将生效。Ribbon的配置要想生效必须满足微服务相互调用的时候通过注册中心，如果你是在本地通过@FeignClient注解的url参数进行服务相互调用的测试，此时Ribbon设置的超时时间将会失效，但是通过Feign设置的超时时间不会受到影响（仍然会生效）
 
 ### &emsp;日志
+
+Feign提供了日志打印功能，我们可以通过配置来调整日志级别，从而了解Feign中Http请求的细节。说白了就是对Feign接口的调用情况进行监控和输出。
+
+#### &emsp;&emsp;日志级别
+
++ NONE：默认的，不显示任何日志。
++ BASIC：仅记录请求方法、URL、响应状态码及执行时间。
++ HEADERS：除了BASIC中定义的信息之外，还有请求和响应的头信息。
++ FULL：除了HEADERS 中定义的信息之外，还有请求和响应的正文及元数据。
+
+#### &emsp;&emsp;使用
+
+新建一个config包，下面新建一个FeignConfig类，用来实例化日志配置：
+
+```java
+// FeignConfig.java
+package org.didnelpsun.config;
+
+import feign.Logger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class FeignConfig {
+    // 注意是Feign的Logger
+    @Bean
+    Logger.Level feignLoggerLevel(){
+        return Logger.Level.FULL;
+    }
+}
+```
+
+也可以在YAML中直接配置：feign.client.config.default.loggerLevel: FULL，其中"default”可以换成FeignClient中配置的name属性，也可以直接用default。这个配置对应的是FeignClientProperties类中的config属性，该类为Feign自动配置类引入的配置项类。
+
+最后需要在YAML中对监控类进行指定：
+
+```yaml
+logging:
+  level:
+    org.didnelpsun.service.IPayService: debug
+```
+
+重新启动。访问<http://localhost:85/order>，控制台会输出：
+
+```txt
+2022-04-23 11:35:58.795 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] ---> GET http://PAY/pay HTTP/1.1
+2022-04-23 11:35:58.795 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] ---> END HTTP (0-byte body)
+2022-04-23 11:35:59.062 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] <--- HTTP/1.1 200 (266ms)
+2022-04-23 11:35:59.063 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] connection: keep-alive
+2022-04-23 11:35:59.063 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] content-type: application/json
+2022-04-23 11:35:59.063 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] date: Sat, 23 Apr 2022 03:35:59 GMT
+2022-04-23 11:35:59.063 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] keep-alive: timeout=60
+2022-04-23 11:35:59.063 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] transfer-encoding: chunked
+2022-04-23 11:35:59.063 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] 
+2022-04-23 11:35:59.070 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] {"code":"SUCCESS","message":"port:8002:success","data":[{"id":1,"serial":"test"},{"id":2,"serial":"test2"},{"id":3,"serial":"test3"}]}
+2022-04-23 11:35:59.071 DEBUG 40096 --- [p-nio-85-exec-3] org.didnelpsun.service.IPayService       : [IPayService#selects] <--- END HTTP (134-byte body)
+```
