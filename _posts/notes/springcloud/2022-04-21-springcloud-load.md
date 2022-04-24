@@ -625,17 +625,17 @@ public class OrderController {
     private DiscoveryClient discoveryClient;
 
     @GetMapping()
-    public Result<?> selects() {
+    public Result<List<Pay>> selects() {
         return payService.selects();
     }
 
     @GetMapping("/{id}")
-    public Result<?> select(@PathVariable Long id) {
+    public Result<Pay> select(@PathVariable Long id) {
         return payService.select(id);
     }
 
     @PostMapping()
-    public Result<?> insert(Pay pay) {
+    public Result<Integer> insert(Pay pay) {
         return payService.insert(pay);
     }
 
