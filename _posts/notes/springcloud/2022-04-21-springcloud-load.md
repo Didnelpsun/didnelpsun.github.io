@@ -685,7 +685,7 @@ spring:
 
 eureka:
   instance:
-    instance-id: order
+    instance-id: order85
     prefer-ip-address: true
   # 自定义注册中心的主机名和端口的参数
   server:
