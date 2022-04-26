@@ -214,3 +214,215 @@ public class Gateway9527Application {
 
 默认情况下Gateway会根据注册中心注册的服务列表，以注册中心上微服务名为路径创建动态路由进行转发，从而实现动态路由的功能。
 
+#### &emsp;&emsp;开启动态路由
+
+设置YAML打开动态路由：
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+```
+
+#### &emsp;&emsp;配置路由
+
+这个路由跟原来的不同，一个是要将主机名加端口名改为微服务名，另外要将http服务协议改为lb协议。
+
+如果是Java代码：
+
+```java
+// GatewayConfig.java
+package org.didnelpsun.config;
+
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GatewayConfig {
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder routeLocatorBuilder) {
+        RouteLocatorBuilder.Builder routes = routeLocatorBuilder.routes();
+        routes.route("pay", f -> f.path("/pay/**").uri("lb://pay/pay")).build();
+        routes.route("order", f -> f.path("/order/**").uri("lb://order/order")).build();
+        return routes.build();
+    }
+}
+```
+
+如果是YAML配置：
+
+```yaml
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      # 配置网关
+      routes:
+        # 路由ID，没有规则但要求唯一，建议配合服务名
+        - id: pay
+          uri: lb://pay
+          # 断言，即具体的路由匹配
+          predicates:
+            - Path=/pay/**
+        - id: order
+          uri: lb://order
+          predicates:
+            - Path=/order/**
+```
+
+### &emsp;Predicate
+
+对请求进行条件判断，正确才能通过。
+
+在开启gateway时控制台会打印：
+
+```txt
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [After]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Before]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Between]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Cookie]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Header]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Host]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Method]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Path]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Query]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [ReadBody]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [RemoteAddr]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [XForwardedRemoteAddr]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [Weight]
+2022-04-26 13:20:54.080  INFO 67400 --- [           main] o.s.c.g.r.RouteDefinitionRouteLocator    : Loaded RoutePredicateFactory [CloudFoundryRouteService]
+```
+
+这打印的就是断言类型，类似判断条件类型。Spring Cloud在启动网关时会默认加载这些断言工厂用来解析断言参数。如我们之前配置的predicates就应该是一个数组，我们指定的是Path，即使用Path断言，从上面的打印结果可以看出是使用Path方式来解析配置的。
+
+具体内容查看[断言介绍](https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-request-predicates-factories)。
+
++ After：在指定时间之后。
++ Before：在指定时间之前。
++ Between：在指定时间之间。
++ Cookie：具有指定Cookie值。
++ Header：具有指定请求头。
++ Host：对应主机名。
++ Method：具有指定的HTTP方法（GET、POST）。
++ Path：具有指定路径。
++ Query：请求包含对应查询参数。
++ RemoteAddr：指定请求远程地址。
++ Weight：指定权重多少的流量会被转发到这个地址。
++ XForwarded：指定远程地址路由。
+
+可以使用多个断言。
+
+#### &emsp;&emsp;时间类断言
+
+当After、Before、Between都是关于时间的断言，指定时间字符串，那么后面指定的一长串时间字符串如何获得？使用`ZoneDateTime.now()`获取。
+
+但是如果通过服务名访问而不是主机＋端口则时间类断言与Cookie断言无效。
+
+#### &emsp;&emsp;值类断言
+
+如Cookie、Header，需要两个参数，一个是传入值名称，一个是传入值正则表达式。只有请求中含有对应参数名，并匹配参数值才能访问。
+
+### &emsp;Filter
+
+对请求进行拦截，进行前置处理或后置处理。分为单一的GatewayFilter和全局的GlobalFilter。
+
+[过滤器介绍](https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gatewayfilter-factories)。
+
+#### &emsp;&emsp;预定义过滤器
+
+在YAML中指定。
+
+无参数：
+
++ PreserveHostHeader：保留原始主机头而不是网关代理主机头。
++ SaveSession：保存会话状态。
+
+有一个参数：
+
++ PrefixPath：为所有匹配请求路径添加前缀。
++ RemoveRequestHeader：删除指定请求头。
++ RemoveRequestParameter：删除指定请求参数。
++ SetPath：将predicates配置的Path所指定的路径进行重写。
++ SetStatus：设置请求状态码。
++ StripPrefix：移除请求部分前缀。
++ RequestSize：设置请求最大大小。
+
+有两个参数，第一个为参数名，第二个为参数值。
+
++ AddRequestHeader：添加请求头。
++ AddRequestParameter：添加请求参数。
++ AddResponseHeader：添加响应头。
++ MapRequestHeader：添加Map类型请求头。
++ SetRequestHeader：替换请求头。
++ SetResponseHeader：替换响应头。
+
+其他：
+
++ DedupeResponseHeader：消除重复响应头。
++ CircuitBreaker：添加断路器处理。
++ FallbackHeaders：添加服务降级处理。
++ RequestRateLimiter：设置请求速率限制，可以生成限制请求的密钥。
++ RedirectTo：重定向，第一个参数为300系列状态码，第二个参数为重定向URL。
++ RewritePath：重写请求路径，第一个参数为请求路径正则，第二个参数为重写路径正则。
++ RewriteLocationResponseHeader：重写后端本地响应头来隐藏。
++ RewriteResponseHeader：重写响应头。
++ SecureHeaders：添加头部安全信息。
++ Retry：设置重试。
++ SetRequestHostHeader：设置请求主机名称。
++ ModifyRequestBody：修改请求主体。需要实现类配合重写。
++ ModifyResponseBody：修改响应主体。
++ TokenRelayGatewayFilterFactory：添加令牌，避免重新用户认证。
++ CacheRequestBody：保存请求体缓存。
+
+#### &emsp;&emsp;自定义全局过滤器
+
+即过滤所有请求进行处理，如全局日志记录、统一网关鉴权等。主要实现两个接口GlobalFilter、Ordered。
+
+如定义一个全局权限过滤器，新建filter.PermissionFilter：
+
+```java
+// PermissionFilter.java
+package org.didnelpsun.filter;
+
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+@Component
+public class PermissionFilter implements GlobalFilter, Ordered {
+    // 第一个参数为Web服务器交互数据，包括请求和响应，第二个参数为过滤器链
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // 获取参数
+        String username = exchange.getRequest().getQueryParams().getFirst("username");
+        // 如果不携带这个参数就报错
+        if(username == null){
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+        // 如果过滤成功就继续传递交互数据，否则返回null
+        return chain.filter(exchange);
+    }
+
+    // 设置加载过滤器的优先级顺序，越小优先级越高
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+}
+```
+
+重启，访问<http://localhost:9527/order/1>，此时没有返回值，只有携带username访问<http://localhost:9527/order/1?username=test>才能访问。
