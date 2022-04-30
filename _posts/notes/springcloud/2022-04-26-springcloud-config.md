@@ -253,4 +253,4 @@ management:
 
 在业务类控制层上添加@RefreshScope注解。重新启动。
 
-如果此时更新服务端的文件，则client3355如果不重启还是不能获取最新的数据，这是因为需要发送POST请求（不能是GET请求）刷新client3355激活更新<http://localhost:3355/actuator/refresh>避免了重启3355。
+如果此时更新服务端的文件，则client3355如果不重启还是不能获取最新的数据，这是因为需要发送POST请求（不能是GET请求）刷新client3355激活更新<http://localhost:3355/actuator/busrefresh>避免了重启3355。
