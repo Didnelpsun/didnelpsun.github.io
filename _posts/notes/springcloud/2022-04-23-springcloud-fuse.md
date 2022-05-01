@@ -714,7 +714,9 @@ public class Hystrix9001Application {
 
 在pay8005的YAML中配置management.endpoints.web.exposure.include:"*"即可，监听所有。
 
-启动pay8005、eureka7001。8005控制台会显示Proxy opening connection to: <http://localhost:8005/hystrix.stream>。
+启动pay8005、eureka7001。记得将eureka7001的集群模式改为单机模式，即YAML中改为`defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/`，不然会一直报错找不到eureka7002。
+
+8005控制台会显示Proxy opening connection to: <http://localhost:8005/hystrix.stream>。
 
 然后在9001监控台上填写监控地址<http://localhost:8005/hystrix.stream>跳转到监控页面。
 
