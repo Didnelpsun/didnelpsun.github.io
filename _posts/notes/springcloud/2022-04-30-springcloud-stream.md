@@ -196,7 +196,7 @@ public class Provider8801Application {
 }
 ```
 
-启动eureka7001和provider8001，然后访问<http://localhost:8801/send>，此时就会显示一个UUID。
+启动eureka7001和provider8001，然后访问<http://localhost:8801/send/test>，此时就会显示test。
 
 ## 消费者
 
@@ -208,6 +208,6 @@ XML依赖是一样的，所以可以直接复制provider8801的依赖。
 
 上述代码的方法名，即Consumer的bean实例名channel8002需要是YAML配置中的通道名rabbit-in-0，应用程序启动后会自动接收生产者发送的消息。
 
-启动consumer8002，然后访问<http://localhost:8801/send>，
+启动consumer8002，然后访问<http://localhost:8801/send/test>，
 
 复制consumer8802为consumer8803。
