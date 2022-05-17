@@ -45,6 +45,373 @@ Spring Cloud Stream为一些供应商的消息中间件产品提供了个性化�
 
 [官方案例](https://github.com/spring-cloud/spring-cloud-stream-samples)。
 
+可以使用注解（被废弃）也可以使用函数式。
+
+## 注解式
+
+### &emsp;生产者
+
+新建一个Maven的provider8801作为生产者进行消息发送。
+
+#### &emsp;&emsp;生产者配置
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud</artifactId>
+        <groupId>org.didnelpsun</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>provider8801</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.didnelpsun</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+```yaml
+server:
+  port: 8801
+
+spring:
+  application:
+    name: provider
+  cloud:
+    # 配置Stream
+    stream:
+      # 服务整合
+      bindings:
+        # 为输出通道名称
+        output:
+          # 使用的交换机或交换机的名称
+          destination: defaultExchange
+          # 消息类型
+          contentType: application/json
+          # 绑定消息中间件具体配置
+          binder: defaultRabbit
+      # 配置绑定的RabbitMQ服务器
+      binders:
+        # 定义的名称，用于Binding整合
+        defaultRabbit:
+          # 消息组件类型
+          type: rabbit
+          # 消息组件配置环境
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+
+eureka:
+  instance:
+    instance-id: provider8801
+    prefer-ip-address: true
+  client:
+    # true表示向注册中心注册自己，因为这是业务模块
+    register-with-eureka: true
+    # 是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合ribbon使用负载均衡
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:7001/eureka/
+```
+
+#### &emsp;&emsp;生产者业务层
+
+新建一个service软件包，然后新建一个接口：
+
+```java
+// IMessageProvider.java
+package org.didnelpsun.service;
+
+public interface IMessageProvider {
+    String send(String text);
+}
+```
+
+然后在下面新建一个impl包含实现类，通过send方法发送：
+
+```java
+// MessageProviderImpl.java
+package org.didnelpsun.service.impl;
+
+import lombok.extern.slf4j.Slf4j;
+import org.didnelpsun.service.IMessageProvider;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.messaging.Source;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.MessageChannel;
+
+import javax.annotation.Resource;
+
+// EnableBinding将channel和exchange绑定到一起
+// Source类即定义消息推送的管道，即通过Source类将输入的不同种类的消息全部转换为源消息
+@EnableBinding(Source.class)
+@Slf4j
+public class MessageProviderImpl implements IMessageProvider {
+    @Resource
+    // 消息发送管道
+    private MessageChannel output;
+
+    @Override
+    public String send(String text) {
+        // 发送消息
+        output.send(MessageBuilder.withPayload(text).build());
+        log.info("send:" + text);
+        return text;
+    }
+}
+```
+
+#### &emsp;&emsp;控制层
+
+新建一个controller软件包，然后新建：
+
+```java
+// MessageProviderController.java
+package org.didnelpsun.controller;
+
+import org.didnelpsun.service.IMessageProvider;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+public class MessageProviderController {
+    @Resource
+    private IMessageProvider messageProvider;
+
+    @GetMapping("/send/{text}")
+    public String send(@PathVariable String text) {
+        return messageProvider.send(text);
+    }
+}
+```
+
+#### &emsp;&emsp;主启动类
+
+然后新建一个主启动类：
+
+```java
+// Provider8801Application.java
+package org.didnelpsun;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class})
+@EnableEurekaClient
+public class Provider8801Application {
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Provider8801Application.class, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+启动RabbitMQ：`rabbitmq-server`、eureka7001和provider8001，然后访问<http://localhost:8801/send/test>，此时就会显示test。
+
+### &emsp;消费者
+
+新建一个consumer8901作为生产者进行消息接受者。
+
+#### &emsp;&emsp;消费者配置
+
+XML依赖是一样的，所以可以直接复制provider8801的依赖。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud</artifactId>
+        <groupId>org.didnelpsun</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>consumer8901</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.didnelpsun</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+YAML主要的区别在于bindings的输入通道名，这里是input：
+
+```yaml
+server:
+  port: 8901
+
+spring:
+  application:
+    name: consumer
+  cloud:
+    # 配置Stream
+    stream:
+      # 服务整合
+      bindings:
+        # 为输入通道名称
+        input:
+          # 使用的交换机或交换机的名称
+          destination: defaultExchange
+          # 消息类型
+          contentType: application/json
+          # 绑定消息中间件具体配置
+          binder: defaultRabbit
+      # 配置绑定的RabbitMQ服务器
+      binders:
+        # 定义的名称，用于Binding整合
+        defaultRabbit:
+          # 消息组件类型
+          type: rabbit
+          # 消息组件配置环境
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+
+eureka:
+  instance:
+    instance-id: consumer8901
+    prefer-ip-address: true
+  client:
+    # true表示向注册中心注册自己，因为这是业务模块
+    register-with-eureka: true
+    # 是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合ribbon使用负载均衡
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:7001/eureka/
+```
+
+#### &emsp;&emsp;消费者业务层
+
+由于是消费者，所以只有业务层，编写业务层，新建org.didnelpsun.service.MessageConsumer，这里类似监听器：
+
+```java
+// MessageConsumer.java
+package org.didnelpsun.service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.cloud.stream.messaging.Sink;
+import org.springframework.messaging.Message;
+
+// 将channel和exchange绑定在一起
+// 通过Sink类将源消息转换类型为不同种类的消息，这里是RabbitMQ类型消息
+@EnableBinding(Sink.class)
+@Slf4j
+public class MessageConsumer {
+    @Value("${server.port}")
+    private String port;
+
+
+    // 监听队列，用于消费者队列的消息接收
+    // Sink.INPUT为常量，表示接收输入
+    @StreamListener(Sink.INPUT)
+    public void receive(Message<String> message) {
+        log.info("receive " + this.port + ":" + message.getPayload());
+    }
+}
+```
+
+主类：
+
+```java
+// Consumer8901Application.java
+package org.didnelpsun;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration.class})
+@EnableEurekaClient
+public class Consumer8901Application {
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Consumer8901Application.class, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+启动consumer8901，然后访问<http://localhost:8801/send/test>进行消息生产，消费者打印receive 8901:test表示消费成功，此时RabbitMQ的控制台流量图显示黄色和紫色两条线发生波动，其中黄色表示Publish生产，紫色表示Consumer ack消费确认。
+
+&emsp;
+
+## 分组
+
+复制consumer8901为consumer8902。主要是XML配置模块名称、YAML修改端口号和实例名称、主类修改名称和代码。启动consumer8902。
+
+### &emsp;重复消费
+
+此时发送消息，访问<http://localhost:8801/send/test>，两个消费者都能收到，所以导致重复消费问题。这是因为不同的组可以重复消费，如果将这两个消费者都放在一个组，则彼此之间是竞争关系，所以能解决重复消费的问题。此时点击RabbitMQ控制台的Exchanges选项，点击defaultExchange交换机，然后就发现Bindings下绑定了两个组，两个组名都是随机给与的流水号，默认每一个模块都给一个不同的组。
+
+直接在YAML配置文件的bindings.input.group:组名，就能指定当前模块消息绑定的组名。如配置为testGroup组，再次访问<http://localhost:8801/send/test>，此时就不会消费者同时都消费消息了。
+
+### &emsp;持久化
+
+只有对Stream进行分组，消息才能持久化，即消费者重启后还能收到错过的消息，如果没有分组，则消费者宕机的时候发送的消息都会丢失。
+
+<!-- &emsp;
+
+## 函数式
+
 ## 生产者
 
 新建一个Maven的provider8801作为生产者进行消息发送。
@@ -91,7 +458,46 @@ Spring Cloud Stream为一些供应商的消息中间件产品提供了个性化�
 
 #### &emsp;&emsp;YAML配置
 
+```yaml
+server:
+  port: 8801
 
+spring:
+  application:
+    name: provider
+  # 配置RabbitMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    stream:
+      # 自定义通道名称
+      # 输出通道名称，即该服务器是发送消息的
+      # 应该以通道名-out/in-序号表示
+      # out表示这是个消息发送者
+      name: msg-out-0
+      # 服务整合处理器
+      bindings:
+        ${spring.cloud.stream.name}:
+          # 使用的交换机或交换机的名称
+          destination: defaultExchange
+          # 消息类型
+          contentType: application/json
+
+eureka:
+  instance:
+    instance-id: provider8801
+    prefer-ip-address: true
+  client:
+    # true表示向注册中心注册自己，因为这是业务模块
+    register-with-eureka: true
+    # 是否从EurekaServer抓取已有的注册信息，默认为true。单节点无所谓，集群必须设置为true才能配合ribbon使用负载均衡
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:7001/eureka/
+```
 
 ### &emsp;业务层
 
@@ -210,4 +616,4 @@ XML依赖是一样的，所以可以直接复制provider8801的依赖。
 
 启动consumer8002，然后访问<http://localhost:8801/send/test>，
 
-复制consumer8802为consumer8803。
+复制consumer8802为consumer8803。 -->
