@@ -477,4 +477,90 @@ config:
 
 ### &emsp;分类配置
 
-#### &emsp;&emsp;配置相关配置
+即针对不同的环境有不同的配置文件。
+
+点击Nacos控制台的命名空间，会出现一个public，这是默认的命名空间。
+
+#### &emsp;&emsp;分类概念
+
+其中关系为Namespace->Group->Service->Cluster->DataID，默认Namespace为public、Group为DEFAULT_GRUOP、Cluster为DEFAULT：
+
++ Namespace主要用来实现环境隔离，比方说我们现在有三个环境：开发、测试、生产环境，我们就可以创建三个Namespace，不同的Namespace之间是互不干涉的。
++ Group可以把不同的微服务划分到同一个分组里面，一个组中的微服务之间是竞争关系。
++ Service就是微服务。一个Service可以包含多个Cluster（集群）。
++ Cluster是对指定微服务的一个虚拟划分。比方说为了容灾，将Service微服务分别部署在了武汉机房和广州机房，这时就可以给杭州机房的Service微服务起一个集群名称WH，给广州机房的Service微服务起一个集群名称GZ，还可以尽量让同一个机房的微服务互相调用，以提升性能。
++ 最后是DataID，用于区分Instance，就是微服务的实例。
+
+#### &emsp;&emsp;配置DataID
+
+指定spring.profile.active和配置文件的DataID来使不同环境下读取不同的配置。
+
+使用默认空间+默认分组+新建dev和test两个DataID。
+
+修改原来的client-dev.yaml的info为dev，然后同样流程新建client-test.yaml并发布：
+
+```yaml
+config: 
+  info: test
+```
+
+通过spring.profile.active属性就能进行多环境下配置文件的读取，将dev改为test，或者启动时虚拟机添加参数`-Dspring.profiles.active=test`。
+
+此时访问<http://localhost:3377/config/info>还会显示test。
+
+#### &emsp;&emsp;配置Group
+
+可以新建两个组，一个测试一个运行。
+
+继续新建配置，DataID设为client-dev-group.yaml，Group为DEV_GROUP，然后配置内容将info写为dev-group，最后发布。同理新建一个DataID为client-test-group.yaml，Group为TEST_GROUP，配置内容info为test-group发布。两个配置文件已经完成。
+
+接着就需要让项目找到这两个配置文件。boostrap.yaml的spring.application.name保持不变，添加spring.cloud.nacos.config.group为DEV_GROUP表示分组，然后修改application.yaml的spring.profiles.active为dev-group或添加参数`-Dspring.profiles.active=dev-group`，表示寻找的文件后缀发生改变。
+
+访问<http://localhost:3377/config/info>显示dev-group，访问成功。
+
+#### &emsp;&emsp;配置Namespace
+
+在Nacos控制台的命名空间中点击，新建命名空间，ID、名、描述都为dev，同理新建一个test命名空间。
+
+此时回到配置管理的配置列表，上面一共出现了public、dev、test三个命名空间。
+
+通过设置spring.cloud.config.namespace可以指定配置文件所在的命名空间，值为命名空间的ID。
+
+&emsp;
+
+## 集群与持久化
+
+### &emsp;部署模式
+
+为了保障容灾能力，需要使用Nacos集群和持久化。结构是请求->网关->Nginx集群->VIP虚拟IP->Nacos集群->数据库集群。
+
+默认Nacos使用自己的嵌入式数据库Derby实现数据的存储。所以，如果启动多个默认配置下的Nacos节点，每一个节点的数据都存储在自己的Derby数据库中，数据存储是存在一致性问题的。为了解决这个问题，Nacos采用了集中式存储的方式来支特集群化部署，目前只支持MySQL的存储。
+
+Nacos支持三种部署模式：
+
++ 单机楼式：用于测试和单机试用。
++ 集群模式：用于生产环境，确保高可用。
++ 多生群模式：用于多数据中心场景。  
+
+### &emsp;持久化配置
+
+可以将默认的Derby数据库切换为MySQL数据库。在安装目录的conf文件夹下找到SQL脚本nacos-mysql.sql，然后新建一个nacos数据库，执行该脚本，然后就新建了12个表。
+
+然后修改conf/application.properties文件，修改MySQL数据源配置：
+
+```properties
+### If use MySQL as datasource:
+spring.datasource.platform=mysql
+
+### Count of DB:
+db.num=1
+
+### Connect URL of DB:
+db.url.0=jdbc:mysql://127.0.0.1:3306/nacos?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+db.user.0=root
+db.password.0=root
+```
+
+在nacos目录下面新建/plugins/mysql目录，并把8+版本的mysql驱动jar包放到这个目录下面即可（Maven中心仓库搜索mysql-connector-java，点击选择Files的jar选项下载最新jar包）。
+
+运行`startup -m standalone`启动。
