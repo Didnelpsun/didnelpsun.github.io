@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "服务注册与配置"
+title: "注册配置"
 date: 2022-05-18 01:35:17 +0800
 categories: notes springcloud alibaba
 tags: SpringCloud Alibaba Nacos 注册 配置
@@ -561,6 +561,70 @@ db.user.0=root
 db.password.0=root
 ```
 
-在nacos目录下面新建/plugins/mysql目录，并把8+版本的mysql驱动jar包放到这个目录下面即可（Maven中心仓库搜索mysql-connector-java，点击选择Files的jar选项下载最新jar包）。
+运行`startup -m standalone`启动，此时发现之前的配置全部没有了，证明切换成功。
 
-运行`startup -m standalone`启动。
+### &emsp;生产配置
+
+我们的生产环境是基于Windows，且需要一个Nginx、三个Nacos、一个MySQL。
+
+#### &emsp;&emsp;配置Nacos集群
+
+由于需要三台Nacos，所以需要一个专门的集群配置。conf文件夹下有一个cluster.conf.example，复制一份为cluster.conf：
+
+```conf
+127.0.0.1:8848
+127.0.0.1:8849
+127.0.0.1:8850
+```
+
+如果是Linux系统则不能是127.0.0.1必须是Linux命令`hostname -I`所识别的IP，如192.168.1.112：
+
+```conf
+192.168.1.112:8848
+192.168.1.112:8849
+192.168.1.112:8850
+```
+
+然后是按端口启动Nacos实例，选一个端口启动就可以了`startup -p 8848`或不指定端口`startup`，会默认启动cluster.conf配置的集群：The server IP list of Nacos is [127.0.0.1:8848, 127.0.0.1:8849, 127.0.0.1:8850]，启动成功显示Nacos started successfully in cluster mode. use external storage。
+
+#### &emsp;&emsp;配置Nginx
+
+在Nginx安装目录下找到conf文件夹的nginx.conf文件，打开进行配置，具体的配置格式之前Nginx部分有具体解释过：
+
+```conf
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+    upstream cluster{
+        server localhost:8848;
+        server localhost:8849;
+        server localhost:8850;
+    }
+    server {
+        listen       85;
+        server_name  localhost;
+        location / {
+            # Nginx首页指向代理集群
+            proxy_pass http://cluster;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+}
+```
+
+在Nginx安装目录下执行`start nginx`启动Nginx。然后通过Nginx访问Nacos：<http://localhost:85/nacos>。
+
+此时Nginx代理的MySQL关于Nacos的配置为空，配置管理，配置列表，新建配置，client-dev.yaml，然后添加配置内容同上，发布。
+
+然后查看MySQL数据库的Nacos库是否有这个数据，`use nacos`，`select * from config_info`，此时就可以查看里面确实多了一行数据，data_id为client.dev.yaml，包含里面的数据。
+
+### &emsp;开发配置
+
+然后要将开发的项目连接到这个集群上用于读取配置。选择没有更改的pay9002模块。
+
+在YAML配置文件中将server-addr改为Nginx地址localhost:85重新运行，此时pay9002绑定的就是Nginx代理数据在MySQL的Nacos。
