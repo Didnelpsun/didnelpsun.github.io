@@ -555,6 +555,8 @@ db.password.0=root
 
 运行`startup -m standalone`启动，此时发现之前的配置全部没有了，证明切换成功。
 
+如果报错Caused by: java.lang.IllegalStateException: No DataSource set，需要检查数据库是否正确，包括账号密码、数据库是否存在、是否导入SQL数据表、是否在配置文件的连接字符串中添加了&serverTimezone=UTC（可能不灵敏，需要重复去掉添加多次尝试）。
+
 ### &emsp;生产配置
 
 我们的生产环境是基于Windows，且需要一个Nginx、三个Nacos、一个MySQL。
