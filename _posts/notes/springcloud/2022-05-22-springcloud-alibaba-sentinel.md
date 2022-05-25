@@ -175,7 +175,7 @@ public class Sentinel9002Application {
 
 &emsp;
 
-## 流控
+## 一般流控
 
 即可以对流量控制指定规则。有两种路径，第一种是在簇点链路对应资源名列表上点击流控进行添加，第二种在流控规则点击新增流控规则进行添加。
 
@@ -339,21 +339,21 @@ Warm up方式，即预热/冷启动方式。当系统长期处于低水位的情
 
 &emsp;
 
-## 降级
+## 特殊流控
 
-包括熔断和降级两个功能。
+### &emsp;降级规则
 
 Sentinel熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高），对这个资源的调用进行限制，让请求快速失败，避免影响到其它的资源而导致级联错误。
 
 当资源被降级后，在接下来的降级时间窗口之内，对该资源的调用都自动熔断（默认行为是抛出DegradeException），有打开状态、关闭状态、半开状态。
 
-### &emsp;RT
+#### &emsp;&emsp;RT
 
 RT（平均响应时间，秒级），平均响应时间超出阈值且在时间窗口内通过的请求>=5，两个条件同时满足后触发降级，窗口期过后关闭断路器。RT最大为4900（更大的需要通过-Dcsp.sentinel.statistic.max.rt=XXXX才能生效）
 
 设置RT为200，即0.2秒内完成响应，时间窗口为1，即没有完成响应就抛出异常并熔断1秒不接收任何请求。可以通过`TimeUnit.MILLISECONDS.sleep(5000)`来控制完成响应时间。
 
-### &emsp;异常比例
+#### &emsp;&emsp;异常比例
 
 异常比例（秒级），当QPS>=5且每秒异常比例超过阀值时，触发降级。时间窗口结束后，关闭降级。
 
@@ -361,15 +361,13 @@ RT（平均响应时间，秒级），平均响应时间超出阈值且在时间
 
 可以通过`int i = 10/0;`来抛出异常，此时每个请求都会抛出异常，通过Jmeter并发测试后Sentinel会阻塞。如果停掉Jmeter，此时再访问一次则直接抛出异常显示百页，因为虽然这个异常是低于80%的错误率，但是不满足一秒五次请求以上，所以Sentinel不阻塞进行保护，而是直接抛出异常。
 
-### &emsp;异常数
+#### &emsp;&emsp;异常数
 
 异常数（分钟级），当每分钟计算异常数分钟统计超过阈值时，触发降级；时间窗口结束后，关闭降级。
 
 注意由于统计时间窗口是分钟级别的，若时间窗小于60s，则结束熔断状态后仍可能再进入熔断状态，所以时间窗最好大于60s。
 
-&emsp;
-
-## 热点
+### &emsp;热点规则
 
 何为热点？热点即经常访问的数据。狠多时候我们希望统计某个热点数据中访问频次最高的TopKey数据，并对其访问进行限制。
 
@@ -379,7 +377,7 @@ RT（平均响应时间，秒级），平均响应时间超出阈值且在时间
 
 源码在com.alibaba.csp.sentinel.slots.block.BlockException。
 
-### &emsp;热点代码
+#### &emsp;&emsp;热点代码
 
 只需要添加对应的方法，以及使用@SentinelResource指定熔断处理方法。
 
@@ -401,7 +399,7 @@ public String dealHotkey(String key, BlockException exception){
 
 重新允许。访问<http://localhost:9002/hotkey/key>可以得到hotkey。
 
-### &emsp;热点配置
+#### &emsp;&emsp;热点配置
 
 热点规则只支持QPS模式。点击Sentinel控制台的热点规则，新增一条。
 
@@ -411,10 +409,399 @@ public String dealHotkey(String key, BlockException exception){
 
 如果没有blockHandler指定热点处理方法，则会报错白页。
 
-### &emsp;相关参数
+#### &emsp;&emsp;相关参数
 
-即高级配置中的参数例外项。
+即高级配置中的参数例外项，对热点限流进行更精细化的操作，如当参数为特殊值时限流值发生变化。
+
+如下面的参数类型，表示这个hotkey的参数类型是哪个，支持基本类型加上String类型，参数值表示参数为多少时触发这个更新规则，限流阈值表示如果参数为指定值后阈值更新为多少。如单机阈值为1，统计窗口时长为1，参数类型为java.lang.String，参数值为5，限流阈值为5，表示一般的hotkey阈值为1，如果超过阈值1就熔断1秒，如果hotkey值为String类型的5，则阈值更新为5，一秒允许访问5次。
+
+注意如果出现异常，则会报错RuntimeException，这个是java运行时报出的运行时异RunTimeException，则@SentinelResource不管。那么这种异常如何处理呢？
+
+### &emsp;系统规则
+
+表示系统自适应限流，之前的都是通过对方法进行限流，而Sentinel系统自适应跟流从整体维度对应用入口流量进行控制，结合应用的Load、CPU使用率、总体平均RT、入口QPS和并发炷程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流呆和系统的负载达到一个平衡，让系统尽可能跑在最大吞吐是的同时保证系统整体的稳定性。
+
+具有五种模式：
+
++ Load自适应（仅对Linux/Unix机器生效）：系统的load作为启发指标，进行自适应系统保护。当系统load超过设定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR阶段）。系统容量由系统的maxQPS×minRt估算得出。设定参考值一般是CPU cores×2.5。
++ CPU usage（1.5.0+版本）：当系统CPU使用率超过阈值即触发系统保护（取值范围0.0-1.0），比较灵敏。
++ 平均RT：当单台机器上所有入口流呈的平均RT达到阈值即触发系统保护，单位是毫秒。
++ 并发线程数：当单台机器上所有入口流量的并发线程数达到阈值即触发系统保护。
++ 入口QPS：当单台机器上所有入口流是的QPS达到阈值即触发系统保护。
+
+### &emsp;@SentinelResource
+
+之前已经初步使用过了，但是在流控规则配置的链路模式只起到命名资源的功能，在热点规则配置的流控处理方法中起到指定方法的功能，那么这个注解作为@HystrixCommand的替换指示Sentinel资源的定义，是定义在方法上的注解，定义控制资源以及如何配置控制策略。
+
+#### &emsp;&emsp;相关属性
+
++ value：Sentinel资源的名称。我们在Sentinel控制台的流控规则中，不仅可以通过url进行限流（如/text/{text}），也可以把此值（如service）作为资源名配置，一样可以限流。
++ entryType：条目类型（入站或出站），默认为出站（EntryType.OUT）。
++ resourceType：资源的分类（类型）。0-通用、1-WEB、2-RPC、3-GATEWAY、4-SQL，在ResourceTypeConstants类里有定义。
++ blockHandler：块异常函数的名称，默认为空，此时处理就会用Sentinel自带的默认处理函数。
++ blockHandlerClass：指定块处理方法所在的类。默认情况下，blockHandler与原始方法位于同一类中。但是，如果某些方法共享相同的签名并打算设置相同的块处理程序，则用户可以设置存在块处理程序的类。请注意，块处理程序方法必须是静态的。
++ fallback：后备函数的名称，默认为空。
++ defaultFallback：默认后备方法的名称，默认为空。defaultFallback用作默认的通用后备方法。它不应接受任何参数，并且返回类型应与原始方法兼容。
++ fallbackClass：fallback方法所在的类（仅单个类）默认情况下，fallback与原始方法位于同一类中。但是，如果某些方法共享相同的签名并打算设置相同的后备，则用户可以设置存在后备功能的类。请注意，共享的后备方法必须是静态的。
++ exceptionsToTrace：异常类的列表追查，默认Throwable。
++ exceptionsToIgnore：要忽略的异常类列表，默认情况下为空。
+
+#### &emsp;&emsp;自定义流控处理
+
+可以利用blockHandler、blockHandlerClass属性将流控处理方法单独作为一个类，降低耦合度。
+
+使用的要求：
+
++ 作用域：public。
++ 参数：要和原方法一致的基础上，在最后面加上一个类型为BlockException的参数。
++ 返回类型：要和原方法一致。
++ 是否静态：若使用了blockHandlerClass指定其他类中的方法，那么这个方法必须是static的，否则无法解析。
+
+首先新建一个处理类handler.SentinelHandler：
+
+```java
+// SentinelHandler.java
+package org.didnelpsun.handler;
+
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+
+public class SentinelHandler {
+    public static String defaultHandler(String text, BlockException exception){
+        exception.printStackTrace();
+        return "default-" + text;
+    }
+
+    public static String hotkeyHandler(String text, BlockException exception){
+        exception.printStackTrace();
+        return "hotkey-" + text;
+    }
+}
+```
+
+配置处理方法：
+
+```java
+// SentinelController.java
+package org.didnelpsun.controller;
+
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import org.didnelpsun.handler.SentinelHandler;
+import org.didnelpsun.service.SentinelService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+public class SentinelController {
+    @Resource
+    private SentinelService service;
+
+    @GetMapping("/text/{text}")
+    @SentinelResource(value = "text", blockHandlerClass = SentinelHandler.class, blockHandler = "defaultHandler")
+    public String getText(@PathVariable String text) {
+        return service.service() + "-text-" + text;
+    }
+
+    // 加工输入的字符
+    @GetMapping("/test/{text}")
+    @SentinelResource(value = "test", blockHandlerClass = SentinelHandler.class, blockHandler = "defaultHandler")
+    public String testText(@PathVariable String text) {
+        return service.service() + "-test-" + text;
+    }
+
+    // 测试热点Key
+    @GetMapping("/hotkey/{key}")
+    @SentinelResource(value = "hotkey", blockHandlerClass = SentinelHandler.class, blockHandler = "hotkeyHandler")
+    public String getHotkey(@PathVariable String key){
+        return key;
+    }
+}
+```
 
 &emsp;
 
-## 系统
+## 熔断
+
+使用Sentinel整合Ribbon、OpenFeign、@SentinelResource的fallback属性来完成熔断规则。
+
+### &emsp;Ribbon
+
+#### &emsp;&emsp;支付模块
+
+复制pay8001模块为pay9003模块。
+
+修改XML配置：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud</artifactId>
+        <groupId>org.didnelpsun</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>pay9003</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.didnelpsun</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+配置YAML：
+
+```yaml
+server:
+  port: 9003
+
+spring:
+  application:
+    name: pay
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/data
+    username: root
+    password: root
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        # 配置Sentinel Dashboard前端控制台地址
+        dashboard: localhost:8080
+        # 监控服务端口，默认为8719，如果占用就依次加一扫描
+        port: 8719
+      web-context-unify: false
+
+mybatis:
+  # 定义实体类所在的包
+  type-aliases-package: org.didnelpsun.entity
+  mapper-locations: classpath:mapper/*.xml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+
+#### &emsp;&emsp;订单模块
+
+首先我们要搭建基本环境，即要使用到之前的Ribbon负载均衡代码order81模块为order92。
+
+由于不使用Eureka了，所以添加Nacos依赖、Sentinel依赖：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud</artifactId>
+        <groupId>org.didnelpsun</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>order92</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.didnelpsun</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-netflix-ribbon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.ribbon</groupId>
+            <artifactId>ribbon-loadbalancer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+绑定Nacos和Sentinel：
+
+```yaml
+server:
+  # 客户端默认会访问80的端口
+  port: 92
+
+spring:
+  application:
+    name: order
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        # 配置Sentinel Dashboard前端控制台地址
+        dashboard: localhost:8080
+        # 监控服务端口，默认为8719，如果占用就依次加一扫描
+        port: 8719
+      web-context-unify: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+修改控制层：
+
+```java
+// OrderController.java
+package org.didnelpsun.controller;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.didnelpsun.entity.Pay;
+import org.didnelpsun.entity.Result;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.List;
+
+@RestController
+@RequestMapping("/order")
+@Data
+@Slf4j
+public class OrderController {
+    private String baseUrl;
+    @Resource
+    private RestTemplate restTemplate;
+    @Resource
+    private DiscoveryClient discoveryClient;
+
+    @PostConstruct
+    public void setBaseUrl() {
+        this.baseUrl = "http://PAY/pay";
+    }
+
+    @GetMapping()
+    public Result<?> selects() {
+        return restTemplate.getForObject(baseUrl, Result.class);
+    }
+
+    @GetMapping("/{id}")
+    public Result<?> select(@PathVariable Long id) {
+        return restTemplate.getForObject(baseUrl + "/" + id, Result.class);
+    }
+
+    @PostMapping()
+    public Result<?> insert(Pay pay) {
+        return restTemplate.postForObject(baseUrl, pay, Result.class);
+    }
+
+    // 最近在使用spring的RestTemplate的时候,调用他的delete方法发现没有返回值
+    // 所以使用exchange来代替,就能得到调用后的返回值
+
+    @PutMapping()
+    public ResponseEntity<Result> update(Pay pay) {
+        return restTemplate.exchange(baseUrl, HttpMethod.PUT, new HttpEntity<>(pay, new HttpHeaders()), Result.class);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Result> delete(@PathVariable Long id) {
+        return restTemplate.exchange(baseUrl + "/" + id, HttpMethod.DELETE, null, Result.class);
+    }
+
+    // 查看已经注入的微服务名称列表
+    @GetMapping("/discovery")
+    public List<String> discoveries() {
+        return discoveryClient.getServices();
+    }
+
+    // 根据微服务名称即ID查找所有微服务实例
+    @GetMapping("/discovery/{id}")
+    public List<ServiceInstance> discovery(@PathVariable String id) {
+        return discoveryClient.getInstances(id);
+    }
+}
+```
+
+重命名主类为Order92Application，其他不变。启动order92。
