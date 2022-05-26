@@ -36,6 +36,8 @@ Sentinel分为两个部分：
 
 #### &emsp;&emsp;XML配置
 
+<span style="color:red">警告：</span>记住不要随便添加依赖sentinel-datasource-nacos，否则会让应用的spring.application.name设置的sentinel失效，让Sentinel控制台显示的应用名变为主类名org.didnelpsun.Sentinel9002Application。
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -51,10 +53,6 @@ Sentinel分为两个部分：
     <artifactId>sentinel9002</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.didnelpsun</groupId>
-            <artifactId>common</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -73,24 +71,16 @@ Sentinel分为两个部分：
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
-        <!--sentinel持久化-->
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-datasource-nacos</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
     </dependencies>
+
 </project>
 ```
 
-由于Sentinel依赖问题，spring-cloud-starter-alibaba-sentinel与sentinel-datasource-nacos必须匹配，否则会报错：java.lang.NoClassDefFoundError: com/alibaba/csp/sentinel/util/SpiLoader。
+由于Sentinel依赖问题，必须匹配，否则会报错：java.lang.NoClassDefFoundError: com/alibaba/csp/sentinel/util/SpiLoader。
 
 #### &emsp;&emsp;YAML配置
 
@@ -527,13 +517,11 @@ public class SentinelController {
 
 使用Sentinel整合Ribbon、OpenFeign、@SentinelResource的fallback属性来完成熔断规则。
 
-### &emsp;Ribbon
-
-#### &emsp;&emsp;支付模块
+### &emsp;支付模块
 
 复制pay8001模块为pay9003模块。
 
-修改XML配置：
+修改XML配置，由于Alibaba Sentinel更新不及时，导致此时的spring-boot-starter、spring-boot-starter-web都必须是2021年的才能兼容，必须使用对应版本依赖并剔除最新依赖，否则会报错或者不报错但是不能查询出来无响应：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -550,9 +538,16 @@ public class SentinelController {
     <artifactId>pay9003</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>org.didnelpsun</groupId>
             <artifactId>common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -565,8 +560,27 @@ public class SentinelController {
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-jbdc</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <version>2.4.13</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -590,7 +604,6 @@ public class SentinelController {
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
     </dependencies>
-
 </project>
 ```
 
@@ -598,17 +611,12 @@ public class SentinelController {
 
 ```yaml
 server:
+  # 客户端默认会访问80的端口
   port: 9003
 
 spring:
   application:
     name: pay
-  datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/data
-    username: root
-    password: root
   cloud:
     nacos:
       discovery:
@@ -620,6 +628,12 @@ spring:
         # 监控服务端口，默认为8719，如果占用就依次加一扫描
         port: 8719
       web-context-unify: false
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/data
+    username: root
+    password: root
 
 mybatis:
   # 定义实体类所在的包
@@ -633,12 +647,19 @@ management:
         include: "*"
 ```
 
+主类重命名为Pay9003Application，启动。
 
-#### &emsp;&emsp;订单模块
+同理复制pay9003模块为pay9004模块，修改并启动。
+
+支付模块只需要将原来的注册中心Eureka改成Nacos即可，代码基本上不用变。
+
+### &emsp;Ribbon
+
+#### &emsp;&emsp;流控处理
 
 首先我们要搭建基本环境，即要使用到之前的Ribbon负载均衡代码order81模块为order92。
 
-由于不使用Eureka了，所以添加Nacos依赖、Sentinel依赖：
+由于不使用Eureka了，所以添加Nacos依赖、Sentinel依赖，注意SpringBoot、SpringCloudAlibaba和LoadBalancer的依赖关系，否则会报错：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -658,14 +679,16 @@ management:
         <dependency>
             <groupId>org.didnelpsun</groupId>
             <artifactId>common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-netflix-ribbon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.ribbon</groupId>
-            <artifactId>ribbon-loadbalancer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -689,8 +712,12 @@ management:
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-loadbalancer</artifactId>
+            <version>3.0.5</version>
+        </dependency>
     </dependencies>
-
 </project>
 ```
 
@@ -723,16 +750,68 @@ management:
         include: "*"
 ```
 
-修改控制层：
+新建一个默认流控处理器handler.DefaultHandler，用于对订单模块进行Sentinel流量控制：
+
+```java
+// DefaultHandler.java
+package org.didnelpsun.handler;
+
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import org.didnelpsun.entity.Pay;
+import org.didnelpsun.entity.Result;
+import org.didnelpsun.util.Code;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DefaultHandler {
+    // 静态流控结果
+    public static String message = "Access restrictions, input: ";
+    public static Code code = Code.FORBIDDEN;
+
+    public static Result<List<Pay>> selectsHandler(BlockException exception) {
+        exception.printStackTrace();
+        return new Result<>(code, message + "null", new ArrayList<>());
+    }
+
+    public static Result<Pay> selectHandler(Long id, BlockException exception) {
+        exception.printStackTrace();
+        return new Result<>(code, message + id, new Pay());
+
+    }
+    public static Result<Integer> insertHandler(Pay pay, BlockException exception) {
+        exception.printStackTrace();
+        return new Result<>(code, message + pay, 0);
+    }
+
+    public static ResponseEntity<Result<Integer>> updateHandler(Pay pay, BlockException exception) {
+        exception.printStackTrace();
+        Result<Integer> result = new Result<>(code, message + pay, 0);
+        return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+    }
+
+    public static ResponseEntity<Result<Integer>> deleteHandler(Long id, BlockException exception) {
+        exception.printStackTrace();
+        Result<Integer> result = new Result<>(code, message + id, 0);
+        return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+    }
+}
+```
+
+修改控制层，添加Sentinel资源名与流控处理方法：
 
 ```java
 // OrderController.java
 package org.didnelpsun.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.didnelpsun.entity.Pay;
 import org.didnelpsun.entity.Result;
+import org.didnelpsun.handler.DefaultHandler;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpEntity;
@@ -759,33 +838,35 @@ public class OrderController {
 
     @PostConstruct
     public void setBaseUrl() {
-        this.baseUrl = "http://PAY/pay";
+        this.baseUrl = "http://pay/pay";
     }
 
     @GetMapping()
+    @SentinelResource(value="selects", blockHandlerClass = DefaultHandler.class, blockHandler = "selectsHandler")
     public Result<?> selects() {
         return restTemplate.getForObject(baseUrl, Result.class);
     }
 
     @GetMapping("/{id}")
+    @SentinelResource(value="select", blockHandlerClass = DefaultHandler.class, blockHandler = "selectHandler")
     public Result<?> select(@PathVariable Long id) {
         return restTemplate.getForObject(baseUrl + "/" + id, Result.class);
     }
 
     @PostMapping()
+    @SentinelResource(value="insert", blockHandlerClass = DefaultHandler.class, blockHandler = "insertHandler")
     public Result<?> insert(Pay pay) {
         return restTemplate.postForObject(baseUrl, pay, Result.class);
     }
 
-    // 最近在使用spring的RestTemplate的时候,调用他的delete方法发现没有返回值
-    // 所以使用exchange来代替,就能得到调用后的返回值
-
     @PutMapping()
+    @SentinelResource(value="update", blockHandlerClass = DefaultHandler.class, blockHandler = "updateHandler")
     public ResponseEntity<Result> update(Pay pay) {
         return restTemplate.exchange(baseUrl, HttpMethod.PUT, new HttpEntity<>(pay, new HttpHeaders()), Result.class);
     }
 
     @DeleteMapping("/{id}")
+    @SentinelResource(value="delete", blockHandlerClass = DefaultHandler.class, blockHandler = "deleteHandler")
     public ResponseEntity<Result> delete(@PathVariable Long id) {
         return restTemplate.exchange(baseUrl + "/" + id, HttpMethod.DELETE, null, Result.class);
     }
@@ -804,4 +885,371 @@ public class OrderController {
 }
 ```
 
-重命名主类为Order92Application，其他不变。启动order92。
+重命名主类为Order92Application，其他不变。启动order92。访问<http://localhost:92/order/1>发现端口会变化9003和9004交替，表示开启负载均衡。
+
+可以对order92添加关于select的流控规则，多次点击<http://localhost:92/order/1>后会返回{"code":"FORBIDDEN","message":"Access restrictions, input: 1","data":{"id":0,"serial":null}}提示，表示自定义流控成功。
+
+#### &emsp;&emsp;异常处理
+
+之前的@SentinelResource的blockHandler属性用于处理Sentinel控制台规则异常，如果是程序本身的异常是无法处理的，在浏览器上就显示白页，比较难看，可以使用fallback属性用来异常处理。
+
+记住fallback的要求跟blockHandler的要求类似：
+
++ 作用域：public。
++ 参数：要和原方法一致的基础上，在最后面加上一个类型为Throwable的参数。
++ 返回类型：要和原方法一致。
++ 是否静态：若使用了fallbackClass指定其他类中的方法，那么这个方法必须是static的，否则无法解析。
+
+新建fallback.DefaultFallback类：
+
+```java
+package org.didnelpsun.fallback;
+
+import org.didnelpsun.entity.Pay;
+import org.didnelpsun.entity.Result;
+import org.didnelpsun.util.Code;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DefaultFallback {
+    // 静态异常结果
+    public static String message = "Parameter exception, input: ";
+    public static Code code = Code.BAD_REQUEST;
+
+    public static Result<List<Pay>> selectsFallback(Throwable exception) {
+        exception.printStackTrace();
+        return new Result<>(code, message + "null", new ArrayList<>());
+    }
+
+    public static Result<Pay> selectFallback(Long id, Throwable exception) {
+        exception.printStackTrace();
+        return new Result<>(code, message + id, new Pay());
+
+    }
+
+    public static Result<Integer> insertFallback(Pay pay, Throwable exception) {
+        exception.printStackTrace();
+        return new Result<>(code, message + pay, 0);
+    }
+
+    public static ResponseEntity<Result<Integer>> updateFallback(Pay pay, Throwable exception) {
+        exception.printStackTrace();
+        return new ResponseEntity<>(new Result<>(code, message + pay, 0), HttpStatus.BAD_REQUEST);
+    }
+
+    public static ResponseEntity<Result<Integer>> deleteFallback(Long id, Throwable exception) {
+        exception.printStackTrace();
+        return new ResponseEntity<>(new Result<>(code, message + id, 0), HttpStatus.BAD_REQUEST);
+    }
+}
+```
+
+修改控制层并根据参数抛出异常：
+
+```java
+// OrderController.java
+package org.didnelpsun.controller;
+
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.didnelpsun.entity.Pay;
+import org.didnelpsun.entity.Result;
+import org.didnelpsun.fallback.DefaultFallback;
+import org.didnelpsun.handler.DefaultHandler;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.List;
+
+@RestController
+@RequestMapping("/order")
+@Data
+@Slf4j
+public class OrderController {
+    private String baseUrl;
+    @Resource
+    private RestTemplate restTemplate;
+    @Resource
+    private DiscoveryClient discoveryClient;
+
+    @PostConstruct
+    public void setBaseUrl() {
+        this.baseUrl = "http://pay/pay";
+    }
+
+    @GetMapping()
+    @SentinelResource(value = "selects", blockHandlerClass = DefaultHandler.class, blockHandler = "selectsHandler", fallbackClass = DefaultFallback.class, fallback = "selectsFallback")
+    public Result<?> selects() {
+        return restTemplate.getForObject(baseUrl, Result.class);
+    }
+
+    @GetMapping("/{id}")
+    @SentinelResource(value = "select", blockHandlerClass = DefaultHandler.class, blockHandler = "selectHandler", fallbackClass = DefaultFallback.class, fallback = "selectFallback")
+    public Result<?> select(@PathVariable Long id) {
+        if (id <= 0) throw new IllegalArgumentException("ID must be greater than 0");
+        return restTemplate.getForObject(baseUrl + "/" + id, Result.class);
+    }
+
+    @PostMapping()
+    @SentinelResource(value = "insert", blockHandlerClass = DefaultHandler.class, blockHandler = "insertHandler", fallbackClass = DefaultFallback.class, fallback = "insertFallback")
+    public Result<?> insert(Pay pay) {
+        return restTemplate.postForObject(baseUrl, pay, Result.class);
+    }
+
+    @PutMapping()
+    @SentinelResource(value = "update", blockHandlerClass = DefaultHandler.class, blockHandler = "updateHandler", fallbackClass = DefaultFallback.class, fallback = "updateFallback")
+    public ResponseEntity<Result> update(Pay pay) {
+        return restTemplate.exchange(baseUrl, HttpMethod.PUT, new HttpEntity<>(pay, new HttpHeaders()), Result.class);
+    }
+
+    @DeleteMapping("/{id}")
+    @SentinelResource(value = "delete", blockHandlerClass = DefaultHandler.class, blockHandler = "deleteHandler", fallbackClass = DefaultFallback.class, fallback = "deleteFallback")
+    public ResponseEntity<Result> delete(@PathVariable Long id) {
+        if (id <= 0) throw new IllegalArgumentException("ID must be greater than 0");
+        return restTemplate.exchange(baseUrl + "/" + id, HttpMethod.DELETE, null, Result.class);
+    }
+
+    // 查看已经注入的微服务名称列表
+    @GetMapping("/discovery")
+    public List<String> discoveries() {
+        return discoveryClient.getServices();
+    }
+
+    // 根据微服务名称即ID查找所有微服务实例
+    @GetMapping("/discovery/{id}")
+    public List<ServiceInstance> discovery(@PathVariable String id) {
+        return discoveryClient.getInstances(id);
+    }
+}
+```
+
+访问<http://localhost:92/order/0>，id异常，浏览器显示自定义异常处理{"code":"BAD_REQUEST","message":"Parameter exception, input: 0","data":{"id":0,"serial":null}}，控制台报错java.lang.IllegalArgumentException: ID must be greater than 0。
+
+如果我们不想处理异常，就使用exceptionsToIgnore将该类异常忽略。
+
+### &emsp;OpenFeign
+
+OpenFeign负载均衡时可以使用熔断降级，就需要熔断降级的框架支持，之前使用Hystrix，这里使用Sentinel，耦合度并不高，本质OpenFegin只是调用服务的Sentinel提供的降级方法。
+
+#### &emsp;&emsp;搭建环境
+
+因为之前order85模块为使用了OpenFeign的模块，所以复制order85为order93并去掉Eureka相关配置。
+
+也可以使用OpenFeign来替代Ribbon，需要在XML中引入对应的依赖，并注意不要太新的版本：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud</artifactId>
+        <groupId>org.didnelpsun</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>order93</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.didnelpsun</groupId>
+            <artifactId>common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>2.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>2.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>3.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-loadbalancer</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+修改YAML：
+
+```yaml
+server:
+  # 客户端默认会访问80的端口
+  port: 93
+
+spring:
+  main:
+    # 否则报错：The bean 'PAY.FeignClientSpecification' could not be registered. A bean with that name has already been defined and overriding is disabled.
+    allow-bean-definition-overriding: true
+  application:
+    name: order
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        # 配置Sentinel Dashboard前端控制台地址
+        dashboard: localhost:8080
+        # 监控服务端口，默认为8719，如果占用就依次加一扫描
+        port: 8719
+      web-context-unify: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+feign:
+  # 开启Sentinel支持
+  sentinel:
+    enabled: true
+  client:
+    config:
+      default:
+        readTimeout: 5000
+        connectTimeout: 5000
+
+logging:
+  level:
+    org.didnelpsun.service.IPayService: debug
+```
+
+业务层要修改业务类接口上的微服务名：`@FeignClient("pay")`。此时运行访问没问题。
+
+#### &emsp;&emsp;服务降级
+
+首先修改在common模块的utils的Code类，添加一个服务器不可用的枚举：
+
+```java
+// Code.java
+package org.didnelpsun.util;
+
+// 状态码
+public enum Code {
+    SUCCESS(200),
+    NO_CONTENT(204),
+    BAD_REQUEST(400),
+    UNAUTHORIZED(401),
+    FORBIDDEN(403),
+    NOT_FOUND(404),
+    NO_RESPONSE(444),
+    SERVER_ERROR(500),
+    SERVICE_UNAVAILABLE(503);
+
+    private final int id;
+
+    Code(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+}
+```
+
+需要一个处理服务降级的类，其要集成OpenFeign服务接口impl.PayFallbackService，这样就能保障服务降级处理类和服务类的参数，返回值都是一致的，内容可以将order92模块的服务降级方法内容复制过来：
+
+```java
+// PayFallbackService.java
+package org.didnelpsun.service.impl;
+
+import org.didnelpsun.entity.Pay;
+import org.didnelpsun.entity.Result;
+import org.didnelpsun.service.IPayService;
+import org.didnelpsun.util.Code;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class PayFallbackService implements IPayService {
+    // 静态异常结果
+    public static String message = "Parameter exception, input: ";
+    public static Code code = Code.BAD_REQUEST;
+
+    @Override
+    public Result<Pay> select(Long id) {
+        return new Result<>(code, message + id, new Pay());
+    }
+
+    @Override
+    public Result<List<Pay>> selects() {
+        return new Result<>(code, message + "null", new ArrayList<>());
+    }
+
+    @Override
+    public Result<Integer> insert(Pay pay) {
+        return new Result<>(code, message + pay, 0);
+    }
+
+    @Override
+    public Result<Integer> update(Pay pay) {
+        return new Result<>(code, message + pay, 0);
+    }
+
+    @Override
+    public Result<Integer> delete(Long id) {
+        return new Result<>(code, message + id, 0);
+    }
+}
+```
+
+然后在业务接口的注解上指定服务降级类`@FeignClient(value = "pay", fallback = PayFallbackService.class)`。如果没有服务提供者宕机，等一些异常情况他会寻找value服务的方法，如果出现宕机或者其他异常将会走fallback配置的类里面的方法。
+
+重新启动。访问<http://localhost:93/order/1>正常负载均衡9003和9004交替出现。将pay9003和pay9004全部停止，
