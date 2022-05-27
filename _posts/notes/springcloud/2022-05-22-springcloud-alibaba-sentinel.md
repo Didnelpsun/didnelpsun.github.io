@@ -36,7 +36,7 @@ Sentinel分为两个部分：
 
 #### &emsp;&emsp;XML配置
 
-<span style="color:red">警告：</span>记住不要随便添加依赖sentinel-datasource-nacos，否则会让应用的spring.application.name设置的sentinel失效，让Sentinel控制台显示的应用名变为主类名org.didnelpsun.Sentinel9002Application。
+<span style="color:red">警告：</span>记住不要随便添加持久化依赖sentinel-datasource-nacos，如果添加这个依赖就要配置对应的数据库地址，否则会让应用的spring.application.name设置的sentinel这个名字失效，让Sentinel控制台显示的应用名变为主类名org.didnelpsun.Sentinel9002Application。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -903,6 +903,7 @@ public class OrderController {
 新建fallback.DefaultFallback类：
 
 ```java
+// DefaultFallback.java
 package org.didnelpsun.fallback;
 
 import org.didnelpsun.entity.Pay;
@@ -1210,8 +1211,6 @@ import org.didnelpsun.entity.Pay;
 import org.didnelpsun.entity.Result;
 import org.didnelpsun.service.IPayService;
 import org.didnelpsun.util.Code;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -1220,8 +1219,8 @@ import java.util.List;
 @Service
 public class PayFallbackService implements IPayService {
     // 静态异常结果
-    public static String message = "Parameter exception, input: ";
-    public static Code code = Code.BAD_REQUEST;
+    public static String message = "The server is temporarily unavailable, input: ";
+    public static Code code = Code.SERVICE_UNAVAILABLE;
 
     @Override
     public Result<Pay> select(Long id) {
@@ -1252,4 +1251,123 @@ public class PayFallbackService implements IPayService {
 
 然后在业务接口的注解上指定服务降级类`@FeignClient(value = "pay", fallback = PayFallbackService.class)`。如果没有服务提供者宕机，等一些异常情况他会寻找value服务的方法，如果出现宕机或者其他异常将会走fallback配置的类里面的方法。
 
-重新启动。访问<http://localhost:93/order/1>正常负载均衡9003和9004交替出现。将pay9003和pay9004全部停止，
+重新启动。访问<http://localhost:93/order/1>正常负载均衡9003和9004交替出现。将pay9003和pay9004全部停止，再次访问得到异常的返回{"code":"SERVICE_UNAVAILABLE","message":"The server is temporarily unavailable, input: 0","data":{"id":0,"serial":null}}从而表示可以自动降级。
+
+&emsp;|Sentinel|Hystrix|resilience4j
+:----:|:------:|:-----:|:----------:
+隔离策略|信号量隔离（并发线程数限流）|线程池隔离/信号量隔离|信号量隔离
+熔断降级策略|基于响应时间、异常比率、异常数|基于异常比率|基于异常比率、响应时间
+实时统计实现|滑动窗口（LeapArray）|滑动窗口（基于RxJava）|Ring Bit Buffer
+动态规则配置|支持多种数据源|支持多种数据源|有限支持
+扩展性|多个扩展点|插件的形式|接口的形式
+基于注解|支持|支持|支持
+限流|基于QPS，支持基于调用关系的限流|有限的支持|Rate Limiter
+
+&emsp;
+
+## 持久化
+
+默认所有规则都是只要Sentinel控制台重启就会将所有Sentinel规则全部清空，在之前学习Nacos时可以将Nacos数据存储到MySQL中，所以我们应该如何持久化Sentinel规则？可以将Sentinel的规则保存到Nacos中，由于Nacos的数据之前已经配置过可以保存到MySQL中，所以Sentinel不用自己存到MySQL中，可以代由Nacos存到MySQL中。
+
+由于pay9004模块是pay9003模块的直接复制，所以对pay9004进行修改，让pay9004模块配置的Sentinel流控规则持久化。
+
+### &emsp;配置持久化
+
+需要添加依赖：
+
+```xml
+<dependency>
+    <groupId>com.alibaba.csp</groupId>
+    <artifactId>sentinel-datasource-nacos</artifactId>
+</dependency>
+```
+
+然后配置YAML：
+
+```yaml
+server:
+  # 客户端默认会访问80的端口
+  port: 9004
+
+spring:
+  application:
+    name: pay
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        # 配置Sentinel Dashboard前端控制台地址
+        dashboard: localhost:8080
+        # 监控服务端口，默认为8719，如果占用就依次加一扫描
+        port: 8719
+      web-context-unify: false
+      # 添加持久化保存数据地址
+      datasource:
+        # 数据源名为ds
+        ds:
+          # 数据源类型为Nacos
+          nacos:
+            serverAddr: localhost:8848
+            # 命名空间
+            namespace: public
+            # 保存数据的名称为当前应用名
+            dataId: ${spring.application.name}
+            # 默认组名
+            groupId: DEFAULT_GROUP
+            # 使用JSON格式保存数据
+            dataType: json
+            # 规则为流控规则
+            ruleType: flow
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/data
+    username: root
+    password: root
+
+mybatis:
+  # 定义实体类所在的包
+  type-aliases-package: org.didnelpsun.entity
+  mapper-locations: classpath:mapper/*.xml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+
+### &emsp;添加规则
+
+配置结束后需要到Nacos控制台添加对应规则来保存Sentinel控制台数据。在配置管理的配置列表上点击加号新增配置，DataID就是应用中的spring.application.name，这里是pay（注意没有后面的拓展名），配置格式为JSON，配置内容为（注意JSON格式，冒号后有一个空格）：
+
+```json
+[
+    {
+        "resource": "/pay/{id}",
+        "limitApp": "default",
+        "grade": 1,
+        "count": 1,
+        "strategy" : 0,
+        "controlBehavior" : 0,
+        "clusterMode": false
+    }
+]
+```
+
+其中对应的含义是：
+
++ resource：资源名称，对应Sentinel控制台中簇点链路的资源名，如果没有@SentinelResource就是路径名，如果有就是指定的value属性值。如/pay/{id}。
++ limitApp：来源应用，默认为default。
++ grade：阈值类型，0表示线程数，1表示QPS。
++ count：单机阈值。
++ strategy：流控模式，0表示直接，1表示关联，2表示链路。
++ controlBehavior：流控效果，0表示快速识别，1表示预热，2表示排队等待。
++ clusterMode：是否集群。
+
+这里如果要配Nacos的命名空间的话，应该是配namespace的id，而不是应用名称。
+
+其实就相当于把原来在Sentinel控制台的规则直接写到Nacos中，Nacos作为配置中心，然后应用通过sentinel-datasource-nacos依赖将Nacos配置的内容再读到应用缓存中，最后Sentinel控制台启动后监听应用，并把应用中的数据读到Sentinel中再显示到控制台前端网页上。（所以Sentinel持久化必须要求Nacos持久化）
