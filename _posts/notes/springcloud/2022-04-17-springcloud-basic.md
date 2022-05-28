@@ -336,7 +336,7 @@ public class Result<data> {
 
 ## 支付模块
 
-新建一个订单支付模块。利用Maven创建子模块pay8001。（8001为当前模块端口注意不要使用Spring Initliazr，因为Spring Initliazr会让pay7001继承SpringBoot官方父项目，而项目只能有一个parent，从而我们不能控制pay7001模块的版本号）
+新建一个订单支付模块。利用Maven创建子模块pay8001。（8001为当前模块端口注意不要使用Spring Initliazr，因为Spring Initliazr会让pay8001继承SpringBoot官方父项目，而项目只能有一个parent，从而我们不能控制pay8001模块的版本号）
 
 ### &emsp;支付配置
 
@@ -497,7 +497,7 @@ public interface IPayDao {
         set serial=#{serial}
         where id = #{id}
     </update>
-    <delete id="delete" parameterType="Pay">
+    <delete id="delete" parameterType="Long">
         delete
         from pay
         where id = #{id}
