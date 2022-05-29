@@ -155,7 +155,7 @@ no。
 
 #### &emsp;&emsp;AT模式
 
-Seata所使用的模式就是AT模式，特点就是对业务无入侵式，整体机制分二阶段提交：
+Seata所使用的模式就是[AT模式](http://seata.io/zh-cn/docs/dev/mode/at-mode.html)，特点就是对业务无入侵式，整体机制分二阶段提交：
 
 1. 业务数据和回滚日志记录在同一个本地事务中提交，释放本地锁和连接资源。
 2. 提交异步化，非常快速地完成。回滚通过一阶段的回滚日志进行反向补偿。
@@ -170,13 +170,25 @@ Seata所使用的模式就是AT模式，特点就是对业务无入侵式，整�
 4. TM告知TC提交/回滚全局事务。
 5. TC通知RM各自执行commit/rollback操作，同时清除undo_log。
 
-### &emsp;安装
+&emsp;
 
-在[发布说明](https://github.com/seata/seata/releases)中下载zip压缩包seata-server。这里的seata-server就是TC。
+## 部署
 
-#### &emsp;&emsp;application.yml
+Seata编码简单，只需要在对应业务代码上添加@GlobalTransaction即可，但是对应的配置很麻烦。
 
-下载完成后解压到指定目录，打开conf，复制application.yml为备份文件application.yml.backup，然后再修改为自己的配置内容，包括自定义事务组名称、事务日志存储模式为db、数据库连接信息，参考application.example.yml进行配置，主要是server服务器配置、store数据存储配置、registry注册配置，注意MySQL 8版本以上的启动名中要加上cj：
+[部署文档](https://seata.io/zh-cn/docs/ops/deploy-guide-beginner.html)指出有服务端和客户端两个组成部分，在[发布说明](https://github.com/seata/seata/releases)中下载seata-server，zip压缩包针对Windows系统，tar.gz针对Linux系统，这里的seata-server就是TC，为单独服务端部署，即我们需要下载下来到本地主机运行，TM和RM位于客户端，直接集成到项目系统中，以jar包的形式引用。
+
+我们先下载seata-server，并进行配置。
+
+### &emsp;服务端配置
+
+Server端存储模式（store.mode）支持三种：
+
++ file：默认值，单机模式，全局事务会话信息内存中读写并持久化本地文件bin/sessionStore/root.data，性能较高。
++ db：高可用模式，全局事务会话信息通过数据库共享，相应性能差些。
++ redis：Seata-Server 1.3及以上版本支持，性能较高，存在事务信息丢失风险，请提前配置适合当前场景的Redis持久化配置。
+
+下载完成后解压到指定目录，打开conf，复制application.yml为备份文件application.yml.backup，然后再修改application.yml内容为自己的配置内容，包括自定义事务组名称、事务日志存储模式为db、数据库连接信息，参考application.example.yml进行配置，主要是server服务器配置、store数据存储配置、registry注册配置，注意MySQL 8版本以上的启动名中要加上cj：
 
 ```yaml
 # Seata端口
