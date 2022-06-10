@@ -11,9 +11,117 @@ Java
 
 ## 设计模式
 
+设计原则：
+
++ 单一职责原则：一个类只负责一个功能。
++ 里氏替代原则：子类能拓展父类，但是不能修改父类。
++ 依赖倒置原则：面向接口编程，而不是面向具体业务逻辑。
++ 接口隔离原则：细化接口功能，彼此功能要隔离，每个接口中的功能要少。
++ 最少知道原则：（提米特法则）该对象对其他对象应该保持最少的了解。
++ 开闭原则：只支持扩展，对扩展要开放，对修改要关闭。
+
+设计模式分类：
+
++ 创建型模式：简单工厂模式、工厂方法模式。
++ 结构型模式。
++ 行为型模式。
+
+### 简单工厂模式
+
+也称为静态工厂模式。生产实例的工厂方法为静态方法，根据传入参数不同进行判断生成实例的类型。
+
+```java
+// 实例父类接口
+public interface User{
+  void print();
+}
+
+// 实现接口子类
+public class Didnelpsun implements User{
+  @Override
+  public void print(){
+    System.out.println("Didnelpsun");
+  }
+}
+
+// 实现接口子类
+public class Alice implements User{
+  @Override
+  public void print(){
+    System.out.println("Alice");
+  }
+}
+
+// 静态工厂类
+public class UserFactory{
+  public static User createUser(String type){
+    if("Didnelpsun".equals(type))
+      return new Didnelpsun();
+    else if("Alice".euqals(type))
+      return new Alice();
+    else
+      return null;
+  }
+}
+```
+
+### 工厂方法模式
+
+为了避免简单工厂模式的缺点，不完全满足OCP。工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目）工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目或者一个独立模块而言）工厂类，而工厂方法模式有一组实现了相同接口的工厂类。
+
+&emsp;|简单工厂模式|工厂方法模式
+:----:|:----------:|:----------:
+判断对象类型方式|方法内包含判断逻辑|调用者判断实例化工厂类型
+增加新类方式|修改工厂类|添加新类继承工厂类
+成员方法类型|静态方法|抽象方法
+
+```java
+// 实例父类接口
+public interface User{
+  void print();
+}
+
+// 实现接口子类
+public class Didnelpsun implements User{
+  @Override
+  public void print(){
+    System.out.println("Didnelpsun");
+  }
+}
+
+// 实现接口子类
+public class Alice implements User{
+  @Override
+  public void print(){
+    System.out.println("Alice");
+  }
+}
+
+// 工厂方法接口
+public interface UserFactory{
+  User createUser();
+}
+
+// 工厂方法
+public class DidnelpsunFactory{
+  @Override
+  public User createUser(){
+    return new Didnelpsun();
+  }
+}
+
+// 工厂方法
+public class AliceFactory{
+  @Override
+  public User createUser(){
+    return new Alice();
+  }
+}
+```
+
 ### 单例模式
 
-一个类只有一个实例。
+一个类只有一个实例，且需要一个全局访问方法。
 
 使用单例模式的类：Runtime类（饿汉式）、Console类（双检锁懒汉式）、Collection类（内部类懒汉式）、Comparators类（枚举类）。
 
