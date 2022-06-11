@@ -155,6 +155,44 @@ public class AliceFactory{
 
 内部类本质是一个懒汉式，只需要获取实例时调用内部类。
 
+### 代理模式
+
+用来增强目标对象的方法，帮助处理其非核心业务的其他功能。
+
+实现方式：
+
++ 静态代理：直接新建代理类添加代理方法。
++ JDK代理：通过接口的proxy.newInstance返回代理对象。目标对象必须实现相关接口。
++ Cglib代理：通过继承子类的关系实现代理，不需要实现接口。
+
+### 模板模式
+
+发父类中定义模板模式接口，在子类中实现。
+
+如JdbcTemplate类的refresh方法中定义了初始化过程。
+
+### 观察者模式
+
+也称为监听器模式。本质是对象的一对多依赖关系。
+
+如Spring、SpringBoot的监听器的设计。
+
+### 装饰器模式
+
+动态增强目标对象的方法，不改变其结构。
+
+比如MyBatis的缓存模块。
+
+### 策略模式
+
+将相关方法放在一个类中的模式。核心为一系列的算法。
+
+### 适配器模式
+
+让接口不匹配的不同实例能共同使用。
+
+MyBatis中的日志框架。
+
 ## HashMap
 
 1.8之前使用数组＋链表实现，1.8之后使用数组+链表/红黑树实现。
@@ -594,7 +632,7 @@ Myisam存储引擎：是MySQL官方提供的存储引擎，主要面向OLAP（On
 
 MyBatis
 
-Mybait的优点：
+## Mybait的优点
 
 1. 简单易学，容易上手（相比于Hibernate）基于SQL编程。
 2. JDBC相比，减少了50%以上的代码量，消除了JDBC大量冗余的代码，不需要手动开关连接。
@@ -606,7 +644,7 @@ Mybait的优点：
 8. 提供映射标签，支持对象与数据库的ORM字段关系映射。
 9. 提供对象关系映射标签，支持对象关系组建维护。
 
-MyBatis框架的缺点
+## MyBatis框架的缺点
 
 1. SQL语句的编写工作量较大，尤其是字段多、关联表多时，更是如此，对开发人员编写SQL语句的功底有一定要求。
 2. SQL语句依赖于数据库，导致数据库移植性差，不能随意更换数据库。
@@ -614,7 +652,15 @@ MyBatis框架的缺点
 + #\{\}是预编译处理，\$\{\}是字符串替换。
 + Mybatis在处理#\{\}时，会将SQL中的#\{\}替换为?号，调用PreparedStatement的set方法来赋值。
 + Mybatis在处理\$\{\}时，就是把\$\{\}替换成变量的值。
-+ 使用#0可以有效的防止SQL注入，提高系统安全性
++ 使用#\{\}可以有效的防止SQL注入，提高系统安全性
+
+## MyBatis设计模式
+
++ 代理模式：Mapper接口、Connection Statement代理对象、拦截器。
++ 装饰器模式：缓存、Executor。
++ 适配器：日志。
++ 工厂模式：SqlSesssionFactory。
++ 建造者模式：SqlSessionFactoryBuilder。
 
 Spring
 
@@ -687,13 +733,14 @@ REQUIRED情况下，调用方存在事务时，则被调用方和调用方使用
 ## Spring设计模式
 
 1. 工厂模式，在各种BeanFactory以及ApplicationContext创建中都用到。
-2. 模版模式，在各种BeanFactory以及ApplicationContext实现中也都用到。
-3. 代理模式，Spring AOP利用了AspectJ AOP实现的AspectJ AOP的底层用了动态代理。
-4. 策略模式，加载资源文件的方式，使用了不同的方法，比如ClassPathResourece、FileSystemResource、ServletContextResource、UrlResource但他们都有共同的接口Resource。在AOP的实现中，采用了两种不同的方式，JDK动态代理和CGLIB代理。
-5. 单例模式，比如在创建bean的时候。
-6. 观察者模式,spring中的ApplicationEvent、ApplicationListener、ApplicationEventPublisher。
-7. 适配器模式，MethodBeforeAdviceAdapter、ThrowsAdviceAdapter、AfterReturningAdapter。
-8. 装饰者模式，源码中类型带Wrapper或者Decorator的都是。
+2. 单例模式，Bean单例模式。
+3. 模版模式，RestTemplate。
+4. 代理模式，Spring AOP利用了AspectJ AOP实现的AspectJ AOP的底层用了动态代理。
+5. 策略模式，加载资源文件的方式，使用了不同的方法，比如ClassPathResourece、FileSystemResource、ServletContextResource、UrlResource但他们都有共同的接口Resource。在AOP的实现中，采用了两种不同的方式，JDK动态代理和CGLIB代理。
+6. 单例模式，比如在创建bean的时候。
+7. 观察者模式,spring中的ApplicationEvent、ApplicationListener、ApplicationEventPublisher。
+8. 适配器模式，MethodBeforeAdviceAdapter、ThrowsAdviceAdapter、AfterReturningAdapter。
+9. 装饰者模式，源码中类型带Wrapper或者Decorator的都是。
 
 ## Spring事务原理
 
