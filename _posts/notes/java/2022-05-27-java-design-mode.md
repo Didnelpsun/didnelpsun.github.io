@@ -18,9 +18,9 @@ excerpt: "设计模式"
 
 设计模式分类：
 
-+ 创建型模式：简单工厂模式、工厂方法模式。
-+ 结构型模式。
-+ 行为型模式。
++ 创建型模式：简单工厂模式、工厂方法模式、抽象工厂模式、建造者模式、单例模式、原型模式。
++ 结构型模式：适配器模式、装饰器模式、代理模式、外观模式、桥接模式、组合模式、享元模式。
++ 行为型模式：策略模式、模板方法模式、观察者模式、迭代子模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式、解释器模式。
 
 ### 工厂模式
 
@@ -78,51 +78,52 @@ public class SimpleFactory {
 }
 ```
 
+依赖一个父类实现而不是具体的子类，实现了对象的创建和对象的使用分离，将对象的创建交给专门的工厂类负责。它可以根据传入的类型去判断该创建哪个类的的对象。不用直接创建具体类了，也不用管它们是怎么实现的。明确了各自的职责和权利，有利于整个软件体系结构的优化。
+
+但是扩展性差，违反了开闭原则（因为所有的判断都写在工厂类里，每增加一种产品，都要修改工厂类代码）。
+
 ### 工厂方法模式
 
-为了避免简单工厂模式的缺点，不完全满足OCP。工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目）工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目或者一个独立模块而言）工厂类，而工厂方法模式有一组实现了相同接口的工厂类。
+为了避免简单工厂模式的缺点，工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目）工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目或者一个独立模块而言）工厂类，而工厂方法模式有一组实现了相同接口的工厂类。
+
++ 产品接口（Factory）：定义了产品的共用资源例如方法，提供给子类继承使用，强制子类实现。
++ 产品类（AnimalFactory、BallFactory）：继承产品接口，实现接口的方法，也可以覆盖接口的方法，从而产生各种各类的产品。
++ 工厂接口（FactoryBuilder）：定义了创建产品的方法，具体创建者必须继承该类，实现工厂方法。
++ 工厂实现类（MethodAnimalFactory、MethodBallFactory）：继承工厂接口，实现工厂方法，负责创建产品对象。
 
 ```java
-// 实例父类接口
-public interface User{
-  void print();
-}
+// FactoryBuilder.java
+package org.didnelpsun.factory;
 
-// 实现接口子类
-public class Didnelpsun implements User{
-  @Override
-  public void print(){
-    System.out.println("Didnelpsun");
-  }
+// 构造工厂接口
+public interface FactoryBuilder {
+    Factory createFactory();
 }
+```
 
-// 实现接口子类
-public class Alice implements User{
-  @Override
-  public void print(){
-    System.out.println("Alice");
-  }
+```java
+// MethodAnimalFactory.java
+package org.didnelpsun.factory;
+
+// 工厂方法模式
+public class MethodAnimalFactory implements FactoryBuilder {
+    @Override
+    public Factory createFactory() {
+        return new AnimalFactory();
+    }
 }
+```
 
-// 工厂方法接口
-public interface UserFactory{
-  User createUser();
-}
+```java
+// MethodBallFactory.java
+package org.didnelpsun.factory;
 
-// 工厂方法
-public class DidnelpsunFactory{
-  @Override
-  public User createUser(){
-    return new Didnelpsun();
-  }
-}
-
-// 工厂方法
-public class AliceFactory{
-  @Override
-  public User createUser(){
-    return new Alice();
-  }
+// 工厂方法模式
+public class MethodBallFactory implements FactoryBuilder {
+    @Override
+    public Factory createFactory() {
+        return new BallFactory();
+    }
 }
 ```
 
@@ -131,6 +132,49 @@ public class AliceFactory{
 判断对象类型方式|方法内包含判断逻辑|调用者判断实例化工厂类型
 增加新类方式|修改工厂类|添加新类继承工厂类
 成员方法类型|静态方法|抽象方法
+
++ 具有很强的的扩展性、弹性和可维护性。扩展时只要添加一个工厂类继承工厂接口，而无须修改原有的工厂代码，因此维护性也好。解决了简单工厂对修改开放的问题。
++ 使用了依赖倒置原则，依赖抽象而不是具体，使用（客户）和实现（具体类）松耦合。
++ 客户只需要知道所需产品的具体工厂，而无须知道具体工厂的创建产品的过程，甚至不需要知道具体产品的类名。
++ 一个具体产品对应一个类，当具体产品过多时会使系统类的数目过多，增加系统复杂度。
++ 每增加一个产品时，都需要一个产品类和一个产品工厂类，使得类的个数成倍增加，导致系统类数目过多，复杂性增加。
+
+#### 抽象工厂模式
+
+即工厂的工厂。抽象工厂能生产多个不同类型的产品，而简单工厂和工厂方法都只能生产出一种产品。实际上是工厂方法的进一步抽象。
+
+已知AnimalFactory和BallFactory都是实现Factory接口的类，所以可以定义一个综合的抽象接口AbstractFactory，使用Factory接口，然后这种接口实现的具体类AbstractFactoryImpl中Factory接口的实现类AnimalFactory和BallFactory实例化。
+
+```java
+// AbstractFactory.java
+package org.didnelpsun.factory;
+
+// 抽象工厂模式接口
+public interface AbstractFactory {
+    // 创建动物
+    Factory createAnimal();
+    // 创建球类
+    Factory createBall();
+}
+```
+
+```java
+// AbstractFactoryImpl.java
+package org.didnelpsun.factory;
+
+// 抽象工厂模式
+public class AbstractFactoryImpl implements AbstractFactory {
+    @Override
+    public Factory createAnimal() {
+        return new AnimalFactory();
+    }
+
+    @Override
+    public Factory createBall() {
+        return new BallFactory();
+    }
+}
+```
 
 ### 单例模式
 
